@@ -3,10 +3,14 @@ import subprocess
 import json
 
 class ProjectBuilder:
-    def __init__(self, config_path='ProjectConfig.json'):
+    def __init__(self, config_path='ProjectConfigs.json', config_clone_path='ProjectConfigFormat.json'):
         
-        with open(config_path, 'r', encoding='utf-8') as f:
-            self.data = json.load(f)
+        if not os.path.exists(config_path):
+            with open(config_clone_path, 'r', encoding='utf-8') as f:
+                self.data = json.load(f)
+        else:
+            with open(config_path, 'r', encoding='utf-8') as f:
+                self.data = json.load(f)
         
         # Thiết lập các biến chính (Context)
         self.ctx = self.data['settings']

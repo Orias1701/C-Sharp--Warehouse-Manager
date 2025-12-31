@@ -1,7 +1,7 @@
 {
     "settings": {
-        "PROJECT_TYPE": "Projects",
-        "PROJECT_NAME": "WindowsApp",
+        "PROJECT_TYPE": "Assignments",
+        "PROJECT_NAME": "Test",
         "SQL_HOST": "Localhost",
         "SQL_USER": "root",
         "SQL_PASSWORD": "LongK@170105",

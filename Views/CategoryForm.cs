@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Windows.Forms;
 using WarehouseManagement.Controllers;
 using WarehouseManagement.Models;
@@ -6,7 +7,7 @@ using WarehouseManagement.Models;
 namespace WarehouseManagement.Views
 {
     /// <summary>
-    /// Form Thêm/Sửa danh mục sản phẩm - Đồng bộ với ProductForm
+    /// Form Thêm/Sửa danh mục sản phẩm
     /// </summary>
     public partial class CategoryForm : Form
     {
@@ -20,14 +21,14 @@ namespace WarehouseManagement.Views
             _categoryId = categoryId;
             _productController = new ProductController();
             InitializeComponent();
-            Text = _categoryId.HasValue ? "Sửa danh mục" : "Thêm danh mục";
+            Text = categoryId.HasValue ? "Sửa danh mục" : "Thêm danh mục";
         }
 
         private void InitializeComponent()
         {
             SuspendLayout();
 
-            // Layout standard đồng bộ với ProductForm
+            // Layout standard: Label 100px, Input 300px, spacing 35px
             const int LABEL_WIDTH = 100;
             const int INPUT_WIDTH = 300;
             const int LABEL_LEFT = 20;
@@ -36,45 +37,15 @@ namespace WarehouseManagement.Views
             const int BUTTON_WIDTH = 100;
             const int BUTTON_HEIGHT = 35;
 
-            // Label và Input
-            Label lblCategoryName = new Label { 
-                Text = "Tên danh mục:", 
-                Left = LABEL_LEFT, 
-                Top = 30, 
-                Width = LABEL_WIDTH, 
-                AutoSize = false, 
-                TextAlign = System.Drawing.ContentAlignment.MiddleLeft 
-            };
-            
-            txtCategoryName = new TextBox { 
-                Left = INPUT_LEFT, 
-                Top = 30, 
-                Width = INPUT_WIDTH, 
-                Height = 25 
-            };
+            // Labels và TextBoxes
+            Label lblCategoryName = new Label { Text = "Tên danh mục:", Left = LABEL_LEFT, Top = 20, Width = LABEL_WIDTH, AutoSize = false, TextAlign = System.Drawing.ContentAlignment.MiddleLeft };
+            txtCategoryName = new TextBox { Left = INPUT_LEFT, Top = 20, Width = INPUT_WIDTH, Height = 25 };
 
-            // Nút điều khiển bố trí ở phía dưới
-            btnSave = new Button { 
-                Text = "💾 Lưu", 
-                Left = INPUT_LEFT, 
-                Top = 30 + ITEM_SPACING + 20, 
-                Width = BUTTON_WIDTH, 
-                Height = BUTTON_HEIGHT 
-            };
-            
-            btnCancel = new Button { 
-                Text = "❌ Hủy", 
-                Left = INPUT_LEFT + BUTTON_WIDTH + 15, 
-                Top = 30 + ITEM_SPACING + 20, 
-                Width = BUTTON_WIDTH, 
-                Height = BUTTON_HEIGHT, 
-                DialogResult = DialogResult.Cancel 
-            };
+            btnSave = new Button { Text = "💾 Lưu", Left = INPUT_LEFT, Top = 20 + ITEM_SPACING + 10, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT };
+            btnCancel = new Button { Text = "❌ Hủy", Left = INPUT_LEFT + BUTTON_WIDTH + 15, Top = 20 + ITEM_SPACING + 10, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT, DialogResult = DialogResult.Cancel };
 
             btnSave.Click += BtnSave_Click;
-            btnCancel.Click += (s, e) => Close();
 
-            // Cấu hình Form
             Controls.Add(lblCategoryName);
             Controls.Add(txtCategoryName);
             Controls.Add(btnSave);
@@ -97,42 +68,44 @@ namespace WarehouseManagement.Views
         {
             if (_categoryId.HasValue)
             {
-                LoadCategoryData();
+                LoadCategory();
             }
         }
 
-        private void LoadCategoryData()
+        private void LoadCategory()
         {
             try
             {
-                // Giả định controller có hàm lấy category theo ID
-                var categories = _productController.GetAllCategories();
-                var cat = categories.Find(c => c.CategoryID == _categoryId.Value);
-                if (cat != null)
+                List<Category> categories = _productController.GetAllCategories();
+                Category category = categories.Find(c => c.CategoryID == _categoryId.Value);
+                if (category != null)
                 {
-                    txtCategoryName.Text = cat.CategoryName;
+                    txtCategoryName.Text = category.CategoryName;
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("❌ Lỗi tải dữ liệu: " + ex.Message);
+                MessageBox.Show("Lỗi: " + ex.Message);
             }
         }
 
+        /// <summary>
+        /// Nút Lưu
+        /// </summary>
         private void BtnSave_Click(object sender, EventArgs e)
         {
             // Frontend validation
-            string catName = txtCategoryName.Text.Trim();
-            if (string.IsNullOrWhiteSpace(catName))
+            string categoryName = txtCategoryName.Text.Trim();
+            if (string.IsNullOrWhiteSpace(categoryName))
             {
                 MessageBox.Show("❌ Vui lòng nhập tên danh mục");
                 txtCategoryName.Focus();
                 return;
             }
 
-            if (catName.Length > 100)
+            if (categoryName.Length > 100)
             {
-                MessageBox.Show("❌ Tên danh mục không quá 100 ký tự");
+                MessageBox.Show("❌ Tên danh mục không được vượt quá 100 ký tự");
                 txtCategoryName.Focus();
                 return;
             }
@@ -141,26 +114,36 @@ namespace WarehouseManagement.Views
             {
                 if (_categoryId.HasValue)
                 {
-                    _productController.UpdateCategory(new Category 
-                    { 
-                        CategoryID = _categoryId.Value, 
-                        CategoryName = catName 
+                    _productController.UpdateCategory(new Category
+                    {
+                        CategoryID = _categoryId.Value,
+                        CategoryName = categoryName
                     });
-                    MessageBox.Show("✅ Cập nhật danh mục thành công!");
+                    MessageBox.Show("Cập nhật danh mục thành công!");
                 }
                 else
                 {
-                    _productController.AddCategory(new Category { CategoryName = catName });
-                    MessageBox.Show("✅ Thêm danh mục thành công!");
+                    _productController.AddCategory(new Category
+                    {
+                        CategoryName = categoryName
+                    });
+                    MessageBox.Show("Thêm danh mục thành công!");
                 }
-
                 DialogResult = DialogResult.OK;
                 Close();
             }
             catch (Exception ex)
             {
-                MessageBox.Show("❌ Lỗi: " + ex.Message);
+                MessageBox.Show("Lỗi: " + ex.Message);
             }
+        }
+
+        /// <summary>
+        /// Nút Hủy
+        /// </summary>
+        private void BtnCancel_Click(object sender, EventArgs e)
+        {
+            Close();
         }
     }
 }

@@ -20,7 +20,6 @@ namespace WarehouseManagement.Views
         private DataGridView dgvTransactions;
         private TextBox txtSearch;
         private Button btnAddProduct, btnEditProduct, btnDeleteProduct;
-        private Button btnAddCategory, btnEditCategory, btnDeleteCategory;
         private Button btnImport, btnExport, btnUndo, btnReport;
         private Label lblTotalValue;
 
@@ -51,21 +50,7 @@ namespace WarehouseManagement.Views
 
             // Tab 1.5: Danh mục
             TabPage tabCategories = new TabPage("Danh Mục");
-            Button btnOpenCategories = new Button 
-            { 
-                Text = "📂 Quản Lý Danh Mục", 
-                Width = 150, 
-                Height = 45,
-                Top = 20,
-                Left = 20,
-                Font = new Font("Arial", 11, FontStyle.Regular)
-            };
-            btnOpenCategories.Click += (s, e) => 
-            {
-                CategoryForm catForm = new CategoryForm();
-                catForm.ShowDialog();
-            };
-            tabCategories.Controls.Add(btnOpenCategories);
+            tabCategories.Controls.Add(CreateCategoriesTab());
             tabControl.TabPages.Add(tabCategories);
 
             // Tab 2: Giao dịch
@@ -156,6 +141,27 @@ namespace WarehouseManagement.Views
             return panel;
         }
 
+        private Control CreateCategoriesTab()
+        {
+            Panel panel = new Panel { Dock = DockStyle.Fill };
+
+            // DataGridView
+            dgvCategories = new DataGridView
+            {
+                Dock = DockStyle.Fill,
+                AutoGenerateColumns = false,
+                AllowUserToAddRows = false,
+                ReadOnly = true,
+                BackgroundColor = Color.White
+            };
+
+            dgvCategories.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "ID", DataPropertyName = "CategoryID", Width = 50 });
+            dgvCategories.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Tên Danh Mục", DataPropertyName = "CategoryName", Width = 400 });
+
+            panel.Controls.Add(dgvCategories);
+            return panel;
+        }
+
         private Control CreateTransactionsTab()
         {
             Panel panel = new Panel { Dock = DockStyle.Fill };
@@ -196,9 +202,6 @@ namespace WarehouseManagement.Views
             return panel;
         }
 
-        /// <summary>
-        /// Hàm khởi tạo form (gọi khi form load)
-        /// </summary>
         private void MainForm_Load(object sender, EventArgs e)
         {
             // Kiểm tra quyền user
@@ -209,6 +212,7 @@ namespace WarehouseManagement.Views
             }
 
             LoadProducts();
+            LoadCategories();
             LoadTransactions();
             UpdateTotalValue();
         }
@@ -223,6 +227,19 @@ namespace WarehouseManagement.Views
             catch (Exception ex)
             {
                 MessageBox.Show("Lỗi tải dữ liệu: " + ex.Message);
+            }
+        }
+
+        private void LoadCategories()
+        {
+            try
+            {
+                List<Category> categories = _productController.GetAllCategories();
+                dgvCategories.DataSource = categories;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi tải danh mục: " + ex.Message);
             }
         }
 
@@ -280,45 +297,95 @@ namespace WarehouseManagement.Views
 
         private void BtnAddProduct_Click(object sender, EventArgs e)
         {
-            ProductForm form = new ProductForm();
-            if (form.ShowDialog() == DialogResult.OK)
+            if (tabControl.SelectedIndex == 0) // Sản Phẩm
             {
-                LoadProducts();
-                UpdateTotalValue();
+                ProductForm form = new ProductForm();
+                if (form.ShowDialog() == DialogResult.OK)
+                {
+                    LoadProducts();
+                    UpdateTotalValue();
+                }
+            }
+            else if (tabControl.SelectedIndex == 1) // Danh Mục
+            {
+                CategoryForm form = new CategoryForm();
+                if (form.ShowDialog() == DialogResult.OK)
+                {
+                    LoadCategories();
+                    LoadProducts();
+                }
             }
         }
 
         private void BtnEditProduct_Click(object sender, EventArgs e)
         {
-            if (dgvProducts.SelectedRows.Count == 0)
+            if (tabControl.SelectedIndex == 0) // Sản Phẩm
             {
-                MessageBox.Show("Vui lòng chọn sản phẩm");
-                return;
-            }
+                if (dgvProducts.SelectedRows.Count == 0)
+                {
+                    MessageBox.Show("Vui lòng chọn sản phẩm");
+                    return;
+                }
 
-            int productId = (int)dgvProducts.SelectedRows[0].Cells[0].Value;
-            ProductForm form = new ProductForm(productId);
-            if (form.ShowDialog() == DialogResult.OK)
+                int productId = (int)dgvProducts.SelectedRows[0].Cells[0].Value;
+                ProductForm form = new ProductForm(productId);
+                if (form.ShowDialog() == DialogResult.OK)
+                {
+                    LoadProducts();
+                    UpdateTotalValue();
+                }
+            }
+            else if (tabControl.SelectedIndex == 1) // Danh Mục
             {
-                LoadProducts();
-                UpdateTotalValue();
+                if (dgvCategories.SelectedRows.Count == 0)
+                {
+                    MessageBox.Show("Vui lòng chọn danh mục");
+                    return;
+                }
+
+                int categoryId = (int)dgvCategories.SelectedRows[0].Cells[0].Value;
+                CategoryForm form = new CategoryForm(categoryId);
+                if (form.ShowDialog() == DialogResult.OK)
+                {
+                    LoadCategories();
+                    LoadProducts();
+                }
             }
         }
 
         private void BtnDeleteProduct_Click(object sender, EventArgs e)
         {
-            if (dgvProducts.SelectedRows.Count == 0)
+            if (tabControl.SelectedIndex == 0) // Sản Phẩm
             {
-                MessageBox.Show("Vui lòng chọn sản phẩm");
-                return;
-            }
+                if (dgvProducts.SelectedRows.Count == 0)
+                {
+                    MessageBox.Show("Vui lòng chọn sản phẩm");
+                    return;
+                }
 
-            if (MessageBox.Show("Bạn chắc chắn muốn xóa?", "Xác nhận", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                if (MessageBox.Show("Bạn chắc chắn muốn xóa?", "Xác nhận", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                {
+                    int productId = (int)dgvProducts.SelectedRows[0].Cells[0].Value;
+                    _productController.DeleteProduct(productId);
+                    LoadProducts();
+                    UpdateTotalValue();
+                }
+            }
+            else if (tabControl.SelectedIndex == 1) // Danh Mục
             {
-                int productId = (int)dgvProducts.SelectedRows[0].Cells[0].Value;
-                _productController.DeleteProduct(productId);
-                LoadProducts();
-                UpdateTotalValue();
+                if (dgvCategories.SelectedRows.Count == 0)
+                {
+                    MessageBox.Show("Vui lòng chọn danh mục");
+                    return;
+                }
+
+                if (MessageBox.Show("Bạn chắc chắn muốn xóa?", "Xác nhận", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                {
+                    int categoryId = (int)dgvCategories.SelectedRows[0].Cells[0].Value;
+                    _productController.DeleteCategory(categoryId);
+                    LoadCategories();
+                    LoadProducts();
+                }
             }
         }
 

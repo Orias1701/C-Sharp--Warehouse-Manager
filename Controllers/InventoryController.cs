@@ -56,5 +56,21 @@ namespace WarehouseManagement.Controllers
         {
             return _inventoryService.UndoLastAction();
         }
+
+        /// <summary>
+        /// Lấy danh sách tất cả giao dịch
+        /// </summary>
+        public List<StockTransaction> GetAllTransactions()
+        {
+            return _inventoryService.GetAllTransactions();
+        }
+
+        /// <summary>
+        /// Lấy danh sách nhật ký hành động
+        /// </summary>
+        public List<ActionLog> GetAllLogs()
+        {
+            return _inventoryService.GetAllLogs();
+        }
     }
 }

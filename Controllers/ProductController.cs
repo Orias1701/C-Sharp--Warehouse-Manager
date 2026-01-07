@@ -96,5 +96,37 @@ namespace WarehouseManagement.Controllers
         {
             return _productService.IsProductLowStock(productId);
         }
+
+        /// <summary>
+        /// Lấy danh sách tất cả danh mục
+        /// </summary>
+        public List<Category> GetAllCategories()
+        {
+            return _productService.GetAllCategories();
+        }
+
+        /// <summary>
+        /// Thêm danh mục mới
+        /// </summary>
+        public int AddCategory(Category category)
+        {
+            return _productService.AddCategory(category.CategoryName);
+        }
+
+        /// <summary>
+        /// Cập nhật danh mục
+        /// </summary>
+        public bool UpdateCategory(Category category)
+        {
+            return _productService.UpdateCategory(category.CategoryID, category.CategoryName);
+        }
+
+        /// <summary>
+        /// Xóa danh mục
+        /// </summary>
+        public bool DeleteCategory(int categoryId)
+        {
+            return _productService.DeleteCategory(categoryId);
+        }
     }
 }

@@ -34,21 +34,30 @@ namespace WarehouseManagement.Views
         {
             SuspendLayout();
 
+            // Layout standard: Label 100px, Input 300px, spacing 20px
+            const int LABEL_WIDTH = 100;
+            const int INPUT_WIDTH = 300;
+            const int LABEL_LEFT = 20;
+            const int INPUT_LEFT = 130;
+            const int ITEM_SPACING = 40;
+            const int BUTTON_WIDTH = 100;
+            const int BUTTON_HEIGHT = 35;
+
             // Labels và controls
-            Label lblProduct = new Label { Text = "Sản phẩm:", Left = 20, Top = 20, Width = 100 };
-            cmbProduct = new ComboBox { Left = 130, Top = 20, Width = 250, Height = 25, DropDownStyle = ComboBoxStyle.DropDownList };
+            Label lblProduct = new Label { Text = "Sản phẩm:", Left = LABEL_LEFT, Top = 20, Width = LABEL_WIDTH, AutoSize = false, TextAlign = System.Drawing.ContentAlignment.MiddleLeft };
+            cmbProduct = new ComboBox { Left = INPUT_LEFT, Top = 20, Width = INPUT_WIDTH, Height = 25, DropDownStyle = ComboBoxStyle.DropDownList };
 
-            Label lblQuantity = new Label { Text = "Số lượng:", Left = 20, Top = 60, Width = 100 };
-            txtQuantity = new TextBox { Left = 130, Top = 60, Width = 100, Height = 25 };
+            Label lblQuantity = new Label { Text = "Số lượng:", Left = LABEL_LEFT, Top = 20 + ITEM_SPACING, Width = LABEL_WIDTH, AutoSize = false, TextAlign = System.Drawing.ContentAlignment.MiddleLeft };
+            txtQuantity = new TextBox { Left = INPUT_LEFT, Top = 20 + ITEM_SPACING, Width = 140, Height = 25 };
 
-            Label lblPrice = new Label { Text = "Đơn giá:", Left = 250, Top = 60, Width = 100 };
-            txtUnitPrice = new TextBox { Left = 360, Top = 60, Width = 120, Height = 25 };
+            Label lblPrice = new Label { Text = "Đơn giá:", Left = LABEL_LEFT + 160, Top = 20 + ITEM_SPACING, Width = 60, AutoSize = false, TextAlign = System.Drawing.ContentAlignment.MiddleLeft };
+            txtUnitPrice = new TextBox { Left = LABEL_LEFT + 230, Top = 20 + ITEM_SPACING, Width = 130, Height = 25 };
 
-            Label lblNote = new Label { Text = "Ghi chú:", Left = 20, Top = 100, Width = 100 };
-            txtNote = new TextBox { Left = 130, Top = 100, Width = 350, Height = 50, Multiline = true };
+            Label lblNote = new Label { Text = "Ghi chú:", Left = LABEL_LEFT, Top = 20 + ITEM_SPACING * 2, Width = LABEL_WIDTH, AutoSize = false, TextAlign = System.Drawing.ContentAlignment.TopLeft };
+            txtNote = new TextBox { Left = INPUT_LEFT, Top = 20 + ITEM_SPACING * 2, Width = INPUT_WIDTH, Height = 50, Multiline = true };
 
-            btnAddDetail = new Button { Text = "➕ Thêm", Left = 130, Top = 160, Width = 80, Height = 30 };
-            btnRemoveDetail = new Button { Text = "🗑️ Xóa", Left = 220, Top = 160, Width = 80, Height = 30 };
+            btnAddDetail = new Button { Text = "➕ Thêm", Left = INPUT_LEFT, Top = 20 + ITEM_SPACING * 3 + 20, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT };
+            btnRemoveDetail = new Button { Text = "🗑️ Xóa", Left = INPUT_LEFT + BUTTON_WIDTH + 10, Top = 20 + ITEM_SPACING * 3 + 20, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT };
 
             btnAddDetail.Click += BtnAddDetail_Click;
             btnRemoveDetail.Click += BtnRemoveDetail_Click;
@@ -56,20 +65,21 @@ namespace WarehouseManagement.Views
             // DataGridView
             dgvDetails = new DataGridView
             {
-                Dock = DockStyle.Bottom,
-                Height = 200,
+                Left = LABEL_LEFT,
+                Top = 20 + ITEM_SPACING * 4 + 30,
+                Width = 520,
+                Height = 180,
                 AutoGenerateColumns = false,
                 AllowUserToAddRows = false,
-                ReadOnly = true,
-                Location = new System.Drawing.Point(0, 250)
+                ReadOnly = true
             };
 
-            dgvDetails.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Sản phẩm", DataPropertyName = "ProductName", Width = 200 });
+            dgvDetails.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Sản phẩm", DataPropertyName = "ProductName", Width = 250 });
             dgvDetails.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Số lượng", DataPropertyName = "Quantity", Width = 80 });
-            dgvDetails.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Đơn giá", DataPropertyName = "UnitPrice", Width = 100, DefaultCellStyle = new DataGridViewCellStyle { Format = "C" } });
+            dgvDetails.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Đơn giá", DataPropertyName = "UnitPrice", Width = 140, DefaultCellStyle = new DataGridViewCellStyle { Format = "C" } });
 
-            btnSaveTransaction = new Button { Text = "💾 Lưu Phiếu", Left = 130, Top = 200, Width = 100, Height = 35 };
-            btnCancel = new Button { Text = "❌ Hủy", Left = 240, Top = 200, Width = 100, Height = 35, DialogResult = DialogResult.Cancel };
+            btnSaveTransaction = new Button { Text = "💾 Lưu Phiếu", Left = INPUT_LEFT, Top = 20 + ITEM_SPACING * 4 + 220, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT };
+            btnCancel = new Button { Text = "❌ Hủy", Left = INPUT_LEFT + BUTTON_WIDTH + 10, Top = 20 + ITEM_SPACING * 4 + 220, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT, DialogResult = DialogResult.Cancel };
 
             btnSaveTransaction.Click += BtnSaveTransaction_Click;
 
@@ -88,7 +98,7 @@ namespace WarehouseManagement.Views
             Controls.Add(dgvDetails);
 
             Width = 600;
-            Height = 500;
+            Height = 580;
             StartPosition = FormStartPosition.CenterParent;
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false;
@@ -121,27 +131,60 @@ namespace WarehouseManagement.Views
         {
             if (cmbProduct.SelectedIndex < 0)
             {
-                MessageBox.Show("Vui lòng chọn sản phẩm");
+                MessageBox.Show("❌ Vui lòng chọn sản phẩm");
+                cmbProduct.Focus();
                 return;
             }
 
-            if (!int.TryParse(txtQuantity.Text, out int quantity) || quantity <= 0)
+            if (!int.TryParse(txtQuantity.Text, out int quantity))
             {
-                MessageBox.Show("Số lượng không hợp lệ");
+                MessageBox.Show("❌ Số lượng phải là số nguyên");
+                txtQuantity.Focus();
                 return;
             }
 
-            if (!decimal.TryParse(txtUnitPrice.Text, out decimal price) || price < 0)
+            if (quantity <= 0)
             {
-                MessageBox.Show("Đơn giá không hợp lệ");
+                MessageBox.Show("❌ Số lượng phải lớn hơn 0");
+                txtQuantity.Focus();
+                return;
+            }
+
+            if (quantity > 999999)
+            {
+                MessageBox.Show("❌ Số lượng quá lớn (tối đa: 999,999)");
+                txtQuantity.Focus();
+                return;
+            }
+
+            if (!decimal.TryParse(txtUnitPrice.Text, out decimal price))
+            {
+                MessageBox.Show("❌ Đơn giá phải là số");
+                txtUnitPrice.Focus();
+                return;
+            }
+
+            if (price < 0)
+            {
+                MessageBox.Show("❌ Đơn giá không được âm");
+                txtUnitPrice.Focus();
+                return;
+            }
+
+            if (price > 999999999)
+            {
+                MessageBox.Show("❌ Đơn giá quá lớn (tối đa: 999,999,999)");
+                txtUnitPrice.Focus();
                 return;
             }
 
             if (cmbProduct.SelectedValue == null)
             {
-                MessageBox.Show("Vui lòng chọn sản phẩm hợp lệ từ danh sách.");
+                MessageBox.Show("❌ Vui lòng chọn sản phẩm hợp lệ từ danh sách");
+                cmbProduct.Focus();
                 return;
             }
+
             int productId = (int)cmbProduct.SelectedValue;
             
             // Kiểm tra tồn kho nếu là Xuất
@@ -150,12 +193,13 @@ namespace WarehouseManagement.Views
                 Product product = _productController.GetProductById(productId);
                 if (product == null)
                 {
-                    MessageBox.Show("Không tìm thấy thông tin sản phẩm.");
+                    MessageBox.Show("❌ Không tìm thấy thông tin sản phẩm");
                     return;
                 }
                 if (product.Quantity < quantity)
                 {
-                    MessageBox.Show($"Tồn kho không đủ (hiện có: {product.Quantity})");
+                    MessageBox.Show($"❌ Tồn kho không đủ (hiện có: {product.Quantity})");
+                    txtQuantity.Focus();
                     return;
                 }
             }
@@ -182,7 +226,7 @@ namespace WarehouseManagement.Views
         {
             if (dgvDetails.SelectedRows.Count == 0)
             {
-                MessageBox.Show("Vui lòng chọn dòng để xóa");
+                MessageBox.Show("❌ Vui lòng chọn dòng để xóa");
                 return;
             }
 
@@ -198,7 +242,7 @@ namespace WarehouseManagement.Views
         {
             if (_details.Count == 0)
             {
-                MessageBox.Show("Vui lòng thêm ít nhất một sản phẩm");
+                MessageBox.Show("❌ Vui lòng thêm ít nhất một sản phẩm");
                 return;
             }
 
@@ -216,13 +260,14 @@ namespace WarehouseManagement.Views
                     }
                 }
 
-                MessageBox.Show("Lưu phiếu thành công!");
+                MessageBox.Show("✅ Lưu phiếu thành công!");
                 DialogResult = DialogResult.OK;
                 Close();
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi: " + ex.Message);
-            }        }
+                MessageBox.Show("❌ Lỗi: " + ex.Message);
+            }
+        }
     }
 }

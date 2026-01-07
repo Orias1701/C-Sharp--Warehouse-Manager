@@ -30,9 +30,21 @@ namespace WarehouseManagement.Services
         {
             try
             {
+                // Validation
+                if (productId <= 0)
+                    throw new ArgumentException("ID sản phẩm không hợp lệ");
+                if (quantity <= 0)
+                    throw new ArgumentException("Số lượng nhập phải lớn hơn 0");
+                if (quantity > 999999)
+                    throw new ArgumentException("Số lượng quá lớn");
+                if (unitPrice < 0)
+                    throw new ArgumentException("Đơn giá không được âm");
+                if (unitPrice > 999999999)
+                    throw new ArgumentException("Đơn giá quá lớn");
+
                 var product = _productRepo.GetProductById(productId);
                 if (product == null)
-                    return false;
+                    throw new ArgumentException("Sản phẩm không tồn tại");
 
                 // Lưu dữ liệu cũ trước khi thay đổi
                 var oldData = new { product.Quantity, product.ProductID };
@@ -42,7 +54,8 @@ namespace WarehouseManagement.Services
                 {
                     Type = "Import",
                     DateCreated = DateTime.Now,
-                    Note = note
+                    CreatedByUserID = GlobalUser.CurrentUser?.UserID ?? 0,
+                    Note = string.IsNullOrWhiteSpace(note) ? "" : note.Trim()
                 };
                 int transId = _transactionRepo.CreateTransaction(transaction);
 
@@ -51,6 +64,7 @@ namespace WarehouseManagement.Services
                 {
                     TransactionID = transId,
                     ProductID = productId,
+                    ProductName = product.ProductName,
                     Quantity = quantity,
                     UnitPrice = unitPrice
                 };
@@ -58,6 +72,9 @@ namespace WarehouseManagement.Services
 
                 // Cập nhật tồn kho
                 int newQuantity = product.Quantity + quantity;
+                if (newQuantity > 999999)
+                    throw new Exception("Tồn kho sẽ vượt quá giới hạn cho phép");
+
                 _productRepo.UpdateQuantity(productId, newQuantity);
 
                 // Ghi nhật ký
@@ -81,12 +98,24 @@ namespace WarehouseManagement.Services
         {
             try
             {
+                // Validation
+                if (productId <= 0)
+                    throw new ArgumentException("ID sản phẩm không hợp lệ");
+                if (quantity <= 0)
+                    throw new ArgumentException("Số lượng xuất phải lớn hơn 0");
+                if (quantity > 999999)
+                    throw new ArgumentException("Số lượng quá lớn");
+                if (unitPrice < 0)
+                    throw new ArgumentException("Đơn giá không được âm");
+                if (unitPrice > 999999999)
+                    throw new ArgumentException("Đơn giá quá lớn");
+
                 var product = _productRepo.GetProductById(productId);
                 if (product == null)
-                    return false;
+                    throw new ArgumentException("Sản phẩm không tồn tại");
 
                 if (product.Quantity < quantity)
-                    throw new Exception("Tồn kho không đủ để xuất");
+                    throw new Exception("Tồn kho không đủ để xuất (hiện có: " + product.Quantity + ")");
 
                 // Lưu dữ liệu cũ
                 var oldData = new { product.Quantity, product.ProductID };
@@ -96,7 +125,8 @@ namespace WarehouseManagement.Services
                 {
                     Type = "Export",
                     DateCreated = DateTime.Now,
-                    Note = note
+                    CreatedByUserID = GlobalUser.CurrentUser?.UserID ?? 0,
+                    Note = string.IsNullOrWhiteSpace(note) ? "" : note.Trim()
                 };
                 int transId = _transactionRepo.CreateTransaction(transaction);
 
@@ -105,6 +135,7 @@ namespace WarehouseManagement.Services
                 {
                     TransactionID = transId,
                     ProductID = productId,
+                    ProductName = product.ProductName,
                     Quantity = quantity,
                     UnitPrice = unitPrice
                 };
@@ -190,6 +221,36 @@ namespace WarehouseManagement.Services
             catch (Exception ex)
             {
                 throw new Exception("Lỗi khi hoàn tác: " + ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Lấy danh sách tất cả giao dịch
+        /// </summary>
+        public List<StockTransaction> GetAllTransactions()
+        {
+            try
+            {
+                return _transactionRepo.GetAllTransactions();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khi lấy danh sách giao dịch: " + ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Lấy danh sách nhật ký hành động
+        /// </summary>
+        public List<ActionLog> GetAllLogs()
+        {
+            try
+            {
+                return _logRepo.GetAllLogs();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khi lấy danh sách nhật ký: " + ex.Message);
             }
         }
     }

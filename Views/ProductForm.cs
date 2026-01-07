@@ -28,25 +28,34 @@ namespace WarehouseManagement.Views
         {
             SuspendLayout();
 
-            // Labels và TextBoxes
-            Label lblProductName = new Label { Text = "Tên sản phẩm:", Left = 20, Top = 20, Width = 120 };
-            txtProductName = new TextBox { Left = 150, Top = 20, Width = 300, Height = 25 };
+            // Layout standard: Label 100px, Input 300px, spacing 20px
+            const int LABEL_WIDTH = 100;
+            const int INPUT_WIDTH = 300;
+            const int LABEL_LEFT = 20;
+            const int INPUT_LEFT = 130;
+            const int ITEM_SPACING = 35;
+            const int BUTTON_WIDTH = 100;
+            const int BUTTON_HEIGHT = 35;
 
-            Label lblCategory = new Label { Text = "Danh mục:", Left = 20, Top = 60, Width = 120 };
-            cmbCategory = new ComboBox { Left = 150, Top = 60, Width = 300, Height = 25, DropDownStyle = ComboBoxStyle.DropDownList };
+            // Labels và TextBoxes
+            Label lblProductName = new Label { Text = "Tên sản phẩm:", Left = LABEL_LEFT, Top = 20, Width = LABEL_WIDTH, AutoSize = false, TextAlign = System.Drawing.ContentAlignment.MiddleLeft };
+            txtProductName = new TextBox { Left = INPUT_LEFT, Top = 20, Width = INPUT_WIDTH, Height = 25 };
+
+            Label lblCategory = new Label { Text = "Danh mục:", Left = LABEL_LEFT, Top = 20 + ITEM_SPACING, Width = LABEL_WIDTH, AutoSize = false, TextAlign = System.Drawing.ContentAlignment.MiddleLeft };
+            cmbCategory = new ComboBox { Left = INPUT_LEFT, Top = 20 + ITEM_SPACING, Width = INPUT_WIDTH, Height = 25, DropDownStyle = ComboBoxStyle.DropDownList };
             cmbCategory.Items.AddRange(new[] { "Thực phẩm", "Điện tử", "Quần áo", "Khác" });
 
-            Label lblPrice = new Label { Text = "Giá (VNĐ):", Left = 20, Top = 100, Width = 120 };
-            txtPrice = new TextBox { Left = 150, Top = 100, Width = 300, Height = 25 };
+            Label lblPrice = new Label { Text = "Giá (VNĐ):", Left = LABEL_LEFT, Top = 20 + ITEM_SPACING * 2, Width = LABEL_WIDTH, AutoSize = false, TextAlign = System.Drawing.ContentAlignment.MiddleLeft };
+            txtPrice = new TextBox { Left = INPUT_LEFT, Top = 20 + ITEM_SPACING * 2, Width = INPUT_WIDTH, Height = 25 };
 
-            Label lblQuantity = new Label { Text = "Số lượng:", Left = 20, Top = 140, Width = 120 };
-            txtQuantity = new TextBox { Left = 150, Top = 140, Width = 300, Height = 25 };
+            Label lblQuantity = new Label { Text = "Số lượng:", Left = LABEL_LEFT, Top = 20 + ITEM_SPACING * 3, Width = LABEL_WIDTH, AutoSize = false, TextAlign = System.Drawing.ContentAlignment.MiddleLeft };
+            txtQuantity = new TextBox { Left = INPUT_LEFT, Top = 20 + ITEM_SPACING * 3, Width = INPUT_WIDTH, Height = 25 };
 
-            Label lblMinThreshold = new Label { Text = "Ngưỡng tối thiểu:", Left = 20, Top = 180, Width = 120 };
-            txtMinThreshold = new TextBox { Left = 150, Top = 180, Width = 300, Height = 25 };
+            Label lblMinThreshold = new Label { Text = "Ngưỡng tối thiểu:", Left = LABEL_LEFT, Top = 20 + ITEM_SPACING * 4, Width = LABEL_WIDTH, AutoSize = false, TextAlign = System.Drawing.ContentAlignment.MiddleLeft };
+            txtMinThreshold = new TextBox { Left = INPUT_LEFT, Top = 20 + ITEM_SPACING * 4, Width = INPUT_WIDTH, Height = 25 };
 
-            btnSave = new Button { Text = "💾 Lưu", Left = 150, Top = 220, Width = 100, Height = 35 };
-            btnCancel = new Button { Text = "❌ Hủy", Left = 270, Top = 220, Width = 100, Height = 35, DialogResult = DialogResult.Cancel };
+            btnSave = new Button { Text = "💾 Lưu", Left = INPUT_LEFT, Top = 20 + ITEM_SPACING * 5 + 10, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT };
+            btnCancel = new Button { Text = "❌ Hủy", Left = INPUT_LEFT + BUTTON_WIDTH + 15, Top = 20 + ITEM_SPACING * 5 + 10, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT, DialogResult = DialogResult.Cancel };
 
             btnSave.Click += BtnSave_Click;
 
@@ -63,13 +72,14 @@ namespace WarehouseManagement.Views
             Controls.Add(btnSave);
             Controls.Add(btnCancel);
 
-            Width = 500;
-            Height = 300;
+            Width = 520;
+            Height = 420;
             StartPosition = FormStartPosition.CenterParent;
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false;
             MinimizeBox = false;
             CancelButton = btnCancel;
+            Padding = new Padding(10);
 
             Load += ProductForm_Load;
             ResumeLayout(false);
@@ -112,27 +122,89 @@ namespace WarehouseManagement.Views
         /// </summary>
         private void BtnSave_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(txtProductName.Text))
+            // Frontend validation
+            string productName = txtProductName.Text.Trim();
+            if (string.IsNullOrWhiteSpace(productName))
             {
-                MessageBox.Show("Vui lòng nhập tên sản phẩm");
+                MessageBox.Show("❌ Vui lòng nhập tên sản phẩm");
+                txtProductName.Focus();
                 return;
             }
 
-            if (!decimal.TryParse(txtPrice.Text, out decimal price) || price < 0)
+            if (productName.Length > 200)
             {
-                MessageBox.Show("Giá không hợp lệ");
+                MessageBox.Show("❌ Tên sản phẩm không được vượt quá 200 ký tự");
+                txtProductName.Focus();
                 return;
             }
 
-            if (!int.TryParse(txtQuantity.Text, out int quantity) || quantity < 0)
+            if (!decimal.TryParse(txtPrice.Text, out decimal price))
             {
-                MessageBox.Show("Số lượng không hợp lệ");
+                MessageBox.Show("❌ Giá phải là số");
+                txtPrice.Focus();
                 return;
             }
 
-            if (!int.TryParse(txtMinThreshold.Text, out int minThreshold) || minThreshold < 0)
+            if (price < 0)
             {
-                MessageBox.Show("Ngưỡng tối thiểu không hợp lệ");
+                MessageBox.Show("❌ Giá không được âm");
+                txtPrice.Focus();
+                return;
+            }
+
+            if (price > 999999999)
+            {
+                MessageBox.Show("❌ Giá quá lớn (tối đa: 999,999,999)");
+                txtPrice.Focus();
+                return;
+            }
+
+            if (!int.TryParse(txtQuantity.Text, out int quantity))
+            {
+                MessageBox.Show("❌ Số lượng phải là số nguyên");
+                txtQuantity.Focus();
+                return;
+            }
+
+            if (quantity < 0)
+            {
+                MessageBox.Show("❌ Số lượng không được âm");
+                txtQuantity.Focus();
+                return;
+            }
+
+            if (quantity > 999999)
+            {
+                MessageBox.Show("❌ Số lượng quá lớn (tối đa: 999,999)");
+                txtQuantity.Focus();
+                return;
+            }
+
+            if (!int.TryParse(txtMinThreshold.Text, out int minThreshold))
+            {
+                MessageBox.Show("❌ Ngưỡng tối thiểu phải là số nguyên");
+                txtMinThreshold.Focus();
+                return;
+            }
+
+            if (minThreshold < 0)
+            {
+                MessageBox.Show("❌ Ngưỡng tối thiểu không được âm");
+                txtMinThreshold.Focus();
+                return;
+            }
+
+            if (minThreshold > quantity)
+            {
+                MessageBox.Show("❌ Ngưỡng tối thiểu không được vượt quá số lượng hiện tại");
+                txtMinThreshold.Focus();
+                return;
+            }
+
+            if (cmbCategory.SelectedIndex < 0)
+            {
+                MessageBox.Show("❌ Vui lòng chọn danh mục");
+                cmbCategory.Focus();
                 return;
             }
 

@@ -33,6 +33,7 @@ namespace WarehouseManagement.Repositories
                                     TransactionID = reader.GetInt32("TransactionID"),
                                     Type = reader.GetString("Type"),
                                     DateCreated = reader.GetDateTime("DateCreated"),
+                                    CreatedByUserID = reader.IsDBNull(reader.GetOrdinal("CreatedByUserID")) ? 0 : reader.GetInt32("CreatedByUserID"),
                                     Note = reader.IsDBNull(reader.GetOrdinal("Note")) ? "" : reader.GetString("Note")
                                 });
                             }
@@ -69,6 +70,7 @@ namespace WarehouseManagement.Repositories
                                     TransactionID = reader.GetInt32("TransactionID"),
                                     Type = reader.GetString("Type"),
                                     DateCreated = reader.GetDateTime("DateCreated"),
+                                    CreatedByUserID = reader.IsDBNull(reader.GetOrdinal("CreatedByUserID")) ? 0 : reader.GetInt32("CreatedByUserID"),
                                     Note = reader.IsDBNull(reader.GetOrdinal("Note")) ? "" : reader.GetString("Note")
                                 };
 
@@ -86,6 +88,7 @@ namespace WarehouseManagement.Repositories
                                                 DetailID = detailReader.GetInt32("DetailID"),
                                                 TransactionID = detailReader.GetInt32("TransactionID"),
                                                 ProductID = detailReader.GetInt32("ProductID"),
+                                                ProductName = detailReader.IsDBNull(detailReader.GetOrdinal("ProductName")) ? "" : detailReader.GetString("ProductName"),
                                                 Quantity = detailReader.GetInt32("Quantity"),
                                                 UnitPrice = detailReader.GetDecimal("UnitPrice")
                                             });
@@ -116,11 +119,12 @@ namespace WarehouseManagement.Repositories
                 {
                     conn.Open();
                     using (var cmd = new MySqlCommand(
-                        "INSERT INTO StockTransactions (Type, DateCreated, Note) " +
-                        "VALUES (@type, @date, @note); SELECT LAST_INSERT_ID();", conn))
+                        "INSERT INTO StockTransactions (Type, DateCreated, CreatedByUserID, Note) " +
+                        "VALUES (@type, @date, @userId, @note); SELECT LAST_INSERT_ID();", conn))
                     {
                         cmd.Parameters.AddWithValue("@type", transaction.Type);
                         cmd.Parameters.AddWithValue("@date", transaction.DateCreated);
+                        cmd.Parameters.AddWithValue("@userId", transaction.CreatedByUserID);
                         cmd.Parameters.AddWithValue("@note", transaction.Note ?? "");
                         return Convert.ToInt32(cmd.ExecuteScalar());
                     }
@@ -143,11 +147,12 @@ namespace WarehouseManagement.Repositories
                 {
                     conn.Open();
                     using (var cmd = new MySqlCommand(
-                        "INSERT INTO TransactionDetails (TransactionID, ProductID, Quantity, UnitPrice) " +
-                        "VALUES (@transId, @prodId, @qty, @price)", conn))
+                        "INSERT INTO TransactionDetails (TransactionID, ProductID, ProductName, Quantity, UnitPrice) " +
+                        "VALUES (@transId, @prodId, @prodName, @qty, @price)", conn))
                     {
                         cmd.Parameters.AddWithValue("@transId", detail.TransactionID);
                         cmd.Parameters.AddWithValue("@prodId", detail.ProductID);
+                        cmd.Parameters.AddWithValue("@prodName", detail.ProductName ?? "");
                         cmd.Parameters.AddWithValue("@qty", detail.Quantity);
                         cmd.Parameters.AddWithValue("@price", detail.UnitPrice);
                         return cmd.ExecuteNonQuery() > 0;

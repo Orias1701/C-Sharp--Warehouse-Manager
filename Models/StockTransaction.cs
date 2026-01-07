@@ -11,6 +11,7 @@ namespace WarehouseManagement.Models
         public int TransactionID { get; set; }
         public string Type { get; set; } // 'Import' hoặc 'Export'
         public DateTime DateCreated { get; set; }
+        public int CreatedByUserID { get; set; } // ID người tạo phiếu
         public string Note { get; set; }
 
         /// <summary>

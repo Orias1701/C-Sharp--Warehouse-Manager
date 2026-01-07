@@ -1,5 +1,7 @@
 using System;
 using System.IO;
+using System.Text;
+using MySql.Data.MySqlClient;
 using WarehouseManagement.Repositories;
 
 namespace WarehouseManagement.Helpers
@@ -44,6 +46,52 @@ namespace WarehouseManagement.Helpers
             catch (Exception ex)
             {
                 return "Lỗi: " + ex.Message;
+            }
+        }
+
+        /// <summary>
+        /// Tự động chạy schema.sql để tạo/reset database
+        /// </summary>
+        public static bool ExecuteSchema()
+        {
+            try
+            {
+                string schemaPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "SQL", "schema.sql");
+                
+                if (!File.Exists(schemaPath))
+                    throw new FileNotFoundException("Không tìm thấy file schema.sql");
+
+                string sqlScript = File.ReadAllText(schemaPath, Encoding.UTF8);
+                
+                // Get connection string without specifying database
+                string connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["WarehouseDB"].ConnectionString;
+                string connWithoutDb = connectionString.Replace("Database=QL_KhoHang;", "").Replace("QL_KhoHang;", "");
+                
+                using (var conn = new MySqlConnection(connWithoutDb))
+                {
+                    conn.Open();
+                    
+                    // Split script by semicolon and execute each command
+                    string[] commands = sqlScript.Split(new[] { ";" }, StringSplitOptions.RemoveEmptyEntries);
+                    
+                    foreach (string command in commands)
+                    {
+                        if (string.IsNullOrWhiteSpace(command))
+                            continue;
+                            
+                        using (var cmd = new MySqlCommand(command.Trim(), conn))
+                        {
+                            cmd.CommandTimeout = 30;
+                            cmd.ExecuteNonQuery();
+                        }
+                    }
+                }
+                
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khi chạy schema: " + ex.Message);
             }
         }
 

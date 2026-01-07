@@ -192,5 +192,112 @@ namespace WarehouseManagement.Repositories
                 throw new Exception("Lỗi khi cập nhật tồn kho: " + ex.Message);
             }
         }
+
+        /// <summary>
+        /// Lấy danh sách tất cả danh mục
+        /// </summary>
+        public List<Category> GetAllCategories()
+        {
+            var categories = new List<Category>();
+            try
+            {
+                using (var conn = GetConnection())
+                {
+                    conn.Open();
+                    using (var cmd = new MySqlCommand("SELECT * FROM Categories ORDER BY CategoryID", conn))
+                    {
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                categories.Add(new Category
+                                {
+                                    CategoryID = reader.GetInt32("CategoryID"),
+                                    CategoryName = reader.GetString("CategoryName")
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khi lấy danh mục: " + ex.Message);
+            }
+            return categories;
+        }
+
+        /// <summary>
+        /// Thêm danh mục mới
+        /// </summary>
+        public int AddCategory(string categoryName)
+        {
+            try
+            {
+                using (var conn = GetConnection())
+                {
+                    conn.Open();
+                    using (var cmd = new MySqlCommand(
+                        "INSERT INTO Categories (CategoryName) VALUES (@name); SELECT LAST_INSERT_ID();", conn))
+                    {
+                        cmd.Parameters.AddWithValue("@name", categoryName);
+                        return Convert.ToInt32(cmd.ExecuteScalar());
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khi thêm danh mục: " + ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Cập nhật danh mục
+        /// </summary>
+        public bool UpdateCategory(int categoryId, string categoryName)
+        {
+            try
+            {
+                using (var conn = GetConnection())
+                {
+                    conn.Open();
+                    using (var cmd = new MySqlCommand(
+                        "UPDATE Categories SET CategoryName=@name WHERE CategoryID=@id", conn))
+                    {
+                        cmd.Parameters.AddWithValue("@name", categoryName);
+                        cmd.Parameters.AddWithValue("@id", categoryId);
+                        return cmd.ExecuteNonQuery() > 0;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khi cập nhật danh mục: " + ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Xóa danh mục
+        /// </summary>
+        public bool DeleteCategory(int categoryId)
+        {
+            try
+            {
+                using (var conn = GetConnection())
+                {
+                    conn.Open();
+                    using (var cmd = new MySqlCommand(
+                        "DELETE FROM Categories WHERE CategoryID=@id", conn))
+                    {
+                        cmd.Parameters.AddWithValue("@id", categoryId);
+                        return cmd.ExecuteNonQuery() > 0;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khi xóa danh mục: " + ex.Message);
+            }
+        }
     }
 }

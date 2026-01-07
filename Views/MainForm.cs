@@ -16,9 +16,11 @@ namespace WarehouseManagement.Views
         private InventoryController _inventoryController;
         private TabControl tabControl;
         private DataGridView dgvProducts;
+        private DataGridView dgvCategories;
         private DataGridView dgvTransactions;
         private TextBox txtSearch;
         private Button btnAddProduct, btnEditProduct, btnDeleteProduct;
+        private Button btnAddCategory, btnEditCategory, btnDeleteCategory;
         private Button btnImport, btnExport, btnUndo, btnReport;
         private Label lblTotalValue;
 
@@ -47,6 +49,25 @@ namespace WarehouseManagement.Views
             tabProducts.Controls.Add(CreateProductsTab());
             tabControl.TabPages.Add(tabProducts);
 
+            // Tab 1.5: Danh mục
+            TabPage tabCategories = new TabPage("Danh Mục");
+            Button btnOpenCategories = new Button 
+            { 
+                Text = "📂 Quản Lý Danh Mục", 
+                Width = 150, 
+                Height = 45,
+                Top = 20,
+                Left = 20,
+                Font = new Font("Arial", 11, FontStyle.Regular)
+            };
+            btnOpenCategories.Click += (s, e) => 
+            {
+                CategoryForm catForm = new CategoryForm();
+                catForm.ShowDialog();
+            };
+            tabCategories.Controls.Add(btnOpenCategories);
+            tabControl.TabPages.Add(tabCategories);
+
             // Tab 2: Giao dịch
             TabPage tabTransactions = new TabPage("Giao Dịch");
             tabTransactions.Controls.Add(CreateTransactionsTab());
@@ -66,13 +87,13 @@ namespace WarehouseManagement.Views
                 BorderStyle = BorderStyle.FixedSingle
             };
 
-            btnAddProduct = new Button { Text = "➕ Thêm SP", Left = 10, Top = 15, Width = 80, Height = 30 };
-            btnEditProduct = new Button { Text = "✏️ Sửa SP", Left = 100, Top = 15, Width = 80, Height = 30 };
-            btnDeleteProduct = new Button { Text = "🗑️ Xóa SP", Left = 190, Top = 15, Width = 80, Height = 30 };
-            btnImport = new Button { Text = "📥 Nhập", Left = 280, Top = 15, Width = 70, Height = 30 };
-            btnExport = new Button { Text = "📤 Xuất", Left = 360, Top = 15, Width = 70, Height = 30 };
-            btnUndo = new Button { Text = "↶ Hoàn tác", Left = 440, Top = 15, Width = 80, Height = 30 };
-            btnReport = new Button { Text = "📊 Báo cáo", Left = 530, Top = 15, Width = 80, Height = 30 };
+            btnAddProduct = new Button { Text = "➕ Thêm", Left = 10, Top = 15, Width = 80, Height = 30 };
+            btnEditProduct = new Button { Text = "✏️ Sửa", Left = 100, Top = 15, Width = 80, Height = 30 };
+            btnDeleteProduct = new Button { Text = "🗑️ Xóa", Left = 190, Top = 15, Width = 80, Height = 30 };
+            btnImport = new Button { Text = "📥 Nhập", Left = 280, Top = 15, Width = 80, Height = 30 };
+            btnExport = new Button { Text = "📤 Xuất", Left = 370, Top = 15, Width = 80, Height = 30 };
+            btnUndo = new Button { Text = "↶ Hoàn tác", Left = 460, Top = 15, Width = 90, Height = 30 };
+            btnReport = new Button { Text = "📊 Báo cáo", Left = 560, Top = 15, Width = 90, Height = 30 };
 
             btnAddProduct.Click += BtnAddProduct_Click;
             btnEditProduct.Click += BtnEditProduct_Click;
@@ -123,11 +144,11 @@ namespace WarehouseManagement.Views
             };
 
             dgvProducts.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "ID", DataPropertyName = "ProductID", Width = 50 });
-            dgvProducts.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Tên Sản Phẩm", DataPropertyName = "ProductName", Width = 200 });
-            dgvProducts.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Danh Mục", DataPropertyName = "CategoryID", Width = 80 });
-            dgvProducts.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Giá", DataPropertyName = "Price", Width = 100, DefaultCellStyle = new DataGridViewCellStyle { Format = "C" } });
-            dgvProducts.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Tồn Kho", DataPropertyName = "Quantity", Width = 80 });
-            dgvProducts.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Ngưỡng Min", DataPropertyName = "MinThreshold", Width = 100 });
+            dgvProducts.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Tên Sản Phẩm", DataPropertyName = "ProductName", Width = 220 });
+            dgvProducts.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Danh Mục", DataPropertyName = "CategoryID", Width = 100 });
+            dgvProducts.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Giá", DataPropertyName = "Price", Width = 110, DefaultCellStyle = new DataGridViewCellStyle { Format = "C", Alignment = DataGridViewContentAlignment.MiddleRight } });
+            dgvProducts.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Tồn Kho", DataPropertyName = "Quantity", Width = 100, DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleRight } });
+            dgvProducts.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Ngưỡng Min", DataPropertyName = "MinThreshold", Width = 100, DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleRight } });
 
             dgvProducts.CellFormatting += DgvProducts_CellFormatting;
 
@@ -148,10 +169,10 @@ namespace WarehouseManagement.Views
                 BackgroundColor = Color.White
             };
 
-            dgvTransactions.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "ID Phiếu", DataPropertyName = "TransactionID", Width = 80 });
-            dgvTransactions.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Loại", DataPropertyName = "Type", Width = 80 });
-            dgvTransactions.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Ngày", DataPropertyName = "DateCreated", Width = 150 });
-            dgvTransactions.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Ghi chú", DataPropertyName = "Note", Width = 300 });
+            dgvTransactions.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "ID Phiếu", DataPropertyName = "TransactionID", Width = 80, DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleRight } });
+            dgvTransactions.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Loại", DataPropertyName = "Type", Width = 80, DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter } });
+            dgvTransactions.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Ngày", DataPropertyName = "DateCreated", Width = 150, DefaultCellStyle = new DataGridViewCellStyle { Format = "dd/MM/yyyy HH:mm" } });
+            dgvTransactions.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Ghi chú", DataPropertyName = "Note", Width = 400 });
 
             panel.Controls.Add(dgvTransactions);
             return panel;
@@ -180,7 +201,15 @@ namespace WarehouseManagement.Views
         /// </summary>
         private void MainForm_Load(object sender, EventArgs e)
         {
+            // Kiểm tra quyền user
+            if (GlobalUser.CurrentUser != null && !GlobalUser.CurrentUser.IsAdmin)
+            {
+                // Staff không thấy nút Báo cáo
+                btnReport.Visible = false;
+            }
+
             LoadProducts();
+            LoadTransactions();
             UpdateTotalValue();
         }
 
@@ -194,6 +223,19 @@ namespace WarehouseManagement.Views
             catch (Exception ex)
             {
                 MessageBox.Show("Lỗi tải dữ liệu: " + ex.Message);
+            }
+        }
+
+        private void LoadTransactions()
+        {
+            try
+            {
+                List<StockTransaction> transactions = _inventoryController.GetAllTransactions();
+                dgvTransactions.DataSource = transactions;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi tải giao dịch: " + ex.Message);
             }
         }
 
@@ -254,7 +296,7 @@ namespace WarehouseManagement.Views
                 return;
             }
 
-            int productId = (int)dgvProducts.SelectedRows[0].Cells["ProductID"].Value;
+            int productId = (int)dgvProducts.SelectedRows[0].Cells[0].Value;
             ProductForm form = new ProductForm(productId);
             if (form.ShowDialog() == DialogResult.OK)
             {
@@ -273,7 +315,7 @@ namespace WarehouseManagement.Views
 
             if (MessageBox.Show("Bạn chắc chắn muốn xóa?", "Xác nhận", MessageBoxButtons.YesNo) == DialogResult.Yes)
             {
-                int productId = (int)dgvProducts.SelectedRows[0].Cells["ProductID"].Value;
+                int productId = (int)dgvProducts.SelectedRows[0].Cells[0].Value;
                 _productController.DeleteProduct(productId);
                 LoadProducts();
                 UpdateTotalValue();
@@ -286,6 +328,7 @@ namespace WarehouseManagement.Views
             if (form.ShowDialog() == DialogResult.OK)
             {
                 LoadProducts();
+                LoadTransactions();
                 UpdateTotalValue();
             }
         }
@@ -296,6 +339,7 @@ namespace WarehouseManagement.Views
             if (form.ShowDialog() == DialogResult.OK)
             {
                 LoadProducts();
+                LoadTransactions();
                 UpdateTotalValue();
             }
         }
@@ -306,6 +350,7 @@ namespace WarehouseManagement.Views
             {
                 MessageBox.Show("Hoàn tác thành công!");
                 LoadProducts();
+                LoadTransactions();
                 UpdateTotalValue();
             }
             else

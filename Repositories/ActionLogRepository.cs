@@ -101,7 +101,15 @@ namespace WarehouseManagement.Repositories
                     {
                         cmd.Parameters.AddWithValue("@type", log.ActionType);
                         cmd.Parameters.AddWithValue("@desc", log.Descriptions ?? "");
-                        cmd.Parameters.AddWithValue("@dataBefore", log.DataBefore ?? "");
+                        
+                        // Xử lý DataBefore - nếu rỗng hoặc không hợp lệ JSON, lưu NULL hoặc "{}"
+                        string dataBefore = log.DataBefore ?? "";
+                        if (string.IsNullOrWhiteSpace(dataBefore) || dataBefore.Trim() == "")
+                        {
+                            dataBefore = "{}";
+                        }
+                        cmd.Parameters.AddWithValue("@dataBefore", dataBefore);
+                        
                         cmd.Parameters.AddWithValue("@createdAt", log.CreatedAt);
                         return Convert.ToInt32(cmd.ExecuteScalar());
                     }
@@ -111,6 +119,21 @@ namespace WarehouseManagement.Repositories
             {
                 throw new Exception("Lỗi khi ghi nhật ký: " + ex.Message);
             }
+        }
+
+        /// <summary>
+        /// Thêm nhật ký hành động mới (overload với parameters)
+        /// </summary>
+        public int LogAction(string actionType, string descriptions, string dataBefore = "")
+        {
+            var log = new ActionLog
+            {
+                ActionType = actionType,
+                Descriptions = descriptions,
+                DataBefore = dataBefore,
+                CreatedAt = DateTime.Now
+            };
+            return LogAction(log);
         }
 
         /// <summary>

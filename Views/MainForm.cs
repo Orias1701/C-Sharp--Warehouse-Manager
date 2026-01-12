@@ -748,8 +748,16 @@ namespace WarehouseManagement.Views
                     }
                 }
 
-                // Xóa toàn bộ undo stack khi app đóng
-                _saveManager.ClearUndoStack();
+                // Xóa tất cả action logs khi app đóng
+                try
+                {
+                    var allLogs = _logController.GetAllLogs();
+                    foreach (var log in allLogs)
+                    {
+                        _logController.DeleteLog(log.LogID);
+                    }
+                }
+                catch { }
             }
             catch (Exception ex)
             {

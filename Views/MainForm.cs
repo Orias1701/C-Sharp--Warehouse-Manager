@@ -27,7 +27,9 @@ namespace WarehouseManagement.Views
     public partial class MainForm : Form
     {
         private ProductController _productController;
+        private CategoryController _categoryController;
         private InventoryController _inventoryController;
+        private ActionLogController _logController;
         private SaveManager _saveManager;
         private TabControl tabControl;
         private DataGridView dgvProducts;
@@ -45,7 +47,9 @@ namespace WarehouseManagement.Views
             Text = "Quản Lý Kho Hàng";
             WindowState = FormWindowState.Maximized;
             _productController = new ProductController();
+            _categoryController = new CategoryController();
             _inventoryController = new InventoryController();
+            _logController = new ActionLogController();
             _saveManager = SaveManager.Instance;
         }
 
@@ -305,7 +309,7 @@ namespace WarehouseManagement.Views
         {
             try
             {
-                List<Category> categories = _productController.GetAllCategories();
+                List<Category> categories = _categoryController.GetAllCategories();
                 dgvCategories.DataSource = categories;
             }
             catch (Exception ex)
@@ -574,7 +578,7 @@ namespace WarehouseManagement.Views
                 try
                 {
                     // Kiểm tra danh mục có sản phẩm hay không
-                    if (_productController.CategoryHasProducts(categoryId))
+                    if (_categoryController.CategoryHasProducts(categoryId))
                     {
                         DialogResult result = MessageBox.Show(
                             $"Danh mục '{categoryName}' đang có sản phẩm.\n\n" +
@@ -586,7 +590,7 @@ namespace WarehouseManagement.Views
                         
                         if (result == DialogResult.Yes)
                         {
-                            _productController.DeleteCategory(categoryId);
+                            _categoryController.DeleteCategory(categoryId);
                             MessageBox.Show("Danh mục đã được ẩn thành công.", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
                             LoadCategories();
                             LoadProducts();
@@ -596,7 +600,7 @@ namespace WarehouseManagement.Views
                     {
                         if (MessageBox.Show($"Bạn chắc chắn muốn xóa danh mục '{categoryName}'?", "Xác nhận xóa", MessageBoxButtons.YesNo) == DialogResult.Yes)
                         {
-                            _productController.DeleteCategory(categoryId);
+                            _categoryController.DeleteCategory(categoryId);
                             MessageBox.Show("Danh mục đã được xóa thành công.", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
                             LoadCategories();
                             LoadProducts();

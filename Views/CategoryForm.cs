@@ -11,7 +11,7 @@ namespace WarehouseManagement.Views
     /// </summary>
     public partial class CategoryForm : Form
     {
-        private ProductController _productController;
+        private CategoryController _categoryController;
         private int? _categoryId = null;
         private TextBox txtCategoryName;
         private Button btnSave, btnCancel;
@@ -19,7 +19,7 @@ namespace WarehouseManagement.Views
         public CategoryForm(int? categoryId = null)
         {
             _categoryId = categoryId;
-            _productController = new ProductController();
+            _categoryController = new CategoryController();
             InitializeComponent();
             Text = categoryId.HasValue ? "Sửa danh mục" : "Thêm danh mục";
         }
@@ -76,8 +76,7 @@ namespace WarehouseManagement.Views
         {
             try
             {
-                List<Category> categories = _productController.GetAllCategories();
-                Category category = categories.Find(c => c.CategoryID == _categoryId.Value);
+                Category category = _categoryController.GetCategoryById(_categoryId.Value);
                 if (category != null)
                 {
                     txtCategoryName.Text = category.CategoryName;
@@ -114,19 +113,12 @@ namespace WarehouseManagement.Views
             {
                 if (_categoryId.HasValue)
                 {
-                    _productController.UpdateCategory(new Category
-                    {
-                        CategoryID = _categoryId.Value,
-                        CategoryName = categoryName
-                    });
+                    _categoryController.UpdateCategory(_categoryId.Value, categoryName);
                     MessageBox.Show("Cập nhật danh mục thành công!");
                 }
                 else
                 {
-                    _productController.AddCategory(new Category
-                    {
-                        CategoryName = categoryName
-                    });
+                    _categoryController.CreateCategory(categoryName);
                     MessageBox.Show("Thêm danh mục thành công!");
                 }
                 DialogResult = DialogResult.OK;

@@ -98,51 +98,11 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Lấy danh sách tất cả danh mục
-        /// </summary>
-        public List<Category> GetAllCategories()
-        {
-            return _productService.GetAllCategories();
-        }
-
-        /// <summary>
-        /// Thêm danh mục mới
-        /// </summary>
-        public int AddCategory(Category category)
-        {
-            return _productService.AddCategory(category.CategoryName);
-        }
-
-        /// <summary>
-        /// Cập nhật danh mục
-        /// </summary>
-        public bool UpdateCategory(Category category)
-        {
-            return _productService.UpdateCategory(category.CategoryID, category.CategoryName);
-        }
-
-        /// <summary>
-        /// Xóa danh mục
-        /// </summary>
-        public bool DeleteCategory(int categoryId)
-        {
-            return _productService.DeleteCategory(categoryId);
-        }
-
-        /// <summary>
         /// Kiểm tra sản phẩm có phụ thuộc khóa ngoài
         /// </summary>
         public bool ProductHasDependencies(int productId)
         {
             return _productService.ProductHasDependencies(productId);
-        }
-
-        /// <summary>
-        /// Kiểm tra danh mục có sản phẩm
-        /// </summary>
-        public bool CategoryHasProducts(int categoryId)
-        {
-            return _productService.CategoryHasProducts(categoryId);
         }
     }
 }

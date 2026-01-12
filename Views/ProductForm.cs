@@ -11,6 +11,7 @@ namespace WarehouseManagement.Views
     public partial class ProductForm : Form
     {
         private ProductController _productController;
+        private CategoryController _categoryController;
         private int? _productId = null;
         private TextBox txtProductName, txtPrice, txtQuantity, txtMinThreshold;
         private ComboBox cmbCategory;
@@ -20,6 +21,7 @@ namespace WarehouseManagement.Views
         {
             _productId = productId;
             _productController = new ProductController();
+            _categoryController = new CategoryController();
             InitializeComponent();
             Text = productId.HasValue ? "Sửa sản phẩm" : "Thêm sản phẩm";
         }
@@ -212,27 +214,12 @@ namespace WarehouseManagement.Views
             {
                 if (_productId.HasValue)
                 {
-                    _productController.UpdateProduct(new Product
-                    {
-                        ProductID = _productId.Value,
-                        ProductName = txtProductName.Text,
-                        CategoryID = cmbCategory.SelectedIndex + 1,
-                        Price = price,
-                        Quantity = quantity,
-                        MinThreshold = minThreshold
-                    });
+                    _productController.UpdateProductFull(_productId.Value, txtProductName.Text, cmbCategory.SelectedIndex + 1, price, quantity, minThreshold);
                     MessageBox.Show("Cập nhật sản phẩm thành công!");
                 }
                 else
                 {
-                    _productController.AddProduct(new Product
-                    {
-                        ProductName = txtProductName.Text,
-                        CategoryID = cmbCategory.SelectedIndex + 1,
-                        Price = price,
-                        Quantity = quantity,
-                        MinThreshold = minThreshold
-                    });
+                    _productController.CreateProduct(txtProductName.Text, cmbCategory.SelectedIndex + 1, price, quantity, minThreshold);
                     MessageBox.Show("Thêm sản phẩm thành công!");
                 }
                 DialogResult = DialogResult.OK;

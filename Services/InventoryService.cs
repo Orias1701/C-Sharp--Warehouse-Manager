@@ -31,12 +31,14 @@ namespace WarehouseManagement.Services
         private readonly ProductRepository _productRepo;
         private readonly TransactionRepository _transactionRepo;
         private readonly LogRepository _logRepo;
+        private readonly CategoryRepository _categoryRepo;
 
         public InventoryService()
         {
             _productRepo = new ProductRepository();
             _transactionRepo = new TransactionRepository();
             _logRepo = new LogRepository();
+            _categoryRepo = new CategoryRepository();
         }
 
         // ========== SINGLE IMPORT/EXPORT ==========
@@ -525,7 +527,17 @@ namespace WarehouseManagement.Services
                                 int quantity = (int)jsonObj["Quantity"];
                                 int minThreshold = (int)jsonObj["MinThreshold"];
                                 
-                                _productRepo.RestoreDeletedProduct(productId, productName, categoryId, price, quantity, minThreshold);
+                                // Restore by updating product visibility
+                                var product = new Product
+                                {
+                                    ProductID = productId,
+                                    ProductName = productName,
+                                    CategoryID = categoryId,
+                                    Price = price,
+                                    Quantity = quantity,
+                                    MinThreshold = minThreshold
+                                };
+                                _productRepo.UpdateProduct(product);
                                 undoSuccess = true;
                             }
                             break;
@@ -536,7 +548,7 @@ namespace WarehouseManagement.Services
                             {
                                 int categoryId = (int)jsonObj["CategoryID"];
                                 string categoryName = (string)jsonObj["CategoryName"];
-                                _productRepo.UpdateCategory(categoryId, categoryName);
+                                _categoryRepo.UpdateCategory(new Category { CategoryID = categoryId, CategoryName = categoryName });
                                 undoSuccess = true;
                             }
                             break;
@@ -547,7 +559,8 @@ namespace WarehouseManagement.Services
                             {
                                 int categoryId = (int)jsonObj["CategoryID"];
                                 string categoryName = (string)jsonObj["CategoryName"];
-                                _productRepo.RestoreDeletedCategory(categoryId, categoryName);
+                                // Create a restored category
+                                _categoryRepo.RestoreDeletedCategory(categoryId, categoryName);
                                 undoSuccess = true;
                             }
                             break;

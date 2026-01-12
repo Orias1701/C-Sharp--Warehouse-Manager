@@ -1,19 +1,19 @@
 using System;
 using System.Windows.Forms;
+using WarehouseManagement.Controllers;
 using WarehouseManagement.Models;
-using WarehouseManagement.Repositories;
 using WarehouseManagement.Helpers;
 
 namespace WarehouseManagement.Views
 {
     public partial class LoginForm : Form
     {
-        private UserRepository _userRepository;
+        private UserController _userController;
 
         public LoginForm()
         {
             InitializeComponent();
-            _userRepository = new UserRepository();
+            _userController = new UserController();
         }
 
         private void LoginForm_Load(object sender, EventArgs e)
@@ -44,8 +44,8 @@ namespace WarehouseManagement.Views
                 return;
             }
 
-            // Try login - pass raw password, UserRepository will hash it
-            User user = _userRepository.Login(txtUsername.Text, txtPassword.Text);
+            // Try login - pass raw password, UserController will hash it
+            User user = _userController.Login(txtUsername.Text, txtPassword.Text);
             
             if (user != null && user.IsActive)
             {

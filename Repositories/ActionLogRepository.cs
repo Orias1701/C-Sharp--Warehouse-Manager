@@ -238,5 +238,28 @@ namespace WarehouseManagement.Repositories
             }
             return logs;
         }
+
+        /// <summary>
+        /// Xóa tất cả nhật ký (hard delete - xóa hoàn toàn khỏi database)
+        /// </summary>
+        public bool ClearAllLogs()
+        {
+            try
+            {
+                using (var conn = GetConnection())
+                {
+                    conn.Open();
+                    using (var cmd = new MySqlCommand(
+                        "DELETE FROM ActionLogs", conn))
+                    {
+                        return cmd.ExecuteNonQuery() >= 0;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khi xóa tất cả nhật ký: " + ex.Message);
+            }
+        }
     }
 }

@@ -751,13 +751,16 @@ namespace WarehouseManagement.Views
                 // Xóa tất cả action logs khi app đóng
                 try
                 {
-                    var allLogs = _logController.GetAllLogs();
-                    foreach (var log in allLogs)
+                    if (_logController != null)
                     {
-                        _logController.DeleteLog(log.LogID);
+                        _logController.ClearAllLogs();
                     }
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Lỗi xóa logs: {ex.Message}");
+                }
+
             }
             catch (Exception ex)
             {

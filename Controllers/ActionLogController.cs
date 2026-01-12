@@ -88,5 +88,14 @@ namespace WarehouseManagement.Controllers
         {
             return _logService.CountLogs();
         }
+
+        /// <summary>
+        /// Xóa tất cả nhật ký khi kết thúc phiên
+        /// </summary>
+        public bool ClearAllLogs()
+        {
+            return _logService.ClearAllLogs();
+        }
     }
 }
+

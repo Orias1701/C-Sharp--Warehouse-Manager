@@ -190,5 +190,20 @@ namespace WarehouseManagement.Services
                 throw new Exception("Lỗi khi đếm nhật ký: " + ex.Message);
             }
         }
+
+        /// <summary>
+        /// Xóa tất cả nhật ký khi kết thúc phiên
+        /// </summary>
+        public bool ClearAllLogs()
+        {
+            try
+            {
+                return _logRepo.ClearAllLogs();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khi xóa tất cả nhật ký: " + ex.Message);
+            }
+        }
     }
 }

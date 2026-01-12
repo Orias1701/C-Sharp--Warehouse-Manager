@@ -4,12 +4,27 @@ using System.Linq;
 using WarehouseManagement.Models;
 using WarehouseManagement.Repositories;
 using Newtonsoft.Json;
-using WarehouseManagement.Services;
 
 namespace WarehouseManagement.Services
 {
     /// <summary>
-    /// Service xử lý logic Nhập/Xuất kho, tính toán tồn kho
+    /// Service xử lý logic Nhập/Xuất kho
+    /// 
+    /// CHỨC NĂNG:
+    /// - Nhập kho (ImportStock): Một phiếu nhập, một sản phẩm
+    /// - Xuất kho (ExportStock): Một phiếu xuất, một sản phẩm
+    /// - Nhập batch (ImportStockBatch): Một phiếu nhập, nhiều sản phẩm
+    /// - Xuất batch (ExportStockBatch): Một phiếu xuất, nhiều sản phẩm
+    /// - Tính toán tồn kho: Tự động cập nhật số lượng
+    /// 
+    /// LUỒNG:
+    /// 1. Validation: Kiểm tra sản phẩm, số lượng, giá
+    /// 2. CreateTransaction(): Tạo phiếu nhập/xuất
+    /// 3. AddTransactionDetail(): Thêm chi tiết phiếu
+    /// 4. UpdateQuantity(): Cập nhật tồn kho
+    /// 5. LogAction(): Ghi nhật ký
+    /// 6. MarkAsChanged(): Đánh dấu có thay đổi
+    /// 7. Return: Trả về kết quả
     /// </summary>
     public class InventoryService
     {
@@ -24,14 +39,25 @@ namespace WarehouseManagement.Services
             _logRepo = new LogRepository();
         }
 
+        // ========== SINGLE IMPORT/EXPORT ==========
+
         /// <summary>
-        /// Thực hiện phiếu nhập kho
+        /// Thực hiện phiếu nhập kho (một sản phẩm)
+        /// 
+        /// LUỒNG:
+        /// 1. Validation: Kiểm tra sản phẩm, số lượng, giá, không vượt giới hạn
+        /// 2. CreateTransaction(): Tạo phiếu nhập
+        /// 3. AddTransactionDetail(): Thêm chi tiết phiếu
+        /// 4. UpdateQuantity(): Cập nhật tồn kho = cũ + số lượng nhập
+        /// 5. LogAction(): Ghi nhật ký
+        /// 6. MarkAsChanged(): Đánh dấu có thay đổi
+        /// 7. Return: true nếu thành công
         /// </summary>
         public bool ImportStock(int productId, int quantity, decimal unitPrice, string note = "")
         {
             try
             {
-                // Validation
+                // Validation các trường đầu vào
                 if (productId <= 0)
                     throw new ArgumentException("ID sản phẩm không hợp lệ");
                 if (quantity <= 0)
@@ -47,7 +73,7 @@ namespace WarehouseManagement.Services
                 if (product == null)
                     throw new ArgumentException("Sản phẩm không tồn tại");
 
-                // Lưu dữ liệu cũ trước khi thay đổi
+                // Lưu dữ liệu cũ trước khi thay đổi (để ghi nhật ký)
                 var oldData = new { product.Quantity, product.ProductID };
                 
                 // Tạo phiếu
@@ -94,13 +120,23 @@ namespace WarehouseManagement.Services
         }
 
         /// <summary>
-        /// Thực hiện phiếu xuất kho
+        /// Thực hiện phiếu xuất kho (một sản phẩm)
+        /// 
+        /// LUỒNG:
+        /// 1. Validation: Kiểm tra sản phẩm, số lượng, giá
+        /// 2. Check: Kiểm tra tồn kho có đủ để xuất không
+        /// 3. CreateTransaction(): Tạo phiếu xuất
+        /// 4. AddTransactionDetail(): Thêm chi tiết phiếu
+        /// 5. UpdateQuantity(): Cập nhật tồn kho = cũ - số lượng xuất
+        /// 6. LogAction(): Ghi nhật ký
+        /// 7. MarkAsChanged(): Đánh dấu có thay đổi
+        /// 8. Return: true nếu thành công
         /// </summary>
         public bool ExportStock(int productId, int quantity, decimal unitPrice, string note = "")
         {
             try
             {
-                // Validation
+                // Validation các trường đầu vào
                 if (productId <= 0)
                     throw new ArgumentException("ID sản phẩm không hợp lệ");
                 if (quantity <= 0)
@@ -161,8 +197,21 @@ namespace WarehouseManagement.Services
             }
         }
 
+        // ========== BATCH IMPORT/EXPORT ==========
+
         /// <summary>
-        /// Thực hiện phiếu nhập kho batch (nhiều sản phẩm, 1 transaction)
+        /// Thực hiện phiếu nhập kho batch (nhiều sản phẩm, 1 phiếu)
+        /// 
+        /// LUỒNG:
+        /// 1. Validation: Kiểm tra danh sách không trống, không trùng lặp ID
+        /// 2. CreateTransaction(): Tạo 1 phiếu nhập chung
+        /// 3. Loop từng sản phẩm:
+        ///    - Validation: Kiểm tra sản phẩm, số lượng, giá
+        ///    - AddTransactionDetail(): Thêm chi tiết cho sản phẩm này
+        ///    - UpdateQuantity(): Cập nhật tồn kho += số lượng
+        /// 4. LogAction(): Ghi nhật ký 1 lần cho cả batch
+        /// 5. MarkAsChanged(): Đánh dấu có thay đổi
+        /// 6. Return: true nếu thành công
         /// </summary>
         public bool ImportStockBatch(List<(int ProductId, int Quantity, decimal UnitPrice)> details, string note = "")
         {
@@ -171,7 +220,7 @@ namespace WarehouseManagement.Services
                 if (details == null || details.Count == 0)
                     throw new ArgumentException("Danh sách sản phẩm không thể rỗng");
 
-                // Kiểm tra trùng lặp ID trong list và kiểm tra xem sản phẩm tồn tại trước khi thực hiện
+                // Kiểm tra trùng lặp ID trong list và kiểm tra sản phẩm tồn tại trước khi xử lý
                 var productIds = new List<int>();
                 foreach (var (productId, quantity, unitPrice) in details)
                 {
@@ -251,13 +300,24 @@ namespace WarehouseManagement.Services
         }
 
         /// <summary>
-        /// Thực hiện phiếu xuất kho batch (nhiều sản phẩm, 1 transaction)
+        /// Thực hiện phiếu xuất kho batch (nhiều sản phẩm, 1 phiếu)
+        /// 
+        /// LUỒNG:
+        /// 1. Validation: Kiểm tra danh sách không trống, không trùng lặp ID
+        /// 2. Check: Kiểm tra tồn kho của tất cả sản phẩm có đủ để xuất không
+        /// 3. CreateTransaction(): Tạo 1 phiếu xuất chung
+        /// 4. Loop từng sản phẩm:
+        ///    - Validation: Kiểm tra sản phẩm, số lượng, giá
+        ///    - AddTransactionDetail(): Thêm chi tiết cho sản phẩm này
+        ///    - UpdateQuantity(): Cập nhật tồn kho -= số lượng
+        /// 5. LogAction(): Ghi nhật ký 1 lần cho cả batch
+        /// 6. MarkAsChanged(): Đánh dấu có thay đổi
+        /// 7. Return: true nếu thành công
         /// </summary>
         public bool ExportStockBatch(List<(int ProductId, int Quantity, decimal UnitPrice)> details, string note = "")
         {
             try
             {
-                
                 if (details == null || details.Count == 0)
                     throw new ArgumentException("Danh sách sản phẩm không thể rỗng");
 

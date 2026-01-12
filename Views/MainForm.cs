@@ -9,7 +9,20 @@ using WarehouseManagement.Services;
 namespace WarehouseManagement.Views
 {
     /// <summary>
-    /// Form chính - Giao diện chính ứng dụng với TabControl
+    /// Form chính - Giao diện chính ứng dụng
+    /// 
+    /// CẤURUC:
+    /// - Toolbar: Các nút thao tác (Thêm, Nhập, Xuất, Lưu, Hoàn tác, Báo cáo)
+    /// - TabControl: 4 tab chính (Sản Phẩm, Danh Mục, Giao Dịch, Báo Cáo)
+    /// - Status bar: Hiển thị số thay đổi chưa lưu
+    /// 
+    /// LUỒNG SỰ KIỆN:
+    /// 1. MainForm_Load: Tải dữ liệu lần đầu
+    /// 2. Tab thay đổi: Tải dữ liệu tab tương ứng
+    /// 3. User tác động (thêm/sửa/xóa): CallService → SaveManager.MarkAsChanged()
+    /// 4. UpdateChangeStatus(): Cập nhật UI label
+    /// 5. BtnSave_Click: Hiển thị dialog xác nhận → CommitChanges()
+    /// 6. MainForm_FormClosing: Kiểm tra HasUnsavedChanges → Hỏi Yes/No/Cancel
     /// </summary>
     public partial class MainForm : Form
     {
@@ -40,7 +53,7 @@ namespace WarehouseManagement.Views
         {
             SuspendLayout();
 
-            // TabControl
+            // TabControl - Chứa 4 tab chính
             tabControl = new TabControl
             {
                 Dock = DockStyle.Fill,
@@ -53,22 +66,22 @@ namespace WarehouseManagement.Views
             tabProducts.Controls.Add(CreateProductsTab());
             tabControl.TabPages.Add(tabProducts);
 
-            // Tab 1.5: Danh mục
+            // Tab 2: Danh mục
             TabPage tabCategories = new TabPage("Danh Mục");
             tabCategories.Controls.Add(CreateCategoriesTab());
             tabControl.TabPages.Add(tabCategories);
 
-            // Tab 2: Giao dịch
+            // Tab 3: Giao dịch
             TabPage tabTransactions = new TabPage("Giao Dịch");
             tabTransactions.Controls.Add(CreateTransactionsTab());
             tabControl.TabPages.Add(tabTransactions);
 
-            // Tab 3: Báo cáo
+            // Tab 4: Báo cáo
             TabPage tabReport = new TabPage("Báo Cáo");
             tabReport.Controls.Add(CreateReportTab());
             tabControl.TabPages.Add(tabReport);
 
-            // Toolbar
+            // Toolbar - Chứa các nút thao tác
             Panel toolbar = new Panel
             {
                 Dock = DockStyle.Top,
@@ -77,6 +90,7 @@ namespace WarehouseManagement.Views
                 BorderStyle = BorderStyle.FixedSingle
             };
 
+            // Định nghĩa các nút
             btnAddProduct = new Button { Text = "➕ Thêm", Left = 10, Top = 15, Width = 80, Height = 30 };
             btnImport = new Button { Text = "📥 Nhập", Left = 100, Top = 15, Width = 80, Height = 30 };
             btnExport = new Button { Text = "📤 Xuất", Left = 190, Top = 15, Width = 80, Height = 30 };
@@ -85,6 +99,7 @@ namespace WarehouseManagement.Views
             btnReport = new Button { Text = "📊 Báo cáo", Left = 470, Top = 15, Width = 90, Height = 30 };
             lblChangeStatus = new Label { Text = "", Left = 570, Top = 20, Width = 200, Height = 20, ForeColor = Color.Red, Font = new Font("Arial", 10, FontStyle.Bold) };
 
+            // Gắn event handler cho các nút
             btnAddProduct.Click += BtnAddProduct_Click;
             btnImport.Click += BtnImport_Click;
             btnExport.Click += BtnExport_Click;
@@ -603,20 +618,41 @@ namespace WarehouseManagement.Views
         /// <summary>
         /// Nút Save - Lưu tất cả thay đổi vào database
         /// </summary>
+        /// <summary>
+        /// Event handler: Click nút Lưu (💾)
+        /// 
+        /// LUỒNG:
+        /// 1. Kiểm tra HasUnsavedChanges: Nếu false thì thông báo không có gì để lưu
+        /// 2. Hiển thị dialog Yes/No xác nhận với số lượng thay đổi
+        /// 3. Nếu chọn Yes:
+        ///    - Gọi SaveManager.CommitChanges()
+        ///    - Cập nhật UI label
+        ///    - Hiển thị thông báo thành công
+        /// </summary>
         private void BtnSave_Click(object sender, EventArgs e)
         {
             try
             {
+                // Kiểm tra có thay đổi hay không
                 if (!_saveManager.HasUnsavedChanges)
                 {
                     MessageBox.Show("Không có thay đổi nào để lưu.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
                 }
 
-                if (MessageBox.Show($"Bạn muốn lưu {_saveManager.ChangeCount} thay đổi vào database?", "Xác nhận lưu", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                // Hiển thị dialog xác nhận
+                if (MessageBox.Show(
+                    $"Bạn muốn lưu {_saveManager.ChangeCount} thay đổi vào database?", 
+                    "Xác nhận lưu", 
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question) == DialogResult.Yes)
                 {
+                    // Lưu thay đổi
                     _saveManager.CommitChanges();
+                    
+                    // Cập nhật UI
                     UpdateChangeStatus();
+                    
                     MessageBox.Show("Đã lưu thay đổi thành công!", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
@@ -628,17 +664,31 @@ namespace WarehouseManagement.Views
 
         /// <summary>
         /// Cập nhật trạng thái thay đổi trên UI
+        /// 
+        /// LUỒNG:
+        /// 1. Kiểm tra HasUnsavedChanges
+        /// 2. Nếu true:
+        ///    - Hiển thị icon cảnh báo (⚠️)
+        ///    - Hiển thị số lượng thay đổi
+        ///    - Màu đỏ (cảnh báo)
+        ///    - Enable nút Save
+        /// 3. Nếu false:
+        ///    - Hiển thị icon thành công (✓)
+        ///    - Màu xanh (ok)
+        ///    - Disable nút Save
         /// </summary>
         private void UpdateChangeStatus()
         {
             if (_saveManager.HasUnsavedChanges)
             {
+                // Có thay đổi chưa lưu
                 lblChangeStatus.Text = $"⚠️ Chưa lưu: {_saveManager.ChangeCount} thay đổi";
                 lblChangeStatus.ForeColor = Color.Red;
                 btnSave.Enabled = true;
             }
             else
             {
+                // Tất cả đã lưu
                 lblChangeStatus.Text = "✓ Tất cả thay đổi đã được lưu";
                 lblChangeStatus.ForeColor = Color.Green;
                 btnSave.Enabled = false;
@@ -646,7 +696,17 @@ namespace WarehouseManagement.Views
         }
 
         /// <summary>
-        /// Xử lý sự kiện đóng form
+        /// Event handler: Form sắp đóng
+        /// 
+        /// LUỒNG:
+        /// 1. Kiểm tra HasUnsavedChanges
+        /// 2. Nếu có thay đổi:
+        ///    - Hiển thị dialog Yes/No/Cancel
+        ///    - Yes: CommitChanges() → lưu vào DB
+        ///    - No: RollbackChanges() → khôi phục về lần save cuối
+        ///    - Cancel: Không tắt app (e.Cancel = true)
+        /// 3. ClearUndoStack(): Xóa toàn bộ LIFO stack khi app đóng
+        /// 4. App tắt
         /// </summary>
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
@@ -654,6 +714,7 @@ namespace WarehouseManagement.Views
             {
                 if (_saveManager.HasUnsavedChanges)
                 {
+                    // Hỏi user có muốn lưu hay không
                     DialogResult result = MessageBox.Show(
                         $"Có {_saveManager.ChangeCount} thay đổi chưa được lưu.\n\nBạn muốn lưu trước khi thoát?",
                         "Xác nhận thoát",
@@ -662,25 +723,26 @@ namespace WarehouseManagement.Views
 
                     if (result == DialogResult.Cancel)
                     {
+                        // Không tắt app
                         e.Cancel = true;
                         return;
                     }
 
                     if (result == DialogResult.Yes)
                     {
-                        // Lưu thay đổi
+                        // Lưu thay đổi vào database
                         _saveManager.CommitChanges();
                         MessageBox.Show("Đã lưu thay đổi.", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                     else if (result == DialogResult.No)
                     {
-                        // Khôi phục về lần save cuối
+                        // Khôi phục về lần save cuối (ẩn tất cả thay đổi từ lần save)
                         _saveManager.RollbackChanges();
                         MessageBox.Show("Đã hủy bỏ tất cả thay đổi từ lần lưu cuối.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                 }
 
-                // Xóa toàn bộ undo stack
+                // Xóa toàn bộ undo stack khi app đóng
                 _saveManager.ClearUndoStack();
             }
             catch (Exception ex)

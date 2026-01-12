@@ -8,7 +8,20 @@ using Newtonsoft.Json;
 namespace WarehouseManagement.Services
 {
     /// <summary>
-    /// Service xử lý logic sản phẩm (tìm kiếm, kiểm tra ngưỡng)
+    /// Service xử lý logic sản phẩm và danh mục
+    /// 
+    /// CHỨC NĂNG:
+    /// - Quản lý sản phẩm (CRUD): Thêm, sửa, xóa
+    /// - Quản lý danh mục (CRUD): Thêm, sửa, xóa
+    /// - Tìm kiếm sản phẩm: Theo tên, danh mục
+    /// - Cảnh báo tồn kho: Kiểm tra ngưỡng tối thiểu
+    /// 
+    /// LUỒNG:
+    /// 1. Validation: Kiểm tra đầu vào (ID, tên, giá, v.v...)
+    /// 2. Repository call: Gọi DB để thực hiện thao tác
+    /// 3. Logging: Ghi nhật ký ActionLogs
+    /// 4. Change tracking: Gọi SaveManager.MarkAsChanged()
+    /// 5. Return: Trả về kết quả
     /// </summary>
     public class ProductService
     {
@@ -20,6 +33,8 @@ namespace WarehouseManagement.Services
             _productRepo = new ProductRepository();
             _logRepo = new LogRepository();
         }
+
+        // ========== PRODUCT CRUD ==========
 
         /// <summary>
         /// Lấy tất cả sản phẩm
@@ -89,12 +104,19 @@ namespace WarehouseManagement.Services
 
         /// <summary>
         /// Thêm sản phẩm mới
+        /// 
+        /// LUỒNG:
+        /// 1. Validation: Kiểm tra tên, giá, số lượng, ngưỡng tối thiểu
+        /// 2. Repository.AddProduct(): Thêm vào database
+        /// 3. LogAction(): Ghi nhật ký (DataBefore trống vì chưa tồn tại)
+        /// 4. MarkAsChanged(): Đánh dấu có thay đổi
+        /// 5. Return: Trả về ID sản phẩm vừa thêm
         /// </summary>
         public int AddProduct(string name, int categoryId, decimal price, int quantity, int minThreshold)
         {
             try
             {
-                // Validation
+                // Validation các trường đầu vào
                 if (string.IsNullOrWhiteSpace(name))
                     throw new ArgumentException("Tên sản phẩm không được để trống");
                 if (name.Length > 200)
@@ -114,6 +136,7 @@ namespace WarehouseManagement.Services
                 if (categoryId <= 0)
                     throw new ArgumentException("Danh mục không hợp lệ");
 
+                // Tạo đối tượng Product và gọi repository
                 var product = new Product
                 {
                     ProductName = name.Trim(),
@@ -125,7 +148,7 @@ namespace WarehouseManagement.Services
 
                 int productId = _productRepo.AddProduct(product);
                 
-                // Log action - for ADD, we log empty as DataBefore since it didn't exist
+                // Ghi nhật ký (DataBefore trống vì đây là thêm mới)
                 _logRepo.LogAction("ADD_PRODUCT", 
                     $"Thêm sản phẩm: {name}", 
                     "");
@@ -142,13 +165,21 @@ namespace WarehouseManagement.Services
         }
 
         /// <summary>
-        /// Cập nhật sản phẩm
+        /// Cập nhật thông tin sản phẩm
+        /// 
+        /// LUỒNG:
+        /// 1. Validation: Kiểm tra tất cả các trường
+        /// 2. GetProductById(): Lấy dữ liệu cũ trước khi thay đổi
+        /// 3. Repository.UpdateProduct(): Cập nhật vào database
+        /// 4. LogAction(): Ghi nhật ký với dữ liệu cũ (beforeData)
+        /// 5. MarkAsChanged(): Đánh dấu có thay đổi
+        /// 6. Return: Trả về kết quả thành công/thất bại
         /// </summary>
         public bool UpdateProduct(int productId, string name, int categoryId, decimal price, int quantity, int minThreshold)
         {
             try
             {
-                // Validation
+                // Validation các trường đầu vào
                 if (productId <= 0)
                     throw new ArgumentException("ID sản phẩm không hợp lệ");
                 if (string.IsNullOrWhiteSpace(name))
@@ -170,12 +201,11 @@ namespace WarehouseManagement.Services
                 if (categoryId <= 0)
                     throw new ArgumentException("Danh mục không hợp lệ");
 
-                // Get the old product data before updating
+                // Lấy dữ liệu cũ trước khi cập nhật (để ghi nhật ký)
                 var oldProduct = _productRepo.GetProductById(productId);
                 if (oldProduct == null)
                     throw new ArgumentException("Sản phẩm không tồn tại");
 
-                // Log the before-state
                 var beforeData = new
                 {
                     ProductID = oldProduct.ProductID,
@@ -186,6 +216,7 @@ namespace WarehouseManagement.Services
                     MinThreshold = oldProduct.MinThreshold
                 };
 
+                // Tạo đối tượng Product với dữ liệu mới
                 var product = new Product
                 {
                     ProductID = productId,
@@ -196,15 +227,17 @@ namespace WarehouseManagement.Services
                     MinThreshold = minThreshold
                 };
 
+                // Cập nhật vào database
                 bool result = _productRepo.UpdateProduct(product);
                 
                 if (result)
                 {
+                    // Ghi nhật ký với dữ liệu cũ
                     _logRepo.LogAction("UPDATE_PRODUCT",
                         $"Cập nhật sản phẩm: {name}",
                         JsonConvert.SerializeObject(beforeData));
                     
-                    // Mark as changed for save manager
+                    // Đánh dấu có thay đổi chưa lưu
                     SaveManager.Instance.MarkAsChanged();
                 }
 
@@ -217,7 +250,15 @@ namespace WarehouseManagement.Services
         }
 
         /// <summary>
-        /// Xóa sản phẩm
+        /// Xóa sản phẩm (soft delete)
+        /// 
+        /// LUỒNG:
+        /// 1. Validation: Kiểm tra ID sản phẩm
+        /// 2. GetProductById(): Lấy dữ liệu trước khi xóa
+        /// 3. Repository.DeleteProduct(): Xóa mềm (soft delete)
+        /// 4. LogAction(): Ghi nhật ký xóa với dữ liệu cũ
+        /// 5. MarkAsChanged(): Đánh dấu có thay đổi
+        /// 6. Return: Trả về kết quả thành công/thất bại
         /// </summary>
         public bool DeleteProduct(int productId)
         {
@@ -226,7 +267,7 @@ namespace WarehouseManagement.Services
                 if (productId <= 0)
                     throw new ArgumentException("ID sản phẩm không hợp lệ");
                 
-                // Get product before deletion to log
+                // Lấy dữ liệu sản phẩm trước khi xóa (để ghi nhật ký)
                 var product = _productRepo.GetProductById(productId);
                 if (product != null)
                 {
@@ -240,10 +281,12 @@ namespace WarehouseManagement.Services
                         MinThreshold = product.MinThreshold
                     };
                     
+                    // Xóa mềm: set Visible=FALSE trong database
                     bool result = _productRepo.DeleteProduct(productId);
                     
                     if (result)
                     {
+                        // Ghi nhật ký xóa với dữ liệu cũ
                         _logRepo.LogAction("DELETE_PRODUCT",
                             $"Xóa sản phẩm: {product.ProductName}",
                             JsonConvert.SerializeObject(beforeData));
@@ -280,6 +323,8 @@ namespace WarehouseManagement.Services
             }
         }
 
+        // ========== CATEGORY CRUD ==========
+
         /// <summary>
         /// Lấy danh sách tất cả danh mục
         /// </summary>
@@ -297,23 +342,33 @@ namespace WarehouseManagement.Services
 
         /// <summary>
         /// Thêm danh mục mới
+        /// 
+        /// LUỒNG:
+        /// 1. Validation: Kiểm tra tên danh mục không trống, <= 100 ký tự
+        /// 2. Repository.AddCategory(): Thêm vào database
+        /// 3. LogAction(): Ghi nhật ký (DataBefore trống)
+        /// 4. MarkAsChanged(): Đánh dấu có thay đổi
+        /// 5. Return: Trả về ID danh mục vừa thêm
         /// </summary>
         public int AddCategory(string categoryName)
         {
             try
             {
+                // Validation
                 if (string.IsNullOrWhiteSpace(categoryName))
                     throw new ArgumentException("Tên danh mục không được trống");
                 if (categoryName.Length > 100)
                     throw new ArgumentException("Tên danh mục không được vượt 100 ký tự");
                 
+                // Thêm danh mục vào database
                 int categoryId = _productRepo.AddCategory(categoryName);
                 
+                // Ghi nhật ký (DataBefore trống vì đây là thêm mới)
                 _logRepo.LogAction("ADD_CATEGORY",
                     $"Thêm danh mục: {categoryName}",
                     "");
                 
-                // Mark as changed for save manager
+                // Đánh dấu có thay đổi chưa lưu
                 SaveManager.Instance.MarkAsChanged();
                 return categoryId;
             }
@@ -325,11 +380,20 @@ namespace WarehouseManagement.Services
 
         /// <summary>
         /// Cập nhật danh mục
+        /// 
+        /// LUỒNG:
+        /// 1. Validation: Kiểm tra ID và tên danh mục
+        /// 2. GetAllCategories(): Lấy dữ liệu cũ trước khi cập nhật
+        /// 3. Repository.UpdateCategory(): Cập nhật vào database
+        /// 4. LogAction(): Ghi nhật ký với dữ liệu cũ
+        /// 5. MarkAsChanged(): Đánh dấu có thay đổi
+        /// 6. Return: Trả về kết quả thành công/thất bại
         /// </summary>
         public bool UpdateCategory(int categoryId, string categoryName)
         {
             try
             {
+                // Validation
                 if (categoryId <= 0)
                     throw new ArgumentException("ID danh mục không hợp lệ");
                 if (string.IsNullOrWhiteSpace(categoryName))
@@ -337,7 +401,7 @@ namespace WarehouseManagement.Services
                 if (categoryName.Length > 100)
                     throw new ArgumentException("Tên danh mục không được vượt 100 ký tự");
                 
-                // Get old data before updating
+                // Lấy dữ liệu cũ trước khi cập nhật
                 var categories = _productRepo.GetAllCategories();
                 var oldCategory = categories.FirstOrDefault(c => c.CategoryID == categoryId);
                 
@@ -347,13 +411,17 @@ namespace WarehouseManagement.Services
                     CategoryName = oldCategory?.CategoryName
                 };
                 
+                // Cập nhật danh mục vào database
                 bool result = _productRepo.UpdateCategory(categoryId, categoryName);
                 
                 if (result)
                 {
+                    // Ghi nhật ký với dữ liệu cũ
                     _logRepo.LogAction("UPDATE_CATEGORY",
                         $"Cập nhật danh mục: {categoryName}",
                         JsonConvert.SerializeObject(beforeData));
+                    
+                    // Đánh dấu có thay đổi chưa lưu
                     SaveManager.Instance.MarkAsChanged();
                 }
                 
@@ -366,7 +434,15 @@ namespace WarehouseManagement.Services
         }
 
         /// <summary>
-        /// Xóa danh mục
+        /// Xóa danh mục (soft delete)
+        /// 
+        /// LUỒNG:
+        /// 1. Validation: Kiểm tra ID danh mục
+        /// 2. GetAllCategories(): Lấy dữ liệu cũ trước khi xóa
+        /// 3. Repository.DeleteCategory(): Xóa mềm (soft delete)
+        /// 4. LogAction(): Ghi nhật ký xóa với dữ liệu cũ
+        /// 5. MarkAsChanged(): Đánh dấu có thay đổi
+        /// 6. Return: Trả về kết quả thành công/thất bại
         /// </summary>
         public bool DeleteCategory(int categoryId)
         {
@@ -375,7 +451,7 @@ namespace WarehouseManagement.Services
                 if (categoryId <= 0)
                     throw new ArgumentException("ID danh mục không hợp lệ");
                 
-                // Get category before deletion
+                // Lấy dữ liệu danh mục trước khi xóa
                 var categories = _productRepo.GetAllCategories();
                 var category = categories.FirstOrDefault(c => c.CategoryID == categoryId);
                 
@@ -387,13 +463,17 @@ namespace WarehouseManagement.Services
                         CategoryName = category.CategoryName
                     };
                     
+                    // Xóa mềm: set Visible=FALSE trong database
                     bool result = _productRepo.DeleteCategory(categoryId);
                     
                     if (result)
                     {
+                        // Ghi nhật ký xóa với dữ liệu cũ
                         _logRepo.LogAction("DELETE_CATEGORY",
                             $"Xóa danh mục: {category.CategoryName}",
                             JsonConvert.SerializeObject(beforeData));
+                        
+                        // Đánh dấu có thay đổi chưa lưu
                         SaveManager.Instance.MarkAsChanged();
                     }
                     

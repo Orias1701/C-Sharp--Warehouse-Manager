@@ -90,7 +90,6 @@ namespace WarehouseManagement.Views
         {
             try
             {
-                
                 // Set các giá trị cho label
                 lblType.Text = _transaction.Type;
                 lblDate.Text = _transaction.DateCreated.ToString("dd/MM/yyyy HH:mm");
@@ -112,4 +111,5 @@ namespace WarehouseManagement.Views
         }
     }
 }
+
 

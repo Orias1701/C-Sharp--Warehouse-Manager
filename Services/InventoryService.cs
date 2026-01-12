@@ -324,7 +324,6 @@ namespace WarehouseManagement.Services
                     // Cập nhật tồn kho
                     int newQuantity = product.Quantity - quantity;
                     _productRepo.UpdateQuantity(productId, newQuantity);
-                    System.Diagnostics.Debug.WriteLine($"[InventoryService] Export sản phẩm {productId}: {quantity} (kho từ {product.Quantity} → {newQuantity})");
                 }
 
                 // Ghi nhật ký
@@ -445,7 +444,6 @@ namespace WarehouseManagement.Services
             try
             {
                 var result = _transactionRepo.GetTransactionById(transactionId);
-                System.Diagnostics.Debug.WriteLine($"[InventoryService] GetTransactionById trả về kết quả: {(result != null ? "OK" : "NULL")}");
                 return result;
             }
             catch (Exception ex)

@@ -249,8 +249,6 @@ namespace WarehouseManagement.Views
 
             try
             {
-                System.Diagnostics.Debug.WriteLine($"[TransactionForm] Chi tiết: {string.Join(", ", _details.Select(d => $"P{d.ProductID}:Q{d.Quantity}"))}");
-                
                 if (_transactionType == "Import")
                 {
                     _inventoryController.ImportBatch(_details, txtNote.Text);
@@ -270,3 +268,4 @@ namespace WarehouseManagement.Views
         }
     }
 }
+

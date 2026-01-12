@@ -213,7 +213,6 @@ namespace WarehouseManagement.Views
             try
             {
                 StockTransaction transaction = _inventoryController.GetTransactionById(transactionId);
-                System.Diagnostics.Debug.WriteLine($"[MainForm] Nhận được transaction: {(transaction != null ? "OK" : "NULL")}");
                 
                 if (transaction != null)
                 {

@@ -315,7 +315,6 @@ namespace WarehouseManagement.Repositories
                     {
                         cmd.Parameters.AddWithValue("@id", productId);
                         int count = Convert.ToInt32(cmd.ExecuteScalar());
-                        System.Diagnostics.Debug.WriteLine($"[ProductRepository] ProductIdExists({productId}): {count > 0}");
                         return count > 0;
                     }
                 }

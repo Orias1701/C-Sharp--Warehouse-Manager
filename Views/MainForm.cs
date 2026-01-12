@@ -422,8 +422,10 @@ namespace WarehouseManagement.Views
                 {
                     MessageBox.Show("Hoàn tác thành công!");
                     LoadProducts();
+                    LoadCategories();
                     LoadTransactions();
                     UpdateTotalValue();
+                    UpdateChangeStatus();
                 }
                 else
                 {

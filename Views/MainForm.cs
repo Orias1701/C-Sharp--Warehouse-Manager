@@ -38,7 +38,6 @@ namespace WarehouseManagement.Views
         private TextBox txtSearch;
         private Button btnAddProduct;
         private Button btnImport, btnExport, btnUndo, btnReport, btnSave;
-        private Label lblTotalValue;
         private Label lblChangeStatus;
 
         public MainForm()
@@ -82,7 +81,7 @@ namespace WarehouseManagement.Views
 
             // Tab 4: Báo cáo
             TabPage tabReport = new TabPage("Báo Cáo");
-            tabReport.Controls.Add(CreateReportTab());
+            tabReport.Controls.Add(new ReportPanel());
             tabControl.TabPages.Add(tabReport);
 
             // Toolbar - Chứa các nút thao tác
@@ -259,23 +258,8 @@ namespace WarehouseManagement.Views
             }
         }
 
-        private Control CreateReportTab()
-        {
-            Panel panel = new Panel { Dock = DockStyle.Fill };
 
-            lblTotalValue = new Label
-            {
-                Dock = DockStyle.Top,
-                Text = "Tổng giá trị tồn kho: 0 VNĐ",
-                Height = 40,
-                Font = new Font("Arial", 14, FontStyle.Bold),
-                TextAlign = ContentAlignment.MiddleLeft,
-                Padding = new Padding(10)
-            };
 
-            panel.Controls.Add(lblTotalValue);
-            return panel;
-        }
 
         private void MainForm_Load(object sender, EventArgs e)
         {
@@ -289,7 +273,11 @@ namespace WarehouseManagement.Views
             LoadProducts();
             LoadCategories();
             LoadTransactions();
-            UpdateTotalValue();
+        }
+
+        private void UpdateTotalValue()
+        {
+            // Deprecated - báo cáo đã được chuyển sang tab Báo Cáo
         }
 
         private void LoadProducts()
@@ -360,15 +348,7 @@ namespace WarehouseManagement.Views
             }
         }
 
-        private void UpdateTotalValue()
-        {
-            try
-            {
-                decimal total = _inventoryController.GetTotalInventoryValue();
-                lblTotalValue.Text = $"Tổng giá trị tồn kho: {total:C}";
-            }
-            catch { }
-        }
+
 
         private void BtnAddProduct_Click(object sender, EventArgs e)
         {
@@ -446,6 +426,15 @@ namespace WarehouseManagement.Views
 
         private void TabControl_SelectedIndexChanged(object sender, EventArgs e)
         {
+            // Tab 4: Báo cáo (index 3)
+            if (tabControl.SelectedIndex == 3)
+            {
+                var panel = tabControl.TabPages[3].Controls[0] as Panel;
+                if (panel != null && panel.Tag is Action loadAction)
+                {
+                    loadAction.Invoke();
+                }
+            }
         }
 
         /// <summary>
@@ -560,7 +549,6 @@ namespace WarehouseManagement.Views
         {
             if (e.RowIndex < 0) return;  // Header row
             
-            // Check if button columns were clicked
             if (e.ColumnIndex == 2) // Edit button
             {
                 int categoryId = (int)dgvCategories.Rows[e.RowIndex].Cells[0].Value;

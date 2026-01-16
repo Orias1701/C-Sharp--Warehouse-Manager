@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using WarehouseManagement.Controllers;
 using WarehouseManagement.Models;
+using WarehouseManagement.Services;
 
 namespace WarehouseManagement.Views
 {
@@ -16,6 +17,9 @@ namespace WarehouseManagement.Views
         private ProductController _productController;
         private TabControl tabControl;
         private Label lblStockInfo, lblValueInfo, lblChartStock, lblChartValue;
+        private DataGridView dgvImportExport;
+        private Label lblImportExportChart;
+        private ChartService _chartService;
 
         public ReportForm()
         {
@@ -23,6 +27,7 @@ namespace WarehouseManagement.Views
             Text = "Báo Cáo & Biểu Đồ";
             _inventoryController = new InventoryController();
             _productController = new ProductController();
+            _chartService = new ChartService();
         }
 
         private void InitializeComponent()
@@ -84,7 +89,42 @@ namespace WarehouseManagement.Views
             tabValue.Controls.Add(lblChartValue);
             tabControl.TabPages.Add(tabValue);
 
-            // Tab 3: Thống kê
+            // Tab 3: Nhập/Xuất theo tháng
+            TabPage tabImportExport = new TabPage("Nhập/Xuất");
+            
+            // Biểu đồ cột đôi
+            lblImportExportChart = new Label
+            {
+                Dock = DockStyle.Top,
+                Height = 250,
+                BackColor = Color.WhiteSmoke,
+                Padding = new Padding(10),
+                Font = new Font("Courier New", 9),
+                AutoSize = false,
+                TextAlign = ContentAlignment.TopLeft
+            };
+            
+            // DataGridView hiển thị bảng
+            dgvImportExport = new DataGridView
+            {
+                Dock = DockStyle.Fill,
+                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells,
+                ReadOnly = true,
+                AllowUserToAddRows = false,
+                AllowUserToDeleteRows = false,
+                BackgroundColor = Color.White,
+                BorderStyle = BorderStyle.Fixed3D
+            };
+            
+            dgvImportExport.Columns.Add("Month", "Tháng");
+            dgvImportExport.Columns.Add("Import", "Tổng Nhập Kho");
+            dgvImportExport.Columns.Add("Export", "Tổng Xuất Kho");
+            
+            tabImportExport.Controls.Add(dgvImportExport);
+            tabImportExport.Controls.Add(lblImportExportChart);
+            tabControl.TabPages.Add(tabImportExport);
+
+            // Tab 4: Thống kê
             TabPage tabStats = new TabPage("Thống Kê");
             Label statsLabel = new Label { Dock = DockStyle.Fill, Font = new Font("Arial", 12), Padding = new Padding(15) };
             tabStats.Controls.Add(statsLabel);
@@ -99,6 +139,7 @@ namespace WarehouseManagement.Views
         {
             LoadStockChart();
             LoadValueChart();
+            LoadImportExportReport();
             LoadStatistics();
         }
 
@@ -153,6 +194,83 @@ namespace WarehouseManagement.Views
             }
         }
 
+        /// <summary>
+        /// Tải báo cáo nhập/xuất theo tháng
+        /// </summary>
+        private void LoadImportExportReport()
+        {
+            try
+            {
+                var monthlyData = _chartService.GetImportExportByMonth();
+
+                // Xóa dữ liệu cũ
+                dgvImportExport.Rows.Clear();
+
+                decimal maxValue = 0;
+                decimal totalImport = 0;
+                decimal totalExport = 0;
+
+                // Thêm dữ liệu vào bảng
+                foreach (var monthEntry in monthlyData)
+                {
+                    string month = monthEntry.Key;
+                    decimal importValue = monthEntry.Value["Import"];
+                    decimal exportValue = monthEntry.Value["Export"];
+
+                    dgvImportExport.Rows.Add(month, importValue.ToString("C"), exportValue.ToString("C"));
+
+                    totalImport += importValue;
+                    totalExport += exportValue;
+                    if (importValue > maxValue) maxValue = importValue;
+                    if (exportValue > maxValue) maxValue = exportValue;
+                }
+
+                // Tạo biểu đồ cột đôi
+                string chart = DrawDoubleBarChart(monthlyData, maxValue);
+                lblImportExportChart.Text = chart;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khi tải báo cáo nhập/xuất: " + ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Vẽ biểu đồ cột đôi nhập/xuất theo tháng
+        /// </summary>
+        private string DrawDoubleBarChart(Dictionary<string, Dictionary<string, decimal>> data, decimal maxValue)
+        {
+            string chart = "BIỂU ĐỒ NHẬP/XUẤT THEO THÁNG (12 tháng gần nhất)\n";
+            chart += new string('=', 80) + "\n";
+            chart += "Xanh = Nhập kho  |  Đỏ = Xuất kho\n";
+            chart += new string('=', 80) + "\n\n";
+
+            if (maxValue == 0) maxValue = 1; // Tránh chia cho 0
+
+            int chartWidth = 40; // Độ rộng của biểu đồ
+
+            foreach (var monthEntry in data)
+            {
+                string month = monthEntry.Key;
+                decimal importValue = monthEntry.Value["Import"];
+                decimal exportValue = monthEntry.Value["Export"];
+
+                // Tính độ dài các thanh
+                int importBarLength = (int)((importValue / maxValue) * chartWidth);
+                int exportBarLength = (int)((exportValue / maxValue) * chartWidth);
+
+                // Thanh Import (xanh lá)
+                string importBar = new string('█', importBarLength);
+                // Thanh Export (đỏ)
+                string exportBar = new string('█', exportBarLength);
+
+                chart += $"{month}  Nhập: {importBar} {importValue:C0}\n";
+                chart += $"       Xuất: {exportBar} {exportValue:C0}\n\n";
+            }
+
+            return chart;
+        }
+
         private void LoadStatistics()
         {
             try
@@ -184,7 +302,7 @@ Số sản phẩm cần nhập: {lowStockCount}";
                     }
                 }
 
-                var label = tabControl.TabPages[2].Controls[0] as Label;
+                var label = tabControl.TabPages[3].Controls[0] as Label;
                 label.Text = stats;
             }
             catch (Exception ex)

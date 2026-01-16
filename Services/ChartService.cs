@@ -125,5 +125,139 @@ namespace WarehouseManagement.Services
                 throw new Exception("Lỗi khi lấy thống kê: " + ex.Message);
             }
         }
+
+        /// <summary>
+        /// Lấy dữ liệu Nhập/Xuất theo tháng (12 tháng gần nhất)
+        /// Trả về Dictionary với key là tháng (yyyy-MM), value là {Import: giá trị, Export: giá trị}
+        /// </summary>
+        public Dictionary<string, Dictionary<string, decimal>> GetImportExportByMonth()
+        {
+            var result = new Dictionary<string, Dictionary<string, decimal>>();
+            try
+            {
+                var transactions = _transactionRepo.GetAllTransactions();
+                Console.WriteLine($"[ChartService] GetImportExportByMonth: Total transactions = {transactions.Count}");
+
+                // Lấy 12 tháng gần nhất
+                DateTime now = DateTime.Now;
+                DateTime startDate = now.AddMonths(-11);
+
+                // Tạo danh sách các tháng
+                for (int i = 0; i < 12; i++)
+                {
+                    DateTime monthDate = startDate.AddMonths(i);
+                    string monthKey = monthDate.ToString("yyyy-MM");
+                    result[monthKey] = new Dictionary<string, decimal>
+                    {
+                        { "Import", 0 },
+                        { "Export", 0 }
+                    };
+                }
+
+                // Tính toán tổng giá trị nhập/xuất cho mỗi tháng
+                int processedCount = 0;
+                foreach (var transaction in transactions)
+                {
+                    string monthKey = transaction.DateCreated.ToString("yyyy-MM");
+                    
+                    // Chỉ xử lý các giao dịch trong 12 tháng gần nhất
+                    if (!result.ContainsKey(monthKey))
+                        continue;
+
+                    decimal totalValue = 0;
+                    if (transaction.Details != null && transaction.Details.Count > 0)
+                    {
+                        totalValue = transaction.Details.Sum(d => d.UnitPrice * (decimal)d.Quantity);
+                        Console.WriteLine($"[ChartService]   {monthKey} {transaction.Type}: {transaction.Details.Count} items, Total={totalValue}");
+                    }
+
+                    if (transaction.Type == "Import")
+                    {
+                        result[monthKey]["Import"] += totalValue;
+                    }
+                    else if (transaction.Type == "Export")
+                    {
+                        result[monthKey]["Export"] += totalValue;
+                    }
+
+                    processedCount++;
+                }
+
+                Console.WriteLine($"[ChartService] Processed {processedCount} transactions");
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ChartService] ERROR: {ex.Message}\n{ex.StackTrace}");
+                throw new Exception("Lỗi khi lấy dữ liệu nhập/xuất theo tháng: " + ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Lấy dữ liệu Nhập/Xuất theo ngày (30 ngày gần nhất)
+        /// Trả về Dictionary với key là ngày (yyyy-MM-dd), value là {Import: giá trị, Export: giá trị}
+        /// </summary>
+        public Dictionary<string, Dictionary<string, decimal>> GetImportExportByDay()
+        {
+            var result = new Dictionary<string, Dictionary<string, decimal>>();
+            try
+            {
+                var transactions = _transactionRepo.GetAllTransactions();
+                Console.WriteLine($"[ChartService] GetImportExportByDay: Total transactions = {transactions.Count}");
+
+                // Lấy 30 ngày gần nhất
+                DateTime now = DateTime.Now;
+                DateTime startDate = now.AddDays(-29);
+
+                // Tạo danh sách các ngày
+                for (int i = 0; i < 30; i++)
+                {
+                    DateTime dayDate = startDate.AddDays(i);
+                    string dayKey = dayDate.ToString("yyyy-MM-dd");
+                    result[dayKey] = new Dictionary<string, decimal>
+                    {
+                        { "Import", 0 },
+                        { "Export", 0 }
+                    };
+                }
+
+                // Tính toán tổng giá trị nhập/xuất cho mỗi ngày
+                int processedCount = 0;
+                foreach (var transaction in transactions)
+                {
+                    string dayKey = transaction.DateCreated.ToString("yyyy-MM-dd");
+                    
+                    // Chỉ xử lý các giao dịch trong 30 ngày gần nhất
+                    if (!result.ContainsKey(dayKey))
+                        continue;
+
+                    decimal totalValue = 0;
+                    if (transaction.Details != null && transaction.Details.Count > 0)
+                    {
+                        totalValue = transaction.Details.Sum(d => d.UnitPrice * (decimal)d.Quantity);
+                        Console.WriteLine($"[ChartService]   {dayKey} {transaction.Type}: {transaction.Details.Count} items, Total={totalValue}");
+                    }
+
+                    if (transaction.Type == "Import")
+                    {
+                        result[dayKey]["Import"] += totalValue;
+                    }
+                    else if (transaction.Type == "Export")
+                    {
+                        result[dayKey]["Export"] += totalValue;
+                    }
+
+                    processedCount++;
+                }
+
+                Console.WriteLine($"[ChartService] Processed {processedCount} transactions for days");
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ChartService] ERROR: {ex.Message}\n{ex.StackTrace}");
+                throw new Exception("Lỗi khi lấy dữ liệu nhập/xuất theo ngày: " + ex.Message);
+            }
+        }
     }
 }

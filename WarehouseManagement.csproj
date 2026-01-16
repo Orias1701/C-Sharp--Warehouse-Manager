@@ -15,6 +15,7 @@
   <ItemGroup>
     <PackageReference Include="MySql.Data" Version="8.0.33" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="OxyPlot.WindowsForms" Version="2.2.0" />
   </ItemGroup>
 
 </Project>

@@ -12,7 +12,7 @@ namespace WarehouseManagement.Repositories
     public class TransactionRepository : BaseRepository
     {
         /// <summary>
-        /// Lấy danh sách tất cả phiếu
+        /// Lấy danh sách tất cả phiếu (bao gồm chi tiết)
         /// </summary>
         public List<StockTransaction> GetAllTransactions()
         {
@@ -36,6 +36,31 @@ namespace WarehouseManagement.Repositories
                                     CreatedByUserID = reader.IsDBNull(reader.GetOrdinal("CreatedByUserID")) ? 0 : reader.GetInt32("CreatedByUserID"),
                                     Note = reader.IsDBNull(reader.GetOrdinal("Note")) ? "" : reader.GetString("Note")
                                 });
+                            }
+                        }
+                    }
+                    
+                    // Load chi tiết cho mỗi phiếu
+                    foreach (var trans in transactions)
+                    {
+                        using (var detailCmd = new MySqlCommand(
+                            "SELECT * FROM TransactionDetails WHERE TransactionID=@transId", conn))
+                        {
+                            detailCmd.Parameters.AddWithValue("@transId", trans.TransactionID);
+                            using (var detailReader = detailCmd.ExecuteReader())
+                            {
+                                while (detailReader.Read())
+                                {
+                                    trans.Details.Add(new TransactionDetail
+                                    {
+                                        DetailID = detailReader.GetInt32("DetailID"),
+                                        TransactionID = detailReader.GetInt32("TransactionID"),
+                                        ProductID = detailReader.GetInt32("ProductID"),
+                                        ProductName = detailReader.IsDBNull(detailReader.GetOrdinal("ProductName")) ? "" : detailReader.GetString("ProductName"),
+                                        Quantity = detailReader.GetInt32("Quantity"),
+                                        UnitPrice = detailReader.GetDecimal("UnitPrice")
+                                    });
+                                }
                             }
                         }
                     }

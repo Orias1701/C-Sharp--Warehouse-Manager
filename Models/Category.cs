@@ -1,7 +1,7 @@
 ﻿namespace WarehouseManagement.Models
 {
     /// <summary>
-    /// Lá»›p thá»±c thá»ƒ Danh má»¥c sáº£n pháº©m
+    /// Lớp thực thể Danh mục sản phẩm
     /// </summary>
     public class Category
     {
@@ -9,7 +9,3 @@
         public string CategoryName { get; set; }
     }
 }
-
-
-
-

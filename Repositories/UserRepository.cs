@@ -8,7 +8,7 @@ namespace WarehouseManagement.Repositories
 {
     public class UserRepository : BaseRepository
     {
-        // Helper method Ä‘á»ƒ trÃ¡nh láº·p code khi map dá»¯ liá»‡u tá»« DB sang Object
+        // Helper method để tránh lặp code khi map dữ liệu từ DB sang Object
         private User MapUserFromReader(MySqlDataReader reader)
         {
             return new User
@@ -36,7 +36,7 @@ namespace WarehouseManagement.Repositories
                 using (var conn = GetConnection())
                 {
                     conn.Open();
-                    // Query sá»­ dá»¥ng tham sá»‘ Ä‘á»ƒ chá»‘ng SQL Injection
+                    // Query sử dụng tham số để chống SQL Injection
                     string sql = "SELECT * FROM Users WHERE Username=@username AND IsActive=1";
                     using (var cmd = new MySqlCommand(sql, conn))
                     {
@@ -48,7 +48,7 @@ namespace WarehouseManagement.Repositories
                             {
                                 var user = MapUserFromReader(reader);
                                 
-                                // XÃ¡c minh máº­t kháº©u báº±ng IdGenerator
+                                // Xác minh mật khẩu bằng IdGenerator
                                 if (user.VerifyPassword(passwordRaw))
                                 {
                                     return user;
@@ -65,7 +65,7 @@ namespace WarehouseManagement.Repositories
             }
             catch (Exception)
             {
-                throw new Exception("Lá»—i há»‡ thá»‘ng khi Ä‘Äƒng nháº­p."); 
+                throw new Exception("Lỗi hệ thống khi đăng nhập."); 
             }
         }
 
@@ -88,7 +88,7 @@ namespace WarehouseManagement.Repositories
             }
             catch (Exception)
             {
-                throw new Exception("Lá»—i khi truy váº¥n ID ngÆ°á»i dÃ¹ng.");
+                throw new Exception("Lỗi khi truy vấn ID người dùng.");
             }
             return null;
         }
@@ -115,13 +115,9 @@ namespace WarehouseManagement.Repositories
             }
             catch (Exception)
             {
-                throw new Exception("Lá»—i khi láº¥y danh sÃ¡ch ngÆ°á»i dÃ¹ng.");
+                throw new Exception("Lỗi khi lấy danh sách người dùng.");
             }
             return users;
         }
     }
 }
-
-
-
-

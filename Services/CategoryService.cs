@@ -8,19 +8,19 @@ using Newtonsoft.Json;
 namespace WarehouseManagement.Services
 {
     /// <summary>
-    /// Service xá»­ lÃ½ logic danh má»¥c sáº£n pháº©m
+    /// Service xử lý logic danh mục sản phẩm
     /// 
-    /// CHá»¨C NÄ‚NG:
-    /// - Quáº£n lÃ½ danh má»¥c (CRUD): ThÃªm, sá»­a, xÃ³a
-    /// - TÃ¬m kiáº¿m danh má»¥c: Theo tÃªn
-    /// - Kiá»ƒm tra phá»¥ thuá»™c: Kiá»ƒm tra danh má»¥c cÃ³ sáº£n pháº©m hay khÃ´ng
+    /// CHỨC NĂNG:
+    /// - Quản lý danh mục (CRUD): Thêm, sửa, xóa
+    /// - Tìm kiếm danh mục: Theo tên
+    /// - Kiểm tra phụ thuộc: Kiểm tra danh mục có sản phẩm hay không
     /// 
-    /// LUá»’NG:
-    /// 1. Validation: Kiá»ƒm tra Ä‘áº§u vÃ o (ID, tÃªn, v.v...)
-    /// 2. Repository call: Gá»i DB Ä‘á»ƒ thá»±c hiá»‡n thao tÃ¡c
-    /// 3. Logging: Ghi nháº­t kÃ½ Actions
-    /// 4. Change tracking: Gá»i ActionsService.MarkAsChanged()
-    /// 5. Return: Tráº£ vá» káº¿t quáº£
+    /// LUỒNG:
+    /// 1. Validation: Kiểm tra đầu vào (ID, tên, v.v...)
+    /// 2. Repository call: Gọi DB để thực hiện thao tác
+    /// 3. Logging: Ghi nhật ký Actions
+    /// 4. Change tracking: Gọi ActionsService.MarkAsChanged()
+    /// 5. Return: Trả về kết quả
     /// </summary>
     public class CategoryService
     {
@@ -34,7 +34,7 @@ namespace WarehouseManagement.Services
         }
 
         /// <summary>
-        /// Láº¥y danh sÃ¡ch táº¥t cáº£ danh má»¥c
+        /// Lấy danh sách tất cả danh mục
         /// </summary>
         public List<Category> GetAllCategories()
         {
@@ -44,29 +44,29 @@ namespace WarehouseManagement.Services
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i khi láº¥y danh má»¥c: " + ex.Message);
+                throw new Exception("Lỗi khi lấy danh mục: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Láº¥y danh má»¥c theo ID
+        /// Lấy danh mục theo ID
         /// </summary>
         public Category GetCategoryById(int categoryId)
         {
             try
             {
                 if (categoryId <= 0)
-                    throw new ArgumentException("ID danh má»¥c khÃ´ng há»£p lá»‡");
+                    throw new ArgumentException("ID danh mục không hợp lệ");
                 return _categoryRepo.GetCategoryById(categoryId);
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i khi láº¥y danh má»¥c: " + ex.Message);
+                throw new Exception("Lỗi khi lấy danh mục: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// TÃ¬m kiáº¿m danh má»¥c theo tÃªn (khÃ´ng phÃ¢n biá»‡t hoa thÆ°á»ng)
+        /// Tìm kiếm danh mục theo tên (không phân biệt hoa thường)
         /// </summary>
         public List<Category> SearchCategoryByName(string keyword)
         {
@@ -80,19 +80,19 @@ namespace WarehouseManagement.Services
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i khi tÃ¬m kiáº¿m danh má»¥c: " + ex.Message);
+                throw new Exception("Lỗi khi tìm kiếm danh mục: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// ThÃªm danh má»¥c má»›i
+        /// Thêm danh mục mới
         /// 
-        /// LUá»’NG:
-        /// 1. Validation: Kiá»ƒm tra tÃªn danh má»¥c khÃ´ng trá»‘ng, <= 100 kÃ½ tá»±
-        /// 2. Repository.AddCategory(): ThÃªm vÃ o database
-        /// 3. LogAction(): Ghi nháº­t kÃ½ (DataBefore trá»‘ng)
-        /// 4. MarkAsChanged(): ÄÃ¡nh dáº¥u cÃ³ thay Ä‘á»•i
-        /// 5. Return: Tráº£ vá» ID danh má»¥c vá»«a thÃªm
+        /// LUỒNG:
+        /// 1. Validation: Kiểm tra tên danh mục không trống, <= 100 ký tự
+        /// 2. Repository.AddCategory(): Thêm vào database
+        /// 3. LogAction(): Ghi nhật ký (DataBefore trống)
+        /// 4. MarkAsChanged(): Đánh dấu có thay đổi
+        /// 5. Return: Trả về ID danh mục vừa thêm
         /// </summary>
         public int AddCategory(string categoryName)
         {
@@ -100,48 +100,48 @@ namespace WarehouseManagement.Services
             {
                 // Validation
                 if (string.IsNullOrWhiteSpace(categoryName))
-                    throw new ArgumentException("TÃªn danh má»¥c khÃ´ng Ä‘Æ°á»£c trá»‘ng");
+                    throw new ArgumentException("Tên danh mục không được trống");
                 if (categoryName.Length > 100)
-                    throw new ArgumentException("TÃªn danh má»¥c khÃ´ng Ä‘Æ°á»£c vÆ°á»£t 100 kÃ½ tá»±");
+                    throw new ArgumentException("Tên danh mục không được vượt 100 ký tự");
 
                 var category = new Category
                 {
                     CategoryName = categoryName.Trim()
                 };
 
-                // ThÃªm danh má»¥c vÃ o database
+                // Thêm danh mục vào database
                 int categoryId = _categoryRepo.AddCategory(category);
 
-                // Ghi nháº­t kÃ½
+                // Ghi nhật ký
                 var log = new Actions
                 {
                     ActionType = "ADD_CATEGORY",
-                    Descriptions = $"ThÃªm danh má»¥c: {categoryName}",
+                    Descriptions = $"Thêm danh mục: {categoryName}",
                     DataBefore = "",
                     CreatedAt = DateTime.Now
                 };
                 _logRepo.LogAction(log);
 
-                // ÄÃ¡nh dáº¥u cÃ³ thay Ä‘á»•i chÆ°a lÆ°u
+                // Đánh dấu có thay đổi chưa lưu
                 ActionsService.Instance.MarkAsChanged();
                 return categoryId;
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i khi thÃªm danh má»¥c: " + ex.Message);
+                throw new Exception("Lỗi khi thêm danh mục: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Cáº­p nháº­t danh má»¥c
+        /// Cập nhật danh mục
         /// 
-        /// LUá»’NG:
-        /// 1. Validation: Kiá»ƒm tra ID vÃ  tÃªn danh má»¥c
-        /// 2. GetCategoryById(): Láº¥y dá»¯ liá»‡u cÅ© trÆ°á»›c khi cáº­p nháº­t
-        /// 3. Repository.UpdateCategory(): Cáº­p nháº­t vÃ o database
-        /// 4. LogAction(): Ghi nháº­t kÃ½ vá»›i dá»¯ liá»‡u cÅ©
-        /// 5. MarkAsChanged(): ÄÃ¡nh dáº¥u cÃ³ thay Ä‘á»•i
-        /// 6. Return: Tráº£ vá» káº¿t quáº£ thÃ nh cÃ´ng/tháº¥t báº¡i
+        /// LUỒNG:
+        /// 1. Validation: Kiểm tra ID và tên danh mục
+        /// 2. GetCategoryById(): Lấy dữ liệu cũ trước khi cập nhật
+        /// 3. Repository.UpdateCategory(): Cập nhật vào database
+        /// 4. LogAction(): Ghi nhật ký với dữ liệu cũ
+        /// 5. MarkAsChanged(): Đánh dấu có thay đổi
+        /// 6. Return: Trả về kết quả thành công/thất bại
         /// </summary>
         public bool UpdateCategory(int categoryId, string categoryName)
         {
@@ -149,16 +149,16 @@ namespace WarehouseManagement.Services
             {
                 // Validation
                 if (categoryId <= 0)
-                    throw new ArgumentException("ID danh má»¥c khÃ´ng há»£p lá»‡");
+                    throw new ArgumentException("ID danh mục không hợp lệ");
                 if (string.IsNullOrWhiteSpace(categoryName))
-                    throw new ArgumentException("TÃªn danh má»¥c khÃ´ng Ä‘Æ°á»£c trá»‘ng");
+                    throw new ArgumentException("Tên danh mục không được trống");
                 if (categoryName.Length > 100)
-                    throw new ArgumentException("TÃªn danh má»¥c khÃ´ng Ä‘Æ°á»£c vÆ°á»£t 100 kÃ½ tá»±");
+                    throw new ArgumentException("Tên danh mục không được vượt 100 ký tự");
 
-                // Láº¥y dá»¯ liá»‡u cÅ© trÆ°á»›c khi cáº­p nháº­t
+                // Lấy dữ liệu cũ trước khi cập nhật
                 var oldCategory = _categoryRepo.GetCategoryById(categoryId);
                 if (oldCategory == null)
-                    throw new ArgumentException("Danh má»¥c khÃ´ng tá»“n táº¡i");
+                    throw new ArgumentException("Danh mục không tồn tại");
 
                 var beforeData = new
                 {
@@ -166,7 +166,7 @@ namespace WarehouseManagement.Services
                     CategoryName = oldCategory.CategoryName
                 };
 
-                // Cáº­p nháº­t danh má»¥c vÃ o database
+                // Cập nhật danh mục vào database
                 var category = new Category
                 {
                     CategoryID = categoryId,
@@ -177,17 +177,17 @@ namespace WarehouseManagement.Services
 
                 if (result)
                 {
-                    // Ghi nháº­t kÃ½ vá»›i dá»¯ liá»‡u cÅ©
+                    // Ghi nhật ký với dữ liệu cũ
                     var log = new Actions
                     {
                         ActionType = "UPDATE_CATEGORY",
-                        Descriptions = $"Cáº­p nháº­t danh má»¥c: {categoryName}",
+                        Descriptions = $"Cập nhật danh mục: {categoryName}",
                         DataBefore = JsonConvert.SerializeObject(beforeData),
                         CreatedAt = DateTime.Now
                     };
                     _logRepo.LogAction(log);
 
-                    // ÄÃ¡nh dáº¥u cÃ³ thay Ä‘á»•i chÆ°a lÆ°u
+                    // Đánh dấu có thay đổi chưa lưu
                     ActionsService.Instance.MarkAsChanged();
                 }
 
@@ -195,33 +195,33 @@ namespace WarehouseManagement.Services
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i khi cáº­p nháº­t danh má»¥c: " + ex.Message);
+                throw new Exception("Lỗi khi cập nhật danh mục: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// XÃ³a danh má»¥c (soft delete)
+        /// Xóa danh mục (soft delete)
         /// 
-        /// LUá»’NG:
-        /// 1. Validation: Kiá»ƒm tra ID danh má»¥c
-        /// 2. GetCategoryById(): Láº¥y dá»¯ liá»‡u cÅ© trÆ°á»›c khi xÃ³a
-        /// 3. Repository.DeleteCategory(): XÃ³a má»m (soft delete)
-        /// 4. LogAction(): Ghi nháº­t kÃ½ xÃ³a vá»›i dá»¯ liá»‡u cÅ©
-        /// 5. MarkAsChanged(): ÄÃ¡nh dáº¥u cÃ³ thay Ä‘á»•i
-        /// 6. Return: Tráº£ vá» káº¿t quáº£ thÃ nh cÃ´ng/tháº¥t báº¡i
+        /// LUỒNG:
+        /// 1. Validation: Kiểm tra ID danh mục
+        /// 2. GetCategoryById(): Lấy dữ liệu cũ trước khi xóa
+        /// 3. Repository.DeleteCategory(): Xóa mềm (soft delete)
+        /// 4. LogAction(): Ghi nhật ký xóa với dữ liệu cũ
+        /// 5. MarkAsChanged(): Đánh dấu có thay đổi
+        /// 6. Return: Trả về kết quả thành công/thất bại
         /// </summary>
         public bool DeleteCategory(int categoryId)
         {
             try
             {
                 if (categoryId <= 0)
-                    throw new ArgumentException("ID danh má»¥c khÃ´ng há»£p lá»‡");
+                    throw new ArgumentException("ID danh mục không hợp lệ");
 
-                // Kiá»ƒm tra danh má»¥c cÃ³ sáº£n pháº©m hay khÃ´ng
+                // Kiểm tra danh mục có sản phẩm hay không
                 if (_categoryRepo.CategoryHasProducts(categoryId))
-                    throw new ArgumentException("KhÃ´ng thá»ƒ xÃ³a danh má»¥c vÃ¬ cÃ²n sáº£n pháº©m");
+                    throw new ArgumentException("Không thể xóa danh mục vì còn sản phẩm");
 
-                // Láº¥y dá»¯ liá»‡u danh má»¥c trÆ°á»›c khi xÃ³a
+                // Lấy dữ liệu danh mục trước khi xóa
                 var category = _categoryRepo.GetCategoryById(categoryId);
 
                 if (category != null)
@@ -232,22 +232,22 @@ namespace WarehouseManagement.Services
                         CategoryName = category.CategoryName
                     };
 
-                    // XÃ³a má»m: set Visible=FALSE trong database
+                    // Xóa mềm: set Visible=FALSE trong database
                     bool result = _categoryRepo.DeleteCategory(categoryId);
 
                     if (result)
                     {
-                        // Ghi nháº­t kÃ½ xÃ³a vá»›i dá»¯ liá»‡u cÅ©
+                        // Ghi nhật ký xóa với dữ liệu cũ
                         var log = new Actions
                         {
                             ActionType = "DELETE_CATEGORY",
-                            Descriptions = $"XÃ³a danh má»¥c: {category.CategoryName}",
+                            Descriptions = $"Xóa danh mục: {category.CategoryName}",
                             DataBefore = JsonConvert.SerializeObject(beforeData),
                             CreatedAt = DateTime.Now
                         };
                         _logRepo.LogAction(log);
 
-                        // ÄÃ¡nh dáº¥u cÃ³ thay Ä‘á»•i chÆ°a lÆ°u
+                        // Đánh dấu có thay đổi chưa lưu
                         ActionsService.Instance.MarkAsChanged();
                     }
 
@@ -258,29 +258,25 @@ namespace WarehouseManagement.Services
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i khi xÃ³a danh má»¥c: " + ex.Message);
+                throw new Exception("Lỗi khi xóa danh mục: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Kiá»ƒm tra danh má»¥c cÃ³ sáº£n pháº©m hay khÃ´ng
+        /// Kiểm tra danh mục có sản phẩm hay không
         /// </summary>
         public bool CategoryHasProducts(int categoryId)
         {
             try
             {
                 if (categoryId <= 0)
-                    throw new ArgumentException("ID danh má»¥c khÃ´ng há»£p lá»‡");
+                    throw new ArgumentException("ID danh mục không hợp lệ");
                 return _categoryRepo.CategoryHasProducts(categoryId);
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i kiá»ƒm tra danh má»¥c: " + ex.Message);
+                throw new Exception("Lỗi kiểm tra danh mục: " + ex.Message);
             }
         }
     }
 }
-
-
-
-

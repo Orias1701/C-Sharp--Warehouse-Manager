@@ -7,12 +7,12 @@ using WarehouseManagement.Models;
 namespace WarehouseManagement.Repositories
 {
     /// <summary>
-    /// Repository Ä‘á»ƒ quáº£n lÃ½ nháº­t kÃ½ hÃ nh Ä‘á»™ng (há»— trá»£ Undo)
+    /// Repository để quản lý nhật ký hành động (hỗ trợ Undo)
     /// </summary>
     public class LogRepository : BaseRepository
     {
         /// <summary>
-        /// Láº¥y danh sÃ¡ch nháº­t kÃ½ (chá»‰ visible records)
+        /// Lấy danh sách nhật ký (chỉ visible records)
         /// </summary>
         public List<Actions> GetAllLogs()
         {
@@ -43,13 +43,13 @@ namespace WarehouseManagement.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i khi láº¥y danh sÃ¡ch nháº­t kÃ½: " + ex.Message);
+                throw new Exception("Lỗi khi lấy danh sách nhật ký: " + ex.Message);
             }
             return logs;
         }
 
         /// <summary>
-        /// Ghi láº¡i nháº­t kÃ½ hÃ nh Ä‘á»™ng
+        /// Ghi lại nhật ký hành động
         /// </summary>
         public bool LogAction(string actionType, string descriptions, string dataBefore = "")
         {
@@ -73,12 +73,12 @@ namespace WarehouseManagement.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i khi ghi nháº­t kÃ½: " + ex.Message);
+                throw new Exception("Lỗi khi ghi nhật ký: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Láº¥y nháº­t kÃ½ theo loáº¡i hÃ nh Ä‘á»™ng (chá»‰ visible records)
+        /// Lấy nhật ký theo loại hành động (chỉ visible records)
         /// </summary>
         public List<Actions> GetLogsByActionType(string actionType)
         {
@@ -110,13 +110,13 @@ namespace WarehouseManagement.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception($"Lá»—i khi láº¥y nháº­t kÃ½ loáº¡i {actionType}: " + ex.Message);
+                throw new Exception($"Lỗi khi lấy nhật ký loại {actionType}: " + ex.Message);
             }
             return logs;
         }
 
         /// <summary>
-        /// Láº¥y N hÃ nh Ä‘á»™ng gáº§n nháº¥t (LIFO stack - Last In First Out)
+        /// Lấy N hành động gần nhất (LIFO stack - Last In First Out)
         /// </summary>
         public List<Actions> GetLastNLogs(int count = 10)
         {
@@ -148,13 +148,13 @@ namespace WarehouseManagement.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i khi láº¥y nháº­t kÃ½ gáº§n nháº¥t: " + ex.Message);
+                throw new Exception("Lỗi khi lấy nhật ký gần nhất: " + ex.Message);
             }
             return logs;
         }
 
         /// <summary>
-        /// XÃ³a má»m hÃ nh Ä‘á»™ng tá»« undo stack (set Visible=FALSE)
+        /// Xóa mềm hành động từ undo stack (set Visible=FALSE)
         /// </summary>
         public bool RemoveFromUndoStack(int logId)
         {
@@ -173,12 +173,12 @@ namespace WarehouseManagement.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i khi xÃ³a hÃ nh Ä‘á»™ng khá»i undo stack: " + ex.Message);
+                throw new Exception("Lỗi khi xóa hành động khỏi undo stack: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// XÃ³a nháº­t kÃ½ cÅ© (hÆ¡n N ngÃ y)
+        /// Xóa nhật ký cũ (hơn N ngày)
         /// </summary>
         public bool DeleteOldLogs(int daysOld)
         {
@@ -198,12 +198,8 @@ namespace WarehouseManagement.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i khi xÃ³a nháº­t kÃ½ cÅ©: " + ex.Message);
+                throw new Exception("Lỗi khi xóa nhật ký cũ: " + ex.Message);
             }
         }
     }
 }
-
-
-
-

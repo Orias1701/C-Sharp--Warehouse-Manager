@@ -8,18 +8,18 @@ using WarehouseManagement.Repositories;
 namespace WarehouseManagement.Services
 {
     /// <summary>
-    /// Service xá»­ lÃ½ logic nháº­t kÃ½ hÃ nh Ä‘á»™ng (há»— trá»£ Undo) + Quáº£n lÃ½ Save/Commit
+    /// Service xử lý logic nhật ký hành động (hỗ trợ Undo) + Quản lý Save/Commit
     /// 
-    /// CHá»¨C NÄ‚NG:
-    /// - Quáº£n lÃ½ nháº­t kÃ½ (CRUD): ThÃªm, xem, xÃ³a
-    /// - TÃ¬m kiáº¿m nháº­t kÃ½: Theo loáº¡i hÃ nh Ä‘á»™ng, ngÃ y thÃ¡ng
-    /// - Undo: KhÃ´i phá»¥c dá»¯ liá»‡u trÆ°á»›c khi thay Ä‘á»•i
-    /// - Save state tracking: ÄÃ¡nh dáº¥u cÃ³ thay Ä‘á»•i chÆ°a lÆ°u
+    /// CHỨC NĂNG:
+    /// - Quản lý nhật ký (CRUD): Thêm, xem, xóa
+    /// - Tìm kiếm nhật ký: Theo loại hành động, ngày tháng
+    /// - Undo: Khôi phục dữ liệu trước khi thay đổi
+    /// - Save state tracking: Đánh dấu có thay đổi chưa lưu
     /// 
-    /// LUá»’NG:
-    /// 1. Validation: Kiá»ƒm tra Ä‘áº§u vÃ o
-    /// 2. Repository call: Gá»i DB Ä‘á»ƒ thá»±c hiá»‡n thao tÃ¡c
-    /// 3. Return: Tráº£ vá» káº¿t quáº£
+    /// LUỒNG:
+    /// 1. Validation: Kiểm tra đầu vào
+    /// 2. Repository call: Gọi DB để thực hiện thao tác
+    /// 3. Return: Trả về kết quả
     /// </summary>
     public class ActionsService
     {
@@ -52,7 +52,7 @@ namespace WarehouseManagement.Services
         #region Action Logging Methods
 
         /// <summary>
-        /// Láº¥y danh sÃ¡ch táº¥t cáº£ nháº­t kÃ½
+        /// Lấy danh sách tất cả nhật ký
         /// </summary>
         public List<Actions> GetAllLogs()
         {
@@ -62,29 +62,29 @@ namespace WarehouseManagement.Services
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i khi láº¥y danh sÃ¡ch nháº­t kÃ½: " + ex.Message);
+                throw new Exception("Lỗi khi lấy danh sách nhật ký: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Láº¥y nháº­t kÃ½ theo ID
+        /// Lấy nhật ký theo ID
         /// </summary>
         public Actions GetLogById(int logId)
         {
             try
             {
                 if (logId <= 0)
-                    throw new ArgumentException("ID nháº­t kÃ½ khÃ´ng há»£p lá»‡");
+                    throw new ArgumentException("ID nhật ký không hợp lệ");
                 return _logRepo.GetLogById(logId);
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i khi láº¥y nháº­t kÃ½: " + ex.Message);
+                throw new Exception("Lỗi khi lấy nhật ký: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Ghi nháº­t kÃ½ hÃ nh Ä‘á»™ng má»›i
+        /// Ghi nhật ký hành động mới
         /// </summary>
         public int LogAction(string actionType, string descriptions, string dataBefore = "")
         {
@@ -92,7 +92,7 @@ namespace WarehouseManagement.Services
             {
                 // Validation
                 if (string.IsNullOrWhiteSpace(actionType))
-                    throw new ArgumentException("Loáº¡i hÃ nh Ä‘á»™ng khÃ´ng Ä‘Æ°á»£c trá»‘ng");
+                    throw new ArgumentException("Loại hành động không được trống");
 
                 var log = new Actions
                 {
@@ -106,87 +106,87 @@ namespace WarehouseManagement.Services
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i khi ghi nháº­t kÃ½: " + ex.Message);
+                throw new Exception("Lỗi khi ghi nhật ký: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// XÃ³a nháº­t kÃ½ (soft delete)
+        /// Xóa nhật ký (soft delete)
         /// </summary>
         public bool DeleteLog(int logId)
         {
             try
             {
                 if (logId <= 0)
-                    throw new ArgumentException("ID nháº­t kÃ½ khÃ´ng há»£p lá»‡");
+                    throw new ArgumentException("ID nhật ký không hợp lệ");
 
                 return _logRepo.DeleteLog(logId);
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i khi xÃ³a nháº­t kÃ½: " + ex.Message);
+                throw new Exception("Lỗi khi xóa nhật ký: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Láº¥y nháº­t kÃ½ theo loáº¡i hÃ nh Ä‘á»™ng
+        /// Lấy nhật ký theo loại hành động
         /// </summary>
         public List<Actions> GetLogsByActionType(string actionType)
         {
             try
             {
                 if (string.IsNullOrWhiteSpace(actionType))
-                    throw new ArgumentException("Loáº¡i hÃ nh Ä‘á»™ng khÃ´ng Ä‘Æ°á»£c trá»‘ng");
+                    throw new ArgumentException("Loại hành động không được trống");
 
                 return _logRepo.GetLogsByActionType(actionType.Trim());
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i khi láº¥y nháº­t kÃ½ theo loáº¡i: " + ex.Message);
+                throw new Exception("Lỗi khi lấy nhật ký theo loại: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Láº¥y nháº­t kÃ½ trong má»™t khoáº£ng thá»i gian
+        /// Lấy nhật ký trong một khoảng thời gian
         /// </summary>
         public List<Actions> GetLogsByDateRange(DateTime startDate, DateTime endDate)
         {
             try
             {
                 if (startDate > endDate)
-                    throw new ArgumentException("NgÃ y báº¯t Ä‘áº§u khÃ´ng Ä‘Æ°á»£c lá»›n hÆ¡n ngÃ y káº¿t thÃºc");
+                    throw new ArgumentException("Ngày bắt đầu không được lớn hơn ngày kết thúc");
 
                 return _logRepo.GetLogsByDateRange(startDate, endDate);
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i khi láº¥y nháº­t kÃ½ theo ngÃ y: " + ex.Message);
+                throw new Exception("Lỗi khi lấy nhật ký theo ngày: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Láº¥y nháº­t kÃ½ gáº§n nháº¥t cá»§a má»™t loáº¡i hÃ nh Ä‘á»™ng
+        /// Lấy nhật ký gần nhất của một loại hành động
         /// </summary>
         public Actions GetLatestLog(string actionType)
         {
             try
             {
                 if (string.IsNullOrWhiteSpace(actionType))
-                    throw new ArgumentException("Loáº¡i hÃ nh Ä‘á»™ng khÃ´ng Ä‘Æ°á»£c trá»‘ng");
+                    throw new ArgumentException("Loại hành động không được trống");
 
                 var logs = _logRepo.GetLogsByActionType(actionType.Trim());
                 if (logs.Count > 0)
-                    return logs[0]; // Má»›i nháº¥t Ä‘Æ°á»£c sort first
+                    return logs[0]; // Mới nhất được sort first
                 return null;
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i khi láº¥y nháº­t kÃ½ gáº§n nháº¥t: " + ex.Message);
+                throw new Exception("Lỗi khi lấy nhật ký gần nhất: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Kiá»ƒm tra cÃ³ nháº­t kÃ½ nÃ o khÃ´ng
+        /// Kiểm tra có nhật ký nào không
         /// </summary>
         public bool HasLogs()
         {
@@ -196,12 +196,12 @@ namespace WarehouseManagement.Services
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i khi kiá»ƒm tra nháº­t kÃ½: " + ex.Message);
+                throw new Exception("Lỗi khi kiểm tra nhật ký: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Äáº¿m tá»•ng sá»‘ nháº­t kÃ½
+        /// Đếm tổng số nhật ký
         /// </summary>
         public int CountLogs()
         {
@@ -211,12 +211,12 @@ namespace WarehouseManagement.Services
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i khi Ä‘áº¿m nháº­t kÃ½: " + ex.Message);
+                throw new Exception("Lỗi khi đếm nhật ký: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// XÃ³a táº¥t cáº£ nháº­t kÃ½ khi káº¿t thÃºc phiÃªn
+        /// Xóa tất cả nhật ký khi kết thúc phiên
         /// </summary>
         public bool ClearAllLogs()
         {
@@ -226,7 +226,7 @@ namespace WarehouseManagement.Services
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i khi xÃ³a táº¥t cáº£ nháº­t kÃ½: " + ex.Message);
+                throw new Exception("Lỗi khi xóa tất cả nhật ký: " + ex.Message);
             }
         }
 
@@ -235,8 +235,8 @@ namespace WarehouseManagement.Services
         #region Save State Management (merged from SaveManager)
 
         /// <summary>
-        /// ÄÃ¡nh dáº¥u cÃ³ thay Ä‘á»•i chÆ°a lÆ°u
-        /// ÄÆ°á»£c gá»i tá»« cÃ¡c Service methods (AddProduct, ImportStock, v.v...)
+        /// Đánh dấu có thay đổi chưa lưu
+        /// Được gọi từ các Service methods (AddProduct, ImportStock, v.v...)
         /// </summary>
         public void MarkAsChanged()
         {
@@ -245,8 +245,8 @@ namespace WarehouseManagement.Services
         }
 
         /// <summary>
-        /// Giáº£m sá»‘ lÆ°á»£ng thay Ä‘á»•i khi hoÃ n tÃ¡c hÃ nh Ä‘á»™ng
-        /// ÄÆ°á»£c gá»i tá»« Undo functionality
+        /// Giảm số lượng thay đổi khi hoàn tác hành động
+        /// Được gọi từ Undo functionality
         /// </summary>
         public void DecrementChangeCount()
         {
@@ -255,7 +255,7 @@ namespace WarehouseManagement.Services
                 _changeCount--;
             }
             
-            // Náº¿u khÃ´ng cÃ²n thay Ä‘á»•i nÃ o, reset tráº¡ng thÃ¡i
+            // Nếu không còn thay đổi nào, reset trạng thái
             if (_changeCount == 0)
             {
                 _hasUnsavedChanges = false;
@@ -263,77 +263,77 @@ namespace WarehouseManagement.Services
         }
 
         /// <summary>
-        /// Kiá»ƒm tra cÃ³ thay Ä‘á»•i chÆ°a lÆ°u hay khÃ´ng
+        /// Kiểm tra có thay đổi chưa lưu hay không
         /// </summary>
         public bool HasUnsavedChanges => _hasUnsavedChanges;
 
         /// <summary>
-        /// Láº¥y sá»‘ lÆ°á»£ng thay Ä‘á»•i tá»« láº§n save cuá»‘i cÃ¹ng
+        /// Lấy số lượng thay đổi từ lần save cuối cùng
         /// </summary>
         public int ChangeCount => _changeCount;
 
         /// <summary>
-        /// Láº¥y thá»i gian Save cuá»‘i cÃ¹ng
+        /// Lấy thời gian Save cuối cùng
         /// </summary>
         public DateTime LastSaveTime => _lastSaveTime;
 
         /// <summary>
-        /// LÆ°u cÃ¡c thay Ä‘á»•i vÃ o database (CommitChanges)
+        /// Lưu các thay đổi vào database (CommitChanges)
         /// 
-        /// LUá»’NG:
-        /// 1. Táº¥t cáº£ thay Ä‘á»•i Ä‘Ã£ Ä‘Æ°á»£c thá»±c hiá»‡n qua cÃ¡c Service methods
-        /// 2. ÄÃ£ Ä‘Æ°á»£c ghi vÃ o Actions vá»›i CreatedAt = now
-        /// 3. Chá»‰ cáº§n update láº¡i _lastSaveTime
-        /// 4. Reset tráº¡ng thÃ¡i HasUnsavedChanges vÃ  ChangeCount
+        /// LUỒNG:
+        /// 1. Tất cả thay đổi đã được thực hiện qua các Service methods
+        /// 2. Đã được ghi vào Actions với CreatedAt = now
+        /// 3. Chỉ cần update lại _lastSaveTime
+        /// 4. Reset trạng thái HasUnsavedChanges và ChangeCount
         /// 
-        /// ÄÆ°á»£c gá»i khi:
-        /// - User click nÃºt "LÆ°u" (ðŸ’¾)
-        /// - User chá»n "CÃ³" (Yes) khi thoÃ¡t app
+        /// Được gọi khi:
+        /// - User click nút "Lưu" (💾)
+        /// - User chọn "Có" (Yes) khi thoát app
         /// </summary>
         public void CommitChanges()
         {
             try
             {
-                // Cáº­p nháº­t thá»i gian save cuá»‘i cÃ¹ng
-                // Táº¥t cáº£ thay Ä‘á»•i tá»« láº§n save trÆ°á»›c Ä‘áº¿n now Ä‘á»u Ä‘Ã£ Ä‘Æ°á»£c lÆ°u
+                // Cập nhật thời gian save cuối cùng
+                // Tất cả thay đổi từ lần save trước đến now đều đã được lưu
                 _lastSaveTime = DateTime.Now;
                 
-                // Reset tráº¡ng thÃ¡i
+                // Reset trạng thái
                 _hasUnsavedChanges = false;
                 _changeCount = 0;
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i khi lÆ°u thay Ä‘á»•i: " + ex.Message);
+                throw new Exception("Lỗi khi lưu thay đổi: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// KhÃ´i phá»¥c táº¥t cáº£ thay Ä‘á»•i tá»« láº§n save cuá»‘i cÃ¹ng
+        /// Khôi phục tất cả thay đổi từ lần save cuối cùng
         /// 
-        /// LUá»’NG:
-        /// 1. Truy váº¥n Actions
-        /// 2. TÃ¬m táº¥t cáº£ hÃ nh Ä‘á»™ng tá»« _lastSaveTime trá»Ÿ Ä‘i (CreatedAt >= _lastSaveTime)
-        /// 3. Set Visible=FALSE Ä‘á»ƒ "áº©n" nhá»¯ng hÃ nh Ä‘á»™ng Ä‘Ã³
-        /// 4. KhÃ´ng xÃ³a váº­t lÃ½, chá»‰ áº©n Ä‘á»ƒ giá»¯ nguyÃªn tÃ­nh lá»‹ch sá»­
+        /// LUỒNG:
+        /// 1. Truy vấn Actions
+        /// 2. Tìm tất cả hành động từ _lastSaveTime trở đi (CreatedAt >= _lastSaveTime)
+        /// 3. Set Visible=FALSE để "ẩn" những hành động đó
+        /// 4. Không xóa vật lý, chỉ ẩn để giữ nguyên tính lịch sử
         /// 
-        /// ÄÆ°á»£c gá»i khi:
-        /// - User chá»n "KhÃ´ng" (No) khi thoÃ¡t app
-        /// - System cáº§n revert cÃ¡c thay Ä‘á»•i chÆ°a lÆ°u
+        /// Được gọi khi:
+        /// - User chọn "Không" (No) khi thoát app
+        /// - System cần revert các thay đổi chưa lưu
         /// </summary>
         public void RollbackChanges()
         {
             try
             {
-                // Láº¥y connection string tá»« App.config
+                // Lấy connection string từ App.config
                 string connString = ConfigurationManager.ConnectionStrings["WarehouseDB"].ConnectionString;
 
                 using (var conn = new MySqlConnection(connString))
                 {
                     conn.Open();
                     
-                    // XÃ³a (áº©n) táº¥t cáº£ hÃ nh Ä‘á»™ng tá»« láº§n save cuá»‘i
-                    // Loáº¡i trá»« hÃ nh Ä‘á»™ng Undo Ä‘á»ƒ khÃ´ng áº£nh hÆ°á»Ÿng Ä‘áº¿n undo stack
+                    // Xóa (ẩn) tất cả hành động từ lần save cuối
+                    // Loại trừ hành động Undo để không ảnh hưởng đến undo stack
                     using (var cmd = new MySqlCommand(
                         "UPDATE Actions SET Visible=FALSE " +
                         "WHERE CreatedAt >= @lastSaveTime AND ActionType != 'UNDO_ACTION'", 
@@ -344,27 +344,27 @@ namespace WarehouseManagement.Services
                     }
                 }
 
-                // Reset tráº¡ng thÃ¡i
+                // Reset trạng thái
                 _hasUnsavedChanges = false;
                 _changeCount = 0;
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i khi khÃ´i phá»¥c thay Ä‘á»•i: " + ex.Message);
+                throw new Exception("Lỗi khi khôi phục thay đổi: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// XÃ³a toÃ n bá»™ undo stack
+        /// Xóa toàn bộ undo stack
         /// 
-        /// LUá»’NG:
-        /// 1. XÃ³a táº¥t cáº£ hÃ nh Ä‘á»™ng trong LIFO undo stack
-        /// 2. Set Visible=FALSE cho táº¥t cáº£ Actions (trá»« UNDO_ACTION)
-        /// 3. App sáº½ khá»Ÿi Ä‘á»™ng láº¡i vá»›i tráº¡ng thÃ¡i sáº¡ch sáº½
+        /// LUỒNG:
+        /// 1. Xóa tất cả hành động trong LIFO undo stack
+        /// 2. Set Visible=FALSE cho tất cả Actions (trừ UNDO_ACTION)
+        /// 3. App sẽ khởi động lại với trạng thái sạch sẽ
         /// 
-        /// ÄÆ°á»£c gá»i khi:
-        /// - App sáº¯p Ä‘Ã³ng (sau CommitChanges hoáº·c RollbackChanges)
-        /// - Reset tráº¡ng thÃ¡i toÃ n bá»™
+        /// Được gọi khi:
+        /// - App sắp đóng (sau CommitChanges hoặc RollbackChanges)
+        /// - Reset trạng thái toàn bộ
         /// </summary>
         public void ClearUndoStack()
         {
@@ -376,7 +376,7 @@ namespace WarehouseManagement.Services
                 {
                     conn.Open();
                     
-                    // XÃ³a (áº©n) táº¥t cáº£ undo stack entry
+                    // Xóa (ẩn) tất cả undo stack entry
                     using (var cmd = new MySqlCommand(
                         "UPDATE Actions SET Visible=FALSE WHERE ActionType != 'UNDO_ACTION'", 
                         conn))
@@ -387,13 +387,13 @@ namespace WarehouseManagement.Services
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i khi xÃ³a undo stack: " + ex.Message);
+                throw new Exception("Lỗi khi xóa undo stack: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Reset tráº¡ng thÃ¡i ActionsService
-        /// Sá»­ dá»¥ng khi app khá»Ÿi Ä‘á»™ng láº¡i hoáº·c cáº§n reset toÃ n bá»™
+        /// Reset trạng thái ActionsService
+        /// Sử dụng khi app khởi động lại hoặc cần reset toàn bộ
         /// </summary>
         public void Reset()
         {
@@ -405,5 +405,3 @@ namespace WarehouseManagement.Services
         #endregion
     }
 }
-
-

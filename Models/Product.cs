@@ -1,7 +1,7 @@
 ﻿namespace WarehouseManagement.Models
 {
     /// <summary>
-    /// Lá»›p thá»±c thá»ƒ Sáº£n pháº©m (HÃ ng hÃ³a)
+    /// Lớp thực thể Sản phẩm (Hàng hóa)
     /// </summary>
     public class Product
     {
@@ -11,15 +11,11 @@
         public decimal Price { get; set; }
         public int Quantity { get; set; }
         public int MinThreshold { get; set; }
-        public decimal InventoryValue { get; set; } // Tá»•ng giÃ¡ trá»‹ tá»“n kho (Quantity * Price)
+        public decimal InventoryValue { get; set; } // Tổng giá trị tồn kho (Quantity * Price)
 
         /// <summary>
-        /// Kiá»ƒm tra xem sáº£n pháº©m cÃ³ cáº£nh bÃ¡o tá»“n kho hay khÃ´ng
+        /// Kiểm tra xem sản phẩm có cảnh báo tồn kho hay không
         /// </summary>
         public bool IsLowStock => Quantity < MinThreshold;
     }
 }
-
-
-
-

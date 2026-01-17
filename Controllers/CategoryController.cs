@@ -6,7 +6,7 @@ using WarehouseManagement.Models;
 namespace WarehouseManagement.Controllers
 {
     /// <summary>
-    /// Controller Ä‘iá»u hÆ°á»›ng cÃ¡c thao tÃ¡c liÃªn quan Ä‘áº¿n danh má»¥c sáº£n pháº©m
+    /// Controller điều hướng các thao tác liên quan đến danh mục sản phẩm
     /// </summary>
     public class CategoryController
     {
@@ -18,7 +18,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Láº¥y danh sÃ¡ch táº¥t cáº£ danh má»¥c
+        /// Lấy danh sách tất cả danh mục
         /// </summary>
         public List<Category> GetAllCategories()
         {
@@ -26,7 +26,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Láº¥y danh má»¥c theo ID
+        /// Lấy danh mục theo ID
         /// </summary>
         public Category GetCategoryById(int categoryId)
         {
@@ -34,7 +34,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// TÃ¬m kiáº¿m danh má»¥c theo tÃªn
+        /// Tìm kiếm danh mục theo tên
         /// </summary>
         public List<Category> SearchCategory(string keyword)
         {
@@ -42,7 +42,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// ThÃªm danh má»¥c má»›i
+        /// Thêm danh mục mới
         /// </summary>
         public int CreateCategory(string categoryName)
         {
@@ -50,7 +50,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Cáº­p nháº­t danh má»¥c
+        /// Cập nhật danh mục
         /// </summary>
         public bool UpdateCategory(int categoryId, string categoryName)
         {
@@ -58,7 +58,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// XÃ³a danh má»¥c
+        /// Xóa danh mục
         /// </summary>
         public bool DeleteCategory(int categoryId)
         {
@@ -66,7 +66,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Kiá»ƒm tra danh má»¥c cÃ³ sáº£n pháº©m hay khÃ´ng
+        /// Kiểm tra danh mục có sản phẩm hay không
         /// </summary>
         public bool CategoryHasProducts(int categoryId)
         {
@@ -74,7 +74,3 @@ namespace WarehouseManagement.Controllers
         }
     }
 }
-
-
-
-

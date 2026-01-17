@@ -6,7 +6,7 @@ using WarehouseManagement.Models;
 namespace WarehouseManagement.Controllers
 {
     /// <summary>
-    /// Controller Ä‘iá»u hÆ°á»›ng cÃ¡c thao tÃ¡c liÃªn quan Ä‘áº¿n chi tiáº¿t phiáº¿u Nháº­p/Xuáº¥t kho
+    /// Controller điều hướng các thao tác liên quan đến chi tiết phiếu Nhập/Xuất kho
     /// </summary>
     public class TransactionDetailController
     {
@@ -18,7 +18,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Láº¥y danh sÃ¡ch chi tiáº¿t theo Transaction ID
+        /// Lấy danh sách chi tiết theo Transaction ID
         /// </summary>
         public List<TransactionDetail> GetDetailsByTransactionId(int transactionId)
         {
@@ -26,7 +26,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Láº¥y chi tiáº¿t theo ID
+        /// Lấy chi tiết theo ID
         /// </summary>
         public TransactionDetail GetDetailById(int detailId)
         {
@@ -34,7 +34,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// ThÃªm chi tiáº¿t vÃ o phiáº¿u
+        /// Thêm chi tiết vào phiếu
         /// </summary>
         public int AddTransactionDetail(int transactionId, int productId, string productName, int quantity, decimal unitPrice)
         {
@@ -42,7 +42,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Cáº­p nháº­t chi tiáº¿t phiáº¿u
+        /// Cập nhật chi tiết phiếu
         /// </summary>
         public bool UpdateTransactionDetail(int detailId, int quantity, decimal unitPrice)
         {
@@ -50,7 +50,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// XÃ³a chi tiáº¿t phiáº¿u
+        /// Xóa chi tiết phiếu
         /// </summary>
         public bool DeleteTransactionDetail(int detailId)
         {
@@ -58,7 +58,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// XÃ³a táº¥t cáº£ chi tiáº¿t cá»§a má»™t phiáº¿u
+        /// Xóa tất cả chi tiết của một phiếu
         /// </summary>
         public bool DeleteAllDetails(int transactionId)
         {
@@ -66,7 +66,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// TÃ­nh tá»•ng sá»‘ lÆ°á»£ng trong phiáº¿u
+        /// Tính tổng số lượng trong phiếu
         /// </summary>
         public int GetTotalQuantity(int transactionId)
         {
@@ -74,7 +74,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// TÃ­nh tá»•ng giÃ¡ trá»‹ phiáº¿u chi tiáº¿t
+        /// Tính tổng giá trị phiếu chi tiết
         /// </summary>
         public decimal GetTotalValue(int transactionId)
         {
@@ -82,7 +82,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Äáº¿m tá»•ng sá»‘ chi tiáº¿t trong phiáº¿u
+        /// Đếm tổng số chi tiết trong phiếu
         /// </summary>
         public int CountDetails(int transactionId)
         {
@@ -90,7 +90,3 @@ namespace WarehouseManagement.Controllers
         }
     }
 }
-
-
-
-

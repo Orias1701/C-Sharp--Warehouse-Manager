@@ -7,12 +7,12 @@ using WarehouseManagement.Models;
 namespace WarehouseManagement.Repositories
 {
     /// <summary>
-    /// Repository Ä‘á»ƒ quáº£n lÃ½ sáº£n pháº©m (CRUD + cáº­p nháº­t tá»“n kho)
+    /// Repository để quản lý sản phẩm (CRUD + cập nhật tồn kho)
     /// </summary>
     public class ProductRepository : BaseRepository
     {
         /// <summary>
-        /// Láº¥y danh sÃ¡ch táº¥t cáº£ sáº£n pháº©m (chá»‰ nhá»¯ng sáº£n pháº©m Visible=true)
+        /// Lấy danh sách tất cả sản phẩm (chỉ những sản phẩm Visible=true)
         /// </summary>
         public List<Product> GetAllProducts()
         {
@@ -44,13 +44,13 @@ namespace WarehouseManagement.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i khi láº¥y danh sÃ¡ch sáº£n pháº©m: " + ex.Message);
+                throw new Exception("Lỗi khi lấy danh sách sản phẩm: " + ex.Message);
             }
             return products;
         }
 
         /// <summary>
-        /// Láº¥y sáº£n pháº©m theo ID
+        /// Lấy sản phẩm theo ID
         /// </summary>
         public Product GetProductById(int productId)
         {
@@ -82,13 +82,13 @@ namespace WarehouseManagement.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception($"Lá»—i khi láº¥y sáº£n pháº©m ID {productId}: " + ex.Message);
+                throw new Exception($"Lỗi khi lấy sản phẩm ID {productId}: " + ex.Message);
             }
             return null;
         }
 
         /// <summary>
-        /// ThÃªm sáº£n pháº©m má»›i
+        /// Thêm sản phẩm mới
         /// </summary>
         public int AddProduct(Product product)
         {
@@ -113,12 +113,12 @@ namespace WarehouseManagement.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i khi thÃªm sáº£n pháº©m: " + ex.Message);
+                throw new Exception("Lỗi khi thêm sản phẩm: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Cáº­p nháº­t thÃ´ng tin sáº£n pháº©m
+        /// Cập nhật thông tin sản phẩm
         /// </summary>
         public bool UpdateProduct(Product product)
         {
@@ -144,37 +144,37 @@ namespace WarehouseManagement.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i khi cáº­p nháº­t sáº£n pháº©m: " + ex.Message);
+                throw new Exception("Lỗi khi cập nhật sản phẩm: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// XÃ³a sáº£n pháº©m - kiá»ƒm tra phá»¥ thuá»™c khÃ³a vÃ  xÃ³a má»m hoáº·c váº­t lÃ½
+        /// Xóa sản phẩm - kiểm tra phụ thuộc khóa và xóa mềm hoặc vật lý
         /// </summary>
         public bool DeleteProduct(int productId)
         {
             try
             {
-                // Kiá»ƒm tra phá»¥ thuá»™c khÃ³a
+                // Kiểm tra phụ thuộc khóa
                 if (HasForeignKeyReferences(productId))
                 {
-                    // CÃ³ phá»¥ thuá»™c - xÃ³a má»m (soft delete)
+                    // Có phụ thuộc - xóa mềm (soft delete)
                     return SoftDeleteProduct(productId);
                 }
                 else
                 {
-                    // KhÃ´ng cÃ³ phá»¥ thuá»™c - xÃ³a váº­t lÃ½ (hard delete)
+                    // Không có phụ thuộc - xóa vật lý (hard delete)
                     return HardDeleteProduct(productId);
                 }
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i khi xÃ³a sáº£n pháº©m: " + ex.Message);
+                throw new Exception("Lỗi khi xóa sản phẩm: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Cáº­p nháº­t tá»“n kho
+        /// Cập nhật tồn kho
         /// </summary>
         public bool UpdateQuantity(int productId, int newQuantity)
         {
@@ -189,7 +189,7 @@ namespace WarehouseManagement.Repositories
                         cmd.Parameters.AddWithValue("@id", productId);
                         var price = cmd.ExecuteScalar();
                         if (price == null || price == DBNull.Value)
-                            throw new Exception($"Sáº£n pháº©m ID {productId} khÃ´ng tá»“n táº¡i");
+                            throw new Exception($"Sản phẩm ID {productId} không tồn tại");
 
                         decimal productPrice = Convert.ToDecimal(price);
                         decimal inventoryValue = newQuantity * productPrice;
@@ -206,14 +206,12 @@ namespace WarehouseManagement.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i khi cáº­p nháº­t tá»“n kho: " + ex.Message);
+                throw new Exception("Lỗi khi cập nhật tồn kho: " + ex.Message);
             }
         }
 
-
-
         /// <summary>
-        /// Kiá»ƒm tra xem sáº£n pháº©m vá»›i ID Ä‘Ã£ tá»“n táº¡i hay chÆ°a
+        /// Kiểm tra xem sản phẩm với ID đã tồn tại hay chưa
         /// </summary>
         public bool ProductIdExists(int productId)
         {
@@ -233,12 +231,12 @@ namespace WarehouseManagement.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i khi kiá»ƒm tra tá»“n táº¡i sáº£n pháº©m: " + ex.Message);
+                throw new Exception("Lỗi khi kiểm tra tồn tại sản phẩm: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Kiá»ƒm tra sáº£n pháº©m cÃ³ Ä‘Æ°á»£c tham chiáº¿u bá»Ÿi TransactionDetails hoáº·c cÃ¡c báº£ng khÃ¡c hay khÃ´ng
+        /// Kiểm tra sản phẩm có được tham chiếu bởi TransactionDetails hoặc các bảng khác hay không
         /// </summary>
         public bool HasForeignKeyReferences(int productId)
         {
@@ -247,7 +245,7 @@ namespace WarehouseManagement.Repositories
                 using (var conn = GetConnection())
                 {
                     conn.Open();
-                    // Kiá»ƒm tra TransactionDetails
+                    // Kiểm tra TransactionDetails
                     using (var cmd = new MySqlCommand(
                         "SELECT COUNT(*) FROM TransactionDetails WHERE ProductID=@id AND Visible=TRUE", conn))
                     {
@@ -259,12 +257,12 @@ namespace WarehouseManagement.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i kiá»ƒm tra phá»¥ thuá»™c khÃ³a ngoÃ i: " + ex.Message);
+                throw new Exception("Lỗi kiểm tra phụ thuộc khóa ngoài: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// XÃ³a má»m (soft delete) - Ä‘áº·t Visible = false
+        /// Xóa mềm (soft delete) - đặt Visible = false
         /// </summary>
         public bool SoftDeleteProduct(int productId)
         {
@@ -283,12 +281,12 @@ namespace WarehouseManagement.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i khi xÃ³a má»m sáº£n pháº©m: " + ex.Message);
+                throw new Exception("Lỗi khi xóa mềm sản phẩm: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// XÃ³a váº­t lÃ½ (hard delete) - xÃ³a toÃ n bá»™ báº£n ghi
+        /// Xóa vật lý (hard delete) - xóa toàn bộ bản ghi
         /// </summary>
         public bool HardDeleteProduct(int productId)
         {
@@ -307,12 +305,12 @@ namespace WarehouseManagement.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i khi xÃ³a sáº£n pháº©m: " + ex.Message);
+                throw new Exception("Lỗi khi xóa sản phẩm: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Kiá»ƒm tra danh má»¥c cÃ³ sáº£n pháº©m hay khÃ´ng
+        /// Kiểm tra danh mục có sản phẩm hay không
         /// </summary>
         public bool CategoryHasProducts(int categoryId)
         {
@@ -332,12 +330,12 @@ namespace WarehouseManagement.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i kiá»ƒm tra danh má»¥c: " + ex.Message);
+                throw new Exception("Lỗi kiểm tra danh mục: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// XÃ³a má»m danh má»¥c (Visible = false)
+        /// Xóa mềm danh mục (Visible = false)
         /// </summary>
         public bool SoftDeleteCategory(int categoryId)
         {
@@ -356,12 +354,12 @@ namespace WarehouseManagement.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i xÃ³a má»m danh má»¥c: " + ex.Message);
+                throw new Exception("Lỗi xóa mềm danh mục: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// XÃ³a váº­t lÃ½ danh má»¥c
+        /// Xóa vật lý danh mục
         /// </summary>
         public bool HardDeleteCategory(int categoryId)
         {
@@ -380,13 +378,8 @@ namespace WarehouseManagement.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i xÃ³a váº­t lÃ½ danh má»¥c: " + ex.Message);
+                throw new Exception("Lỗi xóa vật lý danh mục: " + ex.Message);
             }
         }
     }
 }
-
-
-
-
-

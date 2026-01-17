@@ -3,7 +3,7 @@
 namespace WarehouseManagement.Models
 {
     /// <summary>
-    /// Lá»›p thá»±c thá»ƒ Nháº­t kÃ½ hÃ nh Ä‘á»™ng (Há»— trá»£ Undo)
+    /// Lớp thực thể Nhật ký hành động (Hỗ trợ Undo)
     /// </summary>
     public class Actions
     {
@@ -14,7 +14,3 @@ namespace WarehouseManagement.Models
         public DateTime CreatedAt { get; set; }
     }
 }
-
-
-
-

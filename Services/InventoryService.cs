@@ -8,23 +8,23 @@ using Newtonsoft.Json;
 namespace WarehouseManagement.Services
 {
     /// <summary>
-    /// Service xá»­ lÃ½ logic Nháº­p/Xuáº¥t kho
+    /// Service xử lý logic Nhập/Xuất kho
     /// 
-    /// CHá»¨C NÄ‚NG:
-    /// - Nháº­p kho (ImportStock): Má»™t phiáº¿u nháº­p, má»™t sáº£n pháº©m
-    /// - Xuáº¥t kho (ExportStock): Má»™t phiáº¿u xuáº¥t, má»™t sáº£n pháº©m
-    /// - Nháº­p batch (ImportStockBatch): Má»™t phiáº¿u nháº­p, nhiá»u sáº£n pháº©m
-    /// - Xuáº¥t batch (ExportStockBatch): Má»™t phiáº¿u xuáº¥t, nhiá»u sáº£n pháº©m
-    /// - TÃ­nh toÃ¡n tá»“n kho: Tá»± Ä‘á»™ng cáº­p nháº­t sá»‘ lÆ°á»£ng
+    /// CHỨC NĂNG:
+    /// - Nhập kho (ImportStock): Một phiếu nhập, một sản phẩm
+    /// - Xuất kho (ExportStock): Một phiếu xuất, một sản phẩm
+    /// - Nhập batch (ImportStockBatch): Một phiếu nhập, nhiều sản phẩm
+    /// - Xuất batch (ExportStockBatch): Một phiếu xuất, nhiều sản phẩm
+    /// - Tính toán tồn kho: Tự động cập nhật số lượng
     /// 
-    /// LUá»’NG:
-    /// 1. Validation: Kiá»ƒm tra sáº£n pháº©m, sá»‘ lÆ°á»£ng, giÃ¡
-    /// 2. CreateTransaction(): Táº¡o phiáº¿u nháº­p/xuáº¥t
-    /// 3. AddTransactionDetail(): ThÃªm chi tiáº¿t phiáº¿u
-    /// 4. UpdateQuantity(): Cáº­p nháº­t tá»“n kho
-    /// 5. LogAction(): Ghi nháº­t kÃ½
-    /// 6. MarkAsChanged(): ÄÃ¡nh dáº¥u cÃ³ thay Ä‘á»•i
-    /// 7. Return: Tráº£ vá» káº¿t quáº£
+    /// LUỒNG:
+    /// 1. Validation: Kiểm tra sản phẩm, số lượng, giá
+    /// 2. CreateTransaction(): Tạo phiếu nhập/xuất
+    /// 3. AddTransactionDetail(): Thêm chi tiết phiếu
+    /// 4. UpdateQuantity(): Cập nhật tồn kho
+    /// 5. LogAction(): Ghi nhật ký
+    /// 6. MarkAsChanged(): Đánh dấu có thay đổi
+    /// 7. Return: Trả về kết quả
     /// </summary>
     public class InventoryService
     {
@@ -44,41 +44,41 @@ namespace WarehouseManagement.Services
         // ========== SINGLE IMPORT/EXPORT ==========
 
         /// <summary>
-        /// Thá»±c hiá»‡n phiáº¿u nháº­p kho (má»™t sáº£n pháº©m)
+        /// Thực hiện phiếu nhập kho (một sản phẩm)
         /// 
-        /// LUá»’NG:
-        /// 1. Validation: Kiá»ƒm tra sáº£n pháº©m, sá»‘ lÆ°á»£ng, giÃ¡, khÃ´ng vÆ°á»£t giá»›i háº¡n
-        /// 2. CreateTransaction(): Táº¡o phiáº¿u nháº­p
-        /// 3. AddTransactionDetail(): ThÃªm chi tiáº¿t phiáº¿u
-        /// 4. UpdateQuantity(): Cáº­p nháº­t tá»“n kho = cÅ© + sá»‘ lÆ°á»£ng nháº­p
-        /// 5. LogAction(): Ghi nháº­t kÃ½
-        /// 6. MarkAsChanged(): ÄÃ¡nh dáº¥u cÃ³ thay Ä‘á»•i
-        /// 7. Return: true náº¿u thÃ nh cÃ´ng
+        /// LUỒNG:
+        /// 1. Validation: Kiểm tra sản phẩm, số lượng, giá, không vượt giới hạn
+        /// 2. CreateTransaction(): Tạo phiếu nhập
+        /// 3. AddTransactionDetail(): Thêm chi tiết phiếu
+        /// 4. UpdateQuantity(): Cập nhật tồn kho = cũ + số lượng nhập
+        /// 5. LogAction(): Ghi nhật ký
+        /// 6. MarkAsChanged(): Đánh dấu có thay đổi
+        /// 7. Return: true nếu thành công
         /// </summary>
         public bool ImportStock(int productId, int quantity, decimal unitPrice, string note = "")
         {
             try
             {
-                // Validation cÃ¡c trÆ°á»ng Ä‘áº§u vÃ o
+                // Validation các trường đầu vào
                 if (productId <= 0)
-                    throw new ArgumentException("ID sáº£n pháº©m khÃ´ng há»£p lá»‡");
+                    throw new ArgumentException("ID sản phẩm không hợp lệ");
                 if (quantity <= 0)
-                    throw new ArgumentException("Sá»‘ lÆ°á»£ng nháº­p pháº£i lá»›n hÆ¡n 0");
+                    throw new ArgumentException("Số lượng nhập phải lớn hơn 0");
                 if (quantity > 999999)
-                    throw new ArgumentException("Sá»‘ lÆ°á»£ng quÃ¡ lá»›n");
+                    throw new ArgumentException("Số lượng quá lớn");
                 if (unitPrice < 0)
-                    throw new ArgumentException("ÄÆ¡n giÃ¡ khÃ´ng Ä‘Æ°á»£c Ã¢m");
+                    throw new ArgumentException("Đơn giá không được âm");
                 if (unitPrice > 999999999)
-                    throw new ArgumentException("ÄÆ¡n giÃ¡ quÃ¡ lá»›n");
+                    throw new ArgumentException("Đơn giá quá lớn");
 
                 var product = _productRepo.GetProductById(productId);
                 if (product == null)
-                    throw new ArgumentException("Sáº£n pháº©m khÃ´ng tá»“n táº¡i");
+                    throw new ArgumentException("Sản phẩm không tồn tại");
 
-                // LÆ°u dá»¯ liá»‡u cÅ© trÆ°á»›c khi thay Ä‘á»•i (Ä‘á»ƒ ghi nháº­t kÃ½)
+                // Lưu dữ liệu cũ trước khi thay đổi (để ghi nhật ký)
                 var oldData = new { product.Quantity, product.ProductID };
                 
-                // Táº¡o phiáº¿u
+                // Tạo phiếu
                 var transaction = new StockTransaction
                 {
                     Type = "Import",
@@ -88,7 +88,7 @@ namespace WarehouseManagement.Services
                 };
                 int transId = _transactionRepo.CreateTransaction(transaction);
 
-                // ThÃªm chi tiáº¿t
+                // Thêm chi tiết
                 var detail = new TransactionDetail
                 {
                     TransactionID = transId,
@@ -99,17 +99,17 @@ namespace WarehouseManagement.Services
                 };
                 _transactionRepo.AddTransactionDetail(detail);
 
-                // Cáº­p nháº­t tá»“n kho
+                // Cập nhật tồn kho
                 int newQuantity = product.Quantity + quantity;
                 if (newQuantity > 999999)
-                    throw new Exception("Tá»“n kho sáº½ vÆ°á»£t quÃ¡ giá»›i háº¡n cho phÃ©p");
+                    throw new Exception("Tồn kho sẽ vượt quá giới hạn cho phép");
 
                 _productRepo.UpdateQuantity(productId, newQuantity);
 
-                // Ghi nháº­t kÃ½
+                // Ghi nhật ký
                 var newData = new { Quantity = newQuantity, ProductID = productId };
                 _logRepo.LogAction("IMPORT_STOCK", 
-                    $"Nháº­p {quantity} sáº£n pháº©m ID {productId}",
+                    $"Nhập {quantity} sản phẩm ID {productId}",
                     JsonConvert.SerializeObject(oldData));
 
                 ActionsService.Instance.MarkAsChanged();
@@ -117,50 +117,50 @@ namespace WarehouseManagement.Services
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i khi nháº­p kho: " + ex.Message);
+                throw new Exception("Lỗi khi nhập kho: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Thá»±c hiá»‡n phiáº¿u xuáº¥t kho (má»™t sáº£n pháº©m)
+        /// Thực hiện phiếu xuất kho (một sản phẩm)
         /// 
-        /// LUá»’NG:
-        /// 1. Validation: Kiá»ƒm tra sáº£n pháº©m, sá»‘ lÆ°á»£ng, giÃ¡
-        /// 2. Check: Kiá»ƒm tra tá»“n kho cÃ³ Ä‘á»§ Ä‘á»ƒ xuáº¥t khÃ´ng
-        /// 3. CreateTransaction(): Táº¡o phiáº¿u xuáº¥t
-        /// 4. AddTransactionDetail(): ThÃªm chi tiáº¿t phiáº¿u
-        /// 5. UpdateQuantity(): Cáº­p nháº­t tá»“n kho = cÅ© - sá»‘ lÆ°á»£ng xuáº¥t
-        /// 6. LogAction(): Ghi nháº­t kÃ½
-        /// 7. MarkAsChanged(): ÄÃ¡nh dáº¥u cÃ³ thay Ä‘á»•i
-        /// 8. Return: true náº¿u thÃ nh cÃ´ng
+        /// LUỒNG:
+        /// 1. Validation: Kiểm tra sản phẩm, số lượng, giá
+        /// 2. Check: Kiểm tra tồn kho có đủ để xuất không
+        /// 3. CreateTransaction(): Tạo phiếu xuất
+        /// 4. AddTransactionDetail(): Thêm chi tiết phiếu
+        /// 5. UpdateQuantity(): Cập nhật tồn kho = cũ - số lượng xuất
+        /// 6. LogAction(): Ghi nhật ký
+        /// 7. MarkAsChanged(): Đánh dấu có thay đổi
+        /// 8. Return: true nếu thành công
         /// </summary>
         public bool ExportStock(int productId, int quantity, decimal unitPrice, string note = "")
         {
             try
             {
-                // Validation cÃ¡c trÆ°á»ng Ä‘áº§u vÃ o
+                // Validation các trường đầu vào
                 if (productId <= 0)
-                    throw new ArgumentException("ID sáº£n pháº©m khÃ´ng há»£p lá»‡");
+                    throw new ArgumentException("ID sản phẩm không hợp lệ");
                 if (quantity <= 0)
-                    throw new ArgumentException("Sá»‘ lÆ°á»£ng xuáº¥t pháº£i lá»›n hÆ¡n 0");
+                    throw new ArgumentException("Số lượng xuất phải lớn hơn 0");
                 if (quantity > 999999)
-                    throw new ArgumentException("Sá»‘ lÆ°á»£ng quÃ¡ lá»›n");
+                    throw new ArgumentException("Số lượng quá lớn");
                 if (unitPrice < 0)
-                    throw new ArgumentException("ÄÆ¡n giÃ¡ khÃ´ng Ä‘Æ°á»£c Ã¢m");
+                    throw new ArgumentException("Đơn giá không được âm");
                 if (unitPrice > 999999999)
-                    throw new ArgumentException("ÄÆ¡n giÃ¡ quÃ¡ lá»›n");
+                    throw new ArgumentException("Đơn giá quá lớn");
 
                 var product = _productRepo.GetProductById(productId);
                 if (product == null)
-                    throw new ArgumentException("Sáº£n pháº©m khÃ´ng tá»“n táº¡i");
+                    throw new ArgumentException("Sản phẩm không tồn tại");
 
                 if (product.Quantity < quantity)
-                    throw new Exception("Tá»“n kho khÃ´ng Ä‘á»§ Ä‘á»ƒ xuáº¥t (hiá»‡n cÃ³: " + product.Quantity + ")");
+                    throw new Exception("Tồn kho không đủ để xuất (hiện có: " + product.Quantity + ")");
 
-                // LÆ°u dá»¯ liá»‡u cÅ©
+                // Lưu dữ liệu cũ
                 var oldData = new { product.Quantity, product.ProductID };
 
-                // Táº¡o phiáº¿u
+                // Tạo phiếu
                 var transaction = new StockTransaction
                 {
                     Type = "Export",
@@ -170,7 +170,7 @@ namespace WarehouseManagement.Services
                 };
                 int transId = _transactionRepo.CreateTransaction(transaction);
 
-                // ThÃªm chi tiáº¿t
+                // Thêm chi tiết
                 var detail = new TransactionDetail
                 {
                     TransactionID = transId,
@@ -181,13 +181,13 @@ namespace WarehouseManagement.Services
                 };
                 _transactionRepo.AddTransactionDetail(detail);
 
-                // Cáº­p nháº­t tá»“n kho
+                // Cập nhật tồn kho
                 int newQuantity = product.Quantity - quantity;
                 _productRepo.UpdateQuantity(productId, newQuantity);
 
-                // Ghi nháº­t kÃ½
+                // Ghi nhật ký
                 _logRepo.LogAction("EXPORT_STOCK",
-                    $"Xuáº¥t {quantity} sáº£n pháº©m ID {productId}",
+                    $"Xuất {quantity} sản phẩm ID {productId}",
                     JsonConvert.SerializeObject(oldData));
 
                 ActionsService.Instance.MarkAsChanged();
@@ -195,51 +195,51 @@ namespace WarehouseManagement.Services
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i khi xuáº¥t kho: " + ex.Message);
+                throw new Exception("Lỗi khi xuất kho: " + ex.Message);
             }
         }
 
         // ========== BATCH IMPORT/EXPORT ==========
 
         /// <summary>
-        /// Thá»±c hiá»‡n phiáº¿u nháº­p kho batch (nhiá»u sáº£n pháº©m, 1 phiáº¿u)
+        /// Thực hiện phiếu nhập kho batch (nhiều sản phẩm, 1 phiếu)
         /// 
-        /// LUá»’NG:
-        /// 1. Validation: Kiá»ƒm tra danh sÃ¡ch khÃ´ng trá»‘ng, khÃ´ng trÃ¹ng láº·p ID
-        /// 2. CreateTransaction(): Táº¡o 1 phiáº¿u nháº­p chung
-        /// 3. Loop tá»«ng sáº£n pháº©m:
-        ///    - Validation: Kiá»ƒm tra sáº£n pháº©m, sá»‘ lÆ°á»£ng, giÃ¡
-        ///    - AddTransactionDetail(): ThÃªm chi tiáº¿t cho sáº£n pháº©m nÃ y
-        ///    - UpdateQuantity(): Cáº­p nháº­t tá»“n kho += sá»‘ lÆ°á»£ng
-        /// 4. LogAction(): Ghi nháº­t kÃ½ 1 láº§n cho cáº£ batch
-        /// 5. MarkAsChanged(): ÄÃ¡nh dáº¥u cÃ³ thay Ä‘á»•i
-        /// 6. Return: true náº¿u thÃ nh cÃ´ng
+        /// LUỒNG:
+        /// 1. Validation: Kiểm tra danh sách không trống, không trùng lặp ID
+        /// 2. CreateTransaction(): Tạo 1 phiếu nhập chung
+        /// 3. Loop từng sản phẩm:
+        ///    - Validation: Kiểm tra sản phẩm, số lượng, giá
+        ///    - AddTransactionDetail(): Thêm chi tiết cho sản phẩm này
+        ///    - UpdateQuantity(): Cập nhật tồn kho += số lượng
+        /// 4. LogAction(): Ghi nhật ký 1 lần cho cả batch
+        /// 5. MarkAsChanged(): Đánh dấu có thay đổi
+        /// 6. Return: true nếu thành công
         /// </summary>
         public bool ImportStockBatch(List<(int ProductId, int Quantity, decimal UnitPrice)> details, string note = "")
         {
             try
             {
                 if (details == null || details.Count == 0)
-                    throw new ArgumentException("Danh sÃ¡ch sáº£n pháº©m khÃ´ng thá»ƒ rá»—ng");
+                    throw new ArgumentException("Danh sách sản phẩm không thể rỗng");
 
-                // Kiá»ƒm tra trÃ¹ng láº·p ID trong list vÃ  kiá»ƒm tra sáº£n pháº©m tá»“n táº¡i trÆ°á»›c khi xá»­ lÃ½
+                // Kiểm tra trùng lặp ID trong list và kiểm tra sản phẩm tồn tại trước khi xử lý
                 var productIds = new List<int>();
                 foreach (var (productId, quantity, unitPrice) in details)
                 {
                     if (productIds.Contains(productId))
                     {
-                        throw new ArgumentException($"Sáº£n pháº©m ID {productId} bá»‹ trÃ¹ng láº·p trong phiáº¿u nháº­p");
+                        throw new ArgumentException($"Sản phẩm ID {productId} bị trùng lặp trong phiếu nhập");
                     }
                     
                     if (!_productRepo.ProductIdExists(productId))
                     {
-                        throw new ArgumentException($"Sáº£n pháº©m ID {productId} khÃ´ng tá»“n táº¡i trong há»‡ thá»‘ng");
+                        throw new ArgumentException($"Sản phẩm ID {productId} không tồn tại trong hệ thống");
                     }
                     
                     productIds.Add(productId);
                 }
 
-                // Táº¡o transaction
+                // Tạo transaction
                 var transaction = new StockTransaction
                 {
                     Type = "Import",
@@ -249,26 +249,26 @@ namespace WarehouseManagement.Services
                 };
                 int transId = _transactionRepo.CreateTransaction(transaction);
 
-                // Xá»­ lÃ½ tá»«ng sáº£n pháº©m
+                // Xử lý từng sản phẩm
                 foreach (var (productId, quantity, unitPrice) in details)
                 {
                     // Validation
                     if (productId <= 0)
-                        throw new ArgumentException("ID sáº£n pháº©m khÃ´ng há»£p lá»‡");
+                        throw new ArgumentException("ID sản phẩm không hợp lệ");
                     if (quantity <= 0)
-                        throw new ArgumentException("Sá»‘ lÆ°á»£ng nháº­p pháº£i lá»›n hÆ¡n 0");
+                        throw new ArgumentException("Số lượng nhập phải lớn hơn 0");
                     if (quantity > 999999)
-                        throw new ArgumentException("Sá»‘ lÆ°á»£ng quÃ¡ lá»›n");
+                        throw new ArgumentException("Số lượng quá lớn");
                     if (unitPrice < 0)
-                        throw new ArgumentException("ÄÆ¡n giÃ¡ khÃ´ng Ä‘Æ°á»£c Ã¢m");
+                        throw new ArgumentException("Đơn giá không được âm");
                     if (unitPrice > 999999999)
-                        throw new ArgumentException("ÄÆ¡n giÃ¡ quÃ¡ lá»›n");
+                        throw new ArgumentException("Đơn giá quá lớn");
 
                     var product = _productRepo.GetProductById(productId);
                     if (product == null)
-                        throw new ArgumentException($"Sáº£n pháº©m ID {productId} khÃ´ng tá»“n táº¡i");
+                        throw new ArgumentException($"Sản phẩm ID {productId} không tồn tại");
 
-                    // ThÃªm chi tiáº¿t
+                    // Thêm chi tiết
                     var detail = new TransactionDetail
                     {
                         TransactionID = transId,
@@ -279,20 +279,20 @@ namespace WarehouseManagement.Services
                     };
                     _transactionRepo.AddTransactionDetail(detail);
 
-                    // Cáº­p nháº­t tá»“n kho
+                    // Cập nhật tồn kho
                     int newQuantity = product.Quantity + quantity;
                     if (newQuantity > 999999)
-                        throw new Exception("Tá»“n kho sáº½ vÆ°á»£t quÃ¡ giá»›i háº¡n cho phÃ©p");
+                        throw new Exception("Tồn kho sẽ vượt quá giới hạn cho phép");
 
                     _productRepo.UpdateQuantity(productId, newQuantity);
                 }
 
-                // Cáº­p nháº­t tá»•ng giÃ¡ trá»‹ cá»§a phiáº¿u sau khi thÃªm táº¥t cáº£ chi tiáº¿t
+                // Cập nhật tổng giá trị của phiếu sau khi thêm tất cả chi tiết
                 _transactionRepo.UpdateTransactionTotalValue(transId);
 
-                // Ghi nháº­t kÃ½
+                // Ghi nhật ký
                 _logRepo.LogAction("IMPORT_BATCH", 
-                    $"Nháº­p {details.Count} sáº£n pháº©m, Transaction ID {transId}",
+                    $"Nhập {details.Count} sản phẩm, Transaction ID {transId}",
                     "");
 
                 ActionsService.Instance.MarkAsChanged();
@@ -300,59 +300,59 @@ namespace WarehouseManagement.Services
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i khi nháº­p kho batch: " + ex.Message);
+                throw new Exception("Lỗi khi nhập kho batch: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Thá»±c hiá»‡n phiáº¿u xuáº¥t kho batch (nhiá»u sáº£n pháº©m, 1 phiáº¿u)
+        /// Thực hiện phiếu xuất kho batch (nhiều sản phẩm, 1 phiếu)
         /// 
-        /// LUá»’NG:
-        /// 1. Validation: Kiá»ƒm tra danh sÃ¡ch khÃ´ng trá»‘ng, khÃ´ng trÃ¹ng láº·p ID
-        /// 2. Check: Kiá»ƒm tra tá»“n kho cá»§a táº¥t cáº£ sáº£n pháº©m cÃ³ Ä‘á»§ Ä‘á»ƒ xuáº¥t khÃ´ng
-        /// 3. CreateTransaction(): Táº¡o 1 phiáº¿u xuáº¥t chung
-        /// 4. Loop tá»«ng sáº£n pháº©m:
-        ///    - Validation: Kiá»ƒm tra sáº£n pháº©m, sá»‘ lÆ°á»£ng, giÃ¡
-        ///    - AddTransactionDetail(): ThÃªm chi tiáº¿t cho sáº£n pháº©m nÃ y
-        ///    - UpdateQuantity(): Cáº­p nháº­t tá»“n kho -= sá»‘ lÆ°á»£ng
-        /// 5. LogAction(): Ghi nháº­t kÃ½ 1 láº§n cho cáº£ batch
-        /// 6. MarkAsChanged(): ÄÃ¡nh dáº¥u cÃ³ thay Ä‘á»•i
-        /// 7. Return: true náº¿u thÃ nh cÃ´ng
+        /// LUỒNG:
+        /// 1. Validation: Kiểm tra danh sách không trống, không trùng lặp ID
+        /// 2. Check: Kiểm tra tồn kho của tất cả sản phẩm có đủ để xuất không
+        /// 3. CreateTransaction(): Tạo 1 phiếu xuất chung
+        /// 4. Loop từng sản phẩm:
+        ///    - Validation: Kiểm tra sản phẩm, số lượng, giá
+        ///    - AddTransactionDetail(): Thêm chi tiết cho sản phẩm này
+        ///    - UpdateQuantity(): Cập nhật tồn kho -= số lượng
+        /// 5. LogAction(): Ghi nhật ký 1 lần cho cả batch
+        /// 6. MarkAsChanged(): Đánh dấu có thay đổi
+        /// 7. Return: true nếu thành công
         /// </summary>
         public bool ExportStockBatch(List<(int ProductId, int Quantity, decimal UnitPrice)> details, string note = "")
         {
             try
             {
                 if (details == null || details.Count == 0)
-                    throw new ArgumentException("Danh sÃ¡ch sáº£n pháº©m khÃ´ng thá»ƒ rá»—ng");
+                    throw new ArgumentException("Danh sách sản phẩm không thể rỗng");
 
-                // Kiá»ƒm tra trÃ¹ng láº·p ID trong list
+                // Kiểm tra trùng lặp ID trong list
                 var productIds = new List<int>();
                 foreach (var (productId, quantity, unitPrice) in details)
                 {
                     if (productIds.Contains(productId))
                     {
-                        throw new ArgumentException($"Sáº£n pháº©m ID {productId} bá»‹ trÃ¹ng láº·p trong phiáº¿u xuáº¥t");
+                        throw new ArgumentException($"Sản phẩm ID {productId} bị trùng lặp trong phiếu xuất");
                     }
                     productIds.Add(productId);
                 }
 
-                // Kiá»ƒm tra tá»“n kho trÆ°á»›c
+                // Kiểm tra tồn kho trước
                 foreach (var (productId, quantity, unitPrice) in details)
                 {
                     if (!_productRepo.ProductIdExists(productId))
                     {
-                        throw new ArgumentException($"Sáº£n pháº©m ID {productId} khÃ´ng tá»“n táº¡i trong há»‡ thá»‘ng");
+                        throw new ArgumentException($"Sản phẩm ID {productId} không tồn tại trong hệ thống");
                     }
 
                     var product = _productRepo.GetProductById(productId);
                     if (product == null)
-                        throw new ArgumentException($"Sáº£n pháº©m ID {productId} khÃ´ng tá»“n táº¡i");
+                        throw new ArgumentException($"Sản phẩm ID {productId} không tồn tại");
                     if (product.Quantity < quantity)
-                        throw new Exception($"Tá»“n kho {product.ProductName} khÃ´ng Ä‘á»§ (hiá»‡n cÃ³: {product.Quantity}, cáº§n xuáº¥t: {quantity})");
+                        throw new Exception($"Tồn kho {product.ProductName} không đủ (hiện có: {product.Quantity}, cần xuất: {quantity})");
                 }
 
-                // Táº¡o transaction
+                // Tạo transaction
                 var transaction = new StockTransaction
                 {
                     Type = "Export",
@@ -362,24 +362,24 @@ namespace WarehouseManagement.Services
                 };
                 int transId = _transactionRepo.CreateTransaction(transaction);
 
-                // Xá»­ lÃ½ tá»«ng sáº£n pháº©m
+                // Xử lý từng sản phẩm
                 foreach (var (productId, quantity, unitPrice) in details)
                 {
                     // Validation
                     if (productId <= 0)
-                        throw new ArgumentException("ID sáº£n pháº©m khÃ´ng há»£p lá»‡");
+                        throw new ArgumentException("ID sản phẩm không hợp lệ");
                     if (quantity <= 0)
-                        throw new ArgumentException("Sá»‘ lÆ°á»£ng xuáº¥t pháº£i lá»›n hÆ¡n 0");
+                        throw new ArgumentException("Số lượng xuất phải lớn hơn 0");
                     if (quantity > 999999)
-                        throw new ArgumentException("Sá»‘ lÆ°á»£ng quÃ¡ lá»›n");
+                        throw new ArgumentException("Số lượng quá lớn");
                     if (unitPrice < 0)
-                        throw new ArgumentException("ÄÆ¡n giÃ¡ khÃ´ng Ä‘Æ°á»£c Ã¢m");
+                        throw new ArgumentException("Đơn giá không được âm");
                     if (unitPrice > 999999999)
-                        throw new ArgumentException("ÄÆ¡n giÃ¡ quÃ¡ lá»›n");
+                        throw new ArgumentException("Đơn giá quá lớn");
 
                     var product = _productRepo.GetProductById(productId);
                     
-                    // ThÃªm chi tiáº¿t
+                    // Thêm chi tiết
                     var detail = new TransactionDetail
                     {
                         TransactionID = transId,
@@ -390,29 +390,29 @@ namespace WarehouseManagement.Services
                     };
                     _transactionRepo.AddTransactionDetail(detail);
 
-                    // Cáº­p nháº­t tá»“n kho
+                    // Cập nhật tồn kho
                     int newQuantity = product.Quantity - quantity;
                     _productRepo.UpdateQuantity(productId, newQuantity);
                 }
 
-                // Cáº­p nháº­t tá»•ng giÃ¡ trá»‹ cá»§a phiáº¿u sau khi thÃªm táº¥t cáº£ chi tiáº¿t
+                // Cập nhật tổng giá trị của phiếu sau khi thêm tất cả chi tiết
                 _transactionRepo.UpdateTransactionTotalValue(transId);
 
-                // Ghi nháº­t kÃ½
+                // Ghi nhật ký
                 _logRepo.LogAction("EXPORT_BATCH",
-                    $"Xuáº¥t {details.Count} sáº£n pháº©m, Transaction ID {transId}",
+                    $"Xuất {details.Count} sản phẩm, Transaction ID {transId}",
                     "");
                 ActionsService.Instance.MarkAsChanged();
                 return true;
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i khi xuáº¥t kho batch: " + ex.Message);
+                throw new Exception("Lỗi khi xuất kho batch: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Láº¥y danh sÃ¡ch sáº£n pháº©m cáº£nh bÃ¡o (tá»“n kho tháº¥p)
+        /// Lấy danh sách sản phẩm cảnh báo (tồn kho thấp)
         /// </summary>
         public List<Product> GetLowStockProducts()
         {
@@ -423,12 +423,12 @@ namespace WarehouseManagement.Services
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i khi láº¥y sáº£n pháº©m cáº£nh bÃ¡o: " + ex.Message);
+                throw new Exception("Lỗi khi lấy sản phẩm cảnh báo: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// TÃ­nh tá»•ng giÃ¡ trá»‹ tá»“n kho
+        /// Tính tổng giá trị tồn kho
         /// </summary>
         public decimal GetTotalInventoryValue()
         {
@@ -439,14 +439,14 @@ namespace WarehouseManagement.Services
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i khi tÃ­nh giÃ¡ trá»‹ tá»“n kho: " + ex.Message);
+                throw new Exception("Lỗi khi tính giá trị tồn kho: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// HoÃ n tÃ¡c thao tÃ¡c cuá»‘i cÃ¹ng (dá»±a trÃªn nháº­t kÃ½)
-        /// Há»— trá»£ tá»‘i Ä‘a 10 hÃ nh Ä‘á»™ng gáº§n nháº¥t dÃ¹ng cáº¥u trÃºc Stack (LIFO)
-        /// HÃ nh Ä‘á»™ng Ä‘Æ°á»£c hoÃ n tÃ¡c sáº½ bá»‹ xÃ³a khá»i stack (set Visible=FALSE) Ä‘á»ƒ trÃ¡nh conflict
+        /// Hoàn tác thao tác cuối cùng (dựa trên nhật ký)
+        /// Hỗ trợ tối đa 10 hành động gần nhất dùng cấu trúc Stack (LIFO)
+        /// Hành động được hoàn tác sẽ bị xóa khỏi stack (set Visible=FALSE) để tránh conflict
         /// </summary>
         public bool UndoLastAction()
         {
@@ -482,12 +482,12 @@ namespace WarehouseManagement.Services
                             if (_logRepo != null)
                             {
                                 _logRepo.RemoveFromUndoStack(lastLog.LogID);
-                                _logRepo.LogAction("UNDO_ACTION", $"HoÃ n tÃ¡c hÃ nh Ä‘á»™ng {lastLog.ActionType}");
+                                _logRepo.LogAction("UNDO_ACTION", $"Hoàn tác hành động {lastLog.ActionType}");
                             }
                         }
                         catch (Exception ex)
                         {
-                            System.Diagnostics.Debug.WriteLine($"Lá»—i khi xÃ³a hÃ nh Ä‘á»™ng khá»i stack: {ex.Message}");
+                            System.Diagnostics.Debug.WriteLine($"Lỗi khi xóa hành động khỏi stack: {ex.Message}");
                         }
                         return true;
                     }
@@ -624,13 +624,13 @@ namespace WarehouseManagement.Services
                                 bool removeSuccess = _logRepo.RemoveFromUndoStack(lastLog.LogID);
                                 System.Diagnostics.Debug.WriteLine($"UndoLastAction: Removed LogID={lastLog.LogID} from stack, success={removeSuccess}");
                                 
-                                _logRepo.LogAction("UNDO_ACTION", $"HoÃ n tÃ¡c hÃ nh Ä‘á»™ng {lastLog.ActionType}");
+                                _logRepo.LogAction("UNDO_ACTION", $"Hoàn tác hành động {lastLog.ActionType}");
                                 System.Diagnostics.Debug.WriteLine($"UndoLastAction: Logged UNDO_ACTION for {lastLog.ActionType}");
                             }
                         }
                         catch (Exception ex)
                         {
-                            System.Diagnostics.Debug.WriteLine($"Lá»—i khi xÃ³a hÃ nh Ä‘á»™ng khá»i stack: {ex.Message}\n{ex.StackTrace}");
+                            System.Diagnostics.Debug.WriteLine($"Lỗi khi xóa hành động khỏi stack: {ex.Message}\n{ex.StackTrace}");
                         }
                         return true;
                     }
@@ -648,13 +648,13 @@ namespace WarehouseManagement.Services
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Lá»—i khi hoÃ n tÃ¡c: {ex.Message}\n{ex.StackTrace}");
+                System.Diagnostics.Debug.WriteLine($"Lỗi khi hoàn tác: {ex.Message}\n{ex.StackTrace}");
                 return false;
             }
         }
 
         /// <summary>
-        /// Láº¥y danh sÃ¡ch táº¥t cáº£ giao dá»‹ch
+        /// Lấy danh sách tất cả giao dịch
         /// </summary>
         public List<StockTransaction> GetAllTransactions()
         {
@@ -664,12 +664,12 @@ namespace WarehouseManagement.Services
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i khi láº¥y danh sÃ¡ch giao dá»‹ch: " + ex.Message);
+                throw new Exception("Lỗi khi lấy danh sách giao dịch: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Láº¥y giao dá»‹ch theo ID (bao gá»“m chi tiáº¿t)
+        /// Lấy giao dịch theo ID (bao gồm chi tiết)
         /// </summary>
         public StockTransaction GetTransactionById(int transactionId)
         {
@@ -680,12 +680,12 @@ namespace WarehouseManagement.Services
             }
             catch (Exception ex)
             {
-                throw new Exception($"Lá»—i khi láº¥y giao dá»‹ch ID {transactionId}: " + ex.Message);
+                throw new Exception($"Lỗi khi lấy giao dịch ID {transactionId}: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Láº¥y danh sÃ¡ch nháº­t kÃ½ hÃ nh Ä‘á»™ng
+        /// Lấy danh sách nhật ký hành động
         /// </summary>
         public List<Actions> GetAllLogs()
         {
@@ -695,13 +695,8 @@ namespace WarehouseManagement.Services
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i khi láº¥y danh sÃ¡ch nháº­t kÃ½: " + ex.Message);
+                throw new Exception("Lỗi khi lấy danh sách nhật ký: " + ex.Message);
             }
         }
     }
 }
-
-
-
-
-

@@ -7,19 +7,19 @@ using Newtonsoft.Json;
 namespace WarehouseManagement.Services
 {
     /// <summary>
-    /// Service xá»­ lÃ½ logic chi tiáº¿t phiáº¿u Nháº­p/Xuáº¥t kho
+    /// Service xử lý logic chi tiết phiếu Nhập/Xuất kho
     /// 
-    /// CHá»¨C NÄ‚NG:
-    /// - Quáº£n lÃ½ chi tiáº¿t phiáº¿u (CRUD): ThÃªm, sá»­a, xÃ³a
-    /// - TÃ¬m kiáº¿m chi tiáº¿t: Theo phiáº¿u, sáº£n pháº©m
-    /// - TÃ­nh toÃ¡n: TÃ­nh tá»•ng sá»‘ lÆ°á»£ng, tá»•ng giÃ¡ trá»‹
+    /// CHỨC NĂNG:
+    /// - Quản lý chi tiết phiếu (CRUD): Thêm, sửa, xóa
+    /// - Tìm kiếm chi tiết: Theo phiếu, sản phẩm
+    /// - Tính toán: Tính tổng số lượng, tổng giá trị
     /// 
-    /// LUá»’NG:
-    /// 1. Validation: Kiá»ƒm tra Ä‘áº§u vÃ o
-    /// 2. Repository call: Gá»i DB Ä‘á»ƒ thá»±c hiá»‡n thao tÃ¡c
-    /// 3. Logging: Ghi nháº­t kÃ½ Actions
-    /// 4. Change tracking: Gá»i ActionsService.MarkAsChanged()
-    /// 5. Return: Tráº£ vá» káº¿t quáº£
+    /// LUỒNG:
+    /// 1. Validation: Kiểm tra đầu vào
+    /// 2. Repository call: Gọi DB để thực hiện thao tác
+    /// 3. Logging: Ghi nhật ký Actions
+    /// 4. Change tracking: Gọi ActionsService.MarkAsChanged()
+    /// 5. Return: Trả về kết quả
     /// </summary>
     public class TransactionDetailService
     {
@@ -33,41 +33,41 @@ namespace WarehouseManagement.Services
         }
 
         /// <summary>
-        /// Láº¥y danh sÃ¡ch chi tiáº¿t theo Transaction ID
+        /// Lấy danh sách chi tiết theo Transaction ID
         /// </summary>
         public List<TransactionDetail> GetDetailsByTransactionId(int transactionId)
         {
             try
             {
                 if (transactionId <= 0)
-                    throw new ArgumentException("ID phiáº¿u khÃ´ng há»£p lá»‡");
+                    throw new ArgumentException("ID phiếu không hợp lệ");
                 return _detailRepo.GetDetailsByTransactionId(transactionId);
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i khi láº¥y chi tiáº¿t phiáº¿u: " + ex.Message);
+                throw new Exception("Lỗi khi lấy chi tiết phiếu: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Láº¥y chi tiáº¿t theo ID
+        /// Lấy chi tiết theo ID
         /// </summary>
         public TransactionDetail GetDetailById(int detailId)
         {
             try
             {
                 if (detailId <= 0)
-                    throw new ArgumentException("ID chi tiáº¿t khÃ´ng há»£p lá»‡");
+                    throw new ArgumentException("ID chi tiết không hợp lệ");
                 return _detailRepo.GetDetailById(detailId);
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i khi láº¥y chi tiáº¿t: " + ex.Message);
+                throw new Exception("Lỗi khi lấy chi tiết: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// ThÃªm chi tiáº¿t vÃ o phiáº¿u
+        /// Thêm chi tiết vào phiếu
         /// </summary>
         public int AddTransactionDetail(int transactionId, int productId, string productName, int quantity, decimal unitPrice)
         {
@@ -75,19 +75,19 @@ namespace WarehouseManagement.Services
             {
                 // Validation
                 if (transactionId <= 0)
-                    throw new ArgumentException("ID phiáº¿u khÃ´ng há»£p lá»‡");
+                    throw new ArgumentException("ID phiếu không hợp lệ");
                 if (productId <= 0)
-                    throw new ArgumentException("ID sáº£n pháº©m khÃ´ng há»£p lá»‡");
+                    throw new ArgumentException("ID sản phẩm không hợp lệ");
                 if (quantity <= 0)
-                    throw new ArgumentException("Sá»‘ lÆ°á»£ng pháº£i lá»›n hÆ¡n 0");
+                    throw new ArgumentException("Số lượng phải lớn hơn 0");
                 if (quantity > 999999)
-                    throw new ArgumentException("Sá»‘ lÆ°á»£ng quÃ¡ lá»›n");
+                    throw new ArgumentException("Số lượng quá lớn");
                 if (unitPrice < 0)
-                    throw new ArgumentException("ÄÆ¡n giÃ¡ khÃ´ng Ä‘Æ°á»£c Ã¢m");
+                    throw new ArgumentException("Đơn giá không được âm");
                 if (unitPrice > 999999999)
-                    throw new ArgumentException("ÄÆ¡n giÃ¡ quÃ¡ lá»›n");
+                    throw new ArgumentException("Đơn giá quá lớn");
                 if (string.IsNullOrWhiteSpace(productName))
-                    throw new ArgumentException("TÃªn sáº£n pháº©m khÃ´ng Ä‘Æ°á»£c trá»‘ng");
+                    throw new ArgumentException("Tên sản phẩm không được trống");
 
                 var detail = new TransactionDetail
                 {
@@ -100,11 +100,11 @@ namespace WarehouseManagement.Services
 
                 int detailId = _detailRepo.AddTransactionDetail(detail);
 
-                // Ghi nháº­t kÃ½
+                // Ghi nhật ký
                 var log = new Actions
                 {
                     ActionType = "ADD_DETAIL",
-                    Descriptions = $"ThÃªm chi tiáº¿t sáº£n pháº©m ID {productId} vÃ o phiáº¿u ID {transactionId}",
+                    Descriptions = $"Thêm chi tiết sản phẩm ID {productId} vào phiếu ID {transactionId}",
                     DataBefore = "",
                     CreatedAt = DateTime.Now
                 };
@@ -115,31 +115,31 @@ namespace WarehouseManagement.Services
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i khi thÃªm chi tiáº¿t phiáº¿u: " + ex.Message);
+                throw new Exception("Lỗi khi thêm chi tiết phiếu: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Cáº­p nháº­t chi tiáº¿t phiáº¿u
+        /// Cập nhật chi tiết phiếu
         /// </summary>
         public bool UpdateTransactionDetail(int detailId, int quantity, decimal unitPrice)
         {
             try
             {
                 if (detailId <= 0)
-                    throw new ArgumentException("ID chi tiáº¿t khÃ´ng há»£p lá»‡");
+                    throw new ArgumentException("ID chi tiết không hợp lệ");
                 if (quantity <= 0)
-                    throw new ArgumentException("Sá»‘ lÆ°á»£ng pháº£i lá»›n hÆ¡n 0");
+                    throw new ArgumentException("Số lượng phải lớn hơn 0");
                 if (quantity > 999999)
-                    throw new ArgumentException("Sá»‘ lÆ°á»£ng quÃ¡ lá»›n");
+                    throw new ArgumentException("Số lượng quá lớn");
                 if (unitPrice < 0)
-                    throw new ArgumentException("ÄÆ¡n giÃ¡ khÃ´ng Ä‘Æ°á»£c Ã¢m");
+                    throw new ArgumentException("Đơn giá không được âm");
                 if (unitPrice > 999999999)
-                    throw new ArgumentException("ÄÆ¡n giÃ¡ quÃ¡ lá»›n");
+                    throw new ArgumentException("Đơn giá quá lớn");
 
                 var oldDetail = _detailRepo.GetDetailById(detailId);
                 if (oldDetail == null)
-                    throw new ArgumentException("Chi tiáº¿t khÃ´ng tá»“n táº¡i");
+                    throw new ArgumentException("Chi tiết không tồn tại");
 
                 var beforeData = new
                 {
@@ -165,7 +165,7 @@ namespace WarehouseManagement.Services
                     var log = new Actions
                     {
                         ActionType = "UPDATE_DETAIL",
-                        Descriptions = $"Cáº­p nháº­t chi tiáº¿t ID {detailId}",
+                        Descriptions = $"Cập nhật chi tiết ID {detailId}",
                         DataBefore = JsonConvert.SerializeObject(beforeData),
                         CreatedAt = DateTime.Now
                     };
@@ -178,23 +178,23 @@ namespace WarehouseManagement.Services
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i khi cáº­p nháº­t chi tiáº¿t phiáº¿u: " + ex.Message);
+                throw new Exception("Lỗi khi cập nhật chi tiết phiếu: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// XÃ³a chi tiáº¿t phiáº¿u
+        /// Xóa chi tiết phiếu
         /// </summary>
         public bool DeleteTransactionDetail(int detailId)
         {
             try
             {
                 if (detailId <= 0)
-                    throw new ArgumentException("ID chi tiáº¿t khÃ´ng há»£p lá»‡");
+                    throw new ArgumentException("ID chi tiết không hợp lệ");
 
                 var detail = _detailRepo.GetDetailById(detailId);
                 if (detail == null)
-                    throw new ArgumentException("Chi tiáº¿t khÃ´ng tá»“n táº¡i");
+                    throw new ArgumentException("Chi tiết không tồn tại");
 
                 var beforeData = new
                 {
@@ -213,7 +213,7 @@ namespace WarehouseManagement.Services
                     var log = new Actions
                     {
                         ActionType = "DELETE_DETAIL",
-                        Descriptions = $"XÃ³a chi tiáº¿t ID {detailId}",
+                        Descriptions = $"Xóa chi tiết ID {detailId}",
                         DataBefore = JsonConvert.SerializeObject(beforeData),
                         CreatedAt = DateTime.Now
                     };
@@ -226,19 +226,19 @@ namespace WarehouseManagement.Services
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i khi xÃ³a chi tiáº¿t phiáº¿u: " + ex.Message);
+                throw new Exception("Lỗi khi xóa chi tiết phiếu: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// XÃ³a táº¥t cáº£ chi tiáº¿t cá»§a má»™t phiáº¿u
+        /// Xóa tất cả chi tiết của một phiếu
         /// </summary>
         public bool DeleteAllDetails(int transactionId)
         {
             try
             {
                 if (transactionId <= 0)
-                    throw new ArgumentException("ID phiáº¿u khÃ´ng há»£p lá»‡");
+                    throw new ArgumentException("ID phiếu không hợp lệ");
 
                 bool result = _detailRepo.DeleteAllDetails(transactionId);
 
@@ -247,7 +247,7 @@ namespace WarehouseManagement.Services
                     var log = new Actions
                     {
                         ActionType = "DELETE_ALL_DETAILS",
-                        Descriptions = $"XÃ³a táº¥t cáº£ chi tiáº¿t cá»§a phiáº¿u ID {transactionId}",
+                        Descriptions = $"Xóa tất cả chi tiết của phiếu ID {transactionId}",
                         DataBefore = "",
                         CreatedAt = DateTime.Now
                     };
@@ -260,37 +260,37 @@ namespace WarehouseManagement.Services
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i khi xÃ³a chi tiáº¿t phiáº¿u: " + ex.Message);
+                throw new Exception("Lỗi khi xóa chi tiết phiếu: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// TÃ­nh tá»•ng sá»‘ lÆ°á»£ng trong phiáº¿u
+        /// Tính tổng số lượng trong phiếu
         /// </summary>
         public int GetTotalQuantity(int transactionId)
         {
             try
             {
                 if (transactionId <= 0)
-                    throw new ArgumentException("ID phiáº¿u khÃ´ng há»£p lá»‡");
+                    throw new ArgumentException("ID phiếu không hợp lệ");
 
                 return _detailRepo.GetTotalQuantity(transactionId);
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i khi tÃ­nh tá»•ng sá»‘ lÆ°á»£ng: " + ex.Message);
+                throw new Exception("Lỗi khi tính tổng số lượng: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// TÃ­nh tá»•ng giÃ¡ trá»‹ phiáº¿u chi tiáº¿t
+        /// Tính tổng giá trị phiếu chi tiết
         /// </summary>
         public decimal GetTotalValue(int transactionId)
         {
             try
             {
                 if (transactionId <= 0)
-                    throw new ArgumentException("ID phiáº¿u khÃ´ng há»£p lá»‡");
+                    throw new ArgumentException("ID phiếu không hợp lệ");
 
                 var details = _detailRepo.GetDetailsByTransactionId(transactionId);
                 decimal total = 0;
@@ -302,30 +302,26 @@ namespace WarehouseManagement.Services
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i khi tÃ­nh tá»•ng giÃ¡ trá»‹: " + ex.Message);
+                throw new Exception("Lỗi khi tính tổng giá trị: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Äáº¿m tá»•ng sá»‘ chi tiáº¿t trong phiáº¿u
+        /// Đếm tổng số chi tiết trong phiếu
         /// </summary>
         public int CountDetails(int transactionId)
         {
             try
             {
                 if (transactionId <= 0)
-                    throw new ArgumentException("ID phiáº¿u khÃ´ng há»£p lá»‡");
+                    throw new ArgumentException("ID phiếu không hợp lệ");
 
                 return _detailRepo.GetDetailsByTransactionId(transactionId).Count;
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i khi Ä‘áº¿m chi tiáº¿t: " + ex.Message);
+                throw new Exception("Lỗi khi đếm chi tiết: " + ex.Message);
             }
         }
     }
 }
-
-
-
-

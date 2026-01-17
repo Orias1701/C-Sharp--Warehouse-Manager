@@ -7,7 +7,7 @@ using WarehouseManagement.Repositories;
 namespace WarehouseManagement.Services
 {
     /// <summary>
-    /// Service xá»­ lÃ½ dá»¯ liá»‡u thÃ´ thÃ nh dá»¯ liá»‡u biá»ƒu Ä‘á»“
+    /// Service xử lý dữ liệu thô thành dữ liệu biểu đồ
     /// </summary>
     public class ChartService
     {
@@ -21,7 +21,7 @@ namespace WarehouseManagement.Services
         }
 
         /// <summary>
-        /// Láº¥y dá»¯ liá»‡u tá»“n kho theo sáº£n pháº©m (cho biá»ƒu Ä‘á»“ cá»™t)
+        /// Lấy dữ liệu tồn kho theo sản phẩm (cho biểu đồ cột)
         /// </summary>
         public Dictionary<string, int> GetInventoryByProduct()
         {
@@ -32,12 +32,12 @@ namespace WarehouseManagement.Services
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i khi láº¥y dá»¯ liá»‡u tá»“n kho: " + ex.Message);
+                throw new Exception("Lỗi khi lấy dữ liệu tồn kho: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Láº¥y dá»¯ liá»‡u giÃ¡ trá»‹ tá»“n kho theo sáº£n pháº©m (cho biá»ƒu Ä‘á»“ cá»™t)
+        /// Lấy dữ liệu giá trị tồn kho theo sản phẩm (cho biểu đồ cột)
         /// </summary>
         public Dictionary<string, decimal> GetInventoryValueByProduct()
         {
@@ -48,12 +48,12 @@ namespace WarehouseManagement.Services
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i khi láº¥y giÃ¡ trá»‹ tá»“n kho: " + ex.Message);
+                throw new Exception("Lỗi khi lấy giá trị tồn kho: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Láº¥y dá»¯ liá»‡u Nháº­p/Xuáº¥t theo ngÃ y
+        /// Lấy dữ liệu Nhập/Xuất theo ngày
         /// </summary>
         public Dictionary<string, int> GetImportExportByDate(DateTime fromDate, DateTime toDate)
         {
@@ -73,12 +73,12 @@ namespace WarehouseManagement.Services
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i khi láº¥y dá»¯ liá»‡u nháº­p/xuáº¥t: " + ex.Message);
+                throw new Exception("Lỗi khi lấy dữ liệu nhập/xuất: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Láº¥y dá»¯ liá»‡u Nháº­p/Xuáº¥t theo loáº¡i (cho biá»ƒu Ä‘á»“ trÃ²n)
+        /// Lấy dữ liệu Nhập/Xuất theo loại (cho biểu đồ tròn)
         /// </summary>
         public Dictionary<string, int> GetTransactionByType()
         {
@@ -90,18 +90,18 @@ namespace WarehouseManagement.Services
 
                 return new Dictionary<string, int>
                 {
-                    { "Nháº­p kho", imports },
-                    { "Xuáº¥t kho", exports }
+                    { "Nhập kho", imports },
+                    { "Xuất kho", exports }
                 };
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i khi láº¥y dá»¯ liá»‡u loáº¡i phiáº¿u: " + ex.Message);
+                throw new Exception("Lỗi khi lấy dữ liệu loại phiếu: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Láº¥y thá»‘ng kÃª tá»•ng quÃ¡t
+        /// Lấy thống kê tổng quát
         /// </summary>
         public Dictionary<string, object> GetGeneralStatistics()
         {
@@ -122,13 +122,13 @@ namespace WarehouseManagement.Services
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i khi láº¥y thá»‘ng kÃª: " + ex.Message);
+                throw new Exception("Lỗi khi lấy thống kê: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Láº¥y dá»¯ liá»‡u Nháº­p/Xuáº¥t theo thÃ¡ng (12 thÃ¡ng gáº§n nháº¥t)
-        /// Tráº£ vá» Dictionary vá»›i key lÃ  thÃ¡ng (yyyy-MM), value lÃ  {Import: giÃ¡ trá»‹, Export: giÃ¡ trá»‹}
+        /// Lấy dữ liệu Nhập/Xuất theo tháng (12 tháng gần nhất)
+        /// Trả về Dictionary với key là tháng (yyyy-MM), value là {Import: giá trị, Export: giá trị}
         /// </summary>
         public Dictionary<string, Dictionary<string, decimal>> GetImportExportByMonth()
         {
@@ -138,11 +138,11 @@ namespace WarehouseManagement.Services
                 var transactions = _transactionRepo.GetAllTransactions();
                 Console.WriteLine($"[ChartService] GetImportExportByMonth: Total transactions = {transactions.Count}");
 
-                // Láº¥y 12 thÃ¡ng gáº§n nháº¥t
+                // Lấy 12 tháng gần nhất
                 DateTime now = DateTime.Now;
                 DateTime startDate = now.AddMonths(-11);
 
-                // Táº¡o danh sÃ¡ch cÃ¡c thÃ¡ng
+                // Tạo danh sách các tháng
                 for (int i = 0; i < 12; i++)
                 {
                     DateTime monthDate = startDate.AddMonths(i);
@@ -154,13 +154,13 @@ namespace WarehouseManagement.Services
                     };
                 }
 
-                // TÃ­nh toÃ¡n tá»•ng giÃ¡ trá»‹ nháº­p/xuáº¥t cho má»—i thÃ¡ng
+                // Tính toán tổng giá trị nhập/xuất cho mỗi tháng
                 int processedCount = 0;
                 foreach (var transaction in transactions)
                 {
                     string monthKey = transaction.DateCreated.ToString("yyyy-MM");
                     
-                    // Chá»‰ xá»­ lÃ½ cÃ¡c giao dá»‹ch trong 12 thÃ¡ng gáº§n nháº¥t
+                    // Chỉ xử lý các giao dịch trong 12 tháng gần nhất
                     if (!result.ContainsKey(monthKey))
                         continue;
 
@@ -189,13 +189,13 @@ namespace WarehouseManagement.Services
             catch (Exception ex)
             {
                 Console.WriteLine($"[ChartService] ERROR: {ex.Message}\n{ex.StackTrace}");
-                throw new Exception("Lá»—i khi láº¥y dá»¯ liá»‡u nháº­p/xuáº¥t theo thÃ¡ng: " + ex.Message);
+                throw new Exception("Lỗi khi lấy dữ liệu nhập/xuất theo tháng: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Láº¥y dá»¯ liá»‡u Nháº­p/Xuáº¥t theo ngÃ y (30 ngÃ y gáº§n nháº¥t)
-        /// Tráº£ vá» Dictionary vá»›i key lÃ  ngÃ y (yyyy-MM-dd), value lÃ  {Import: giÃ¡ trá»‹, Export: giÃ¡ trá»‹}
+        /// Lấy dữ liệu Nhập/Xuất theo ngày (30 ngày gần nhất)
+        /// Trả về Dictionary với key là ngày (yyyy-MM-dd), value là {Import: giá trị, Export: giá trị}
         /// </summary>
         public Dictionary<string, Dictionary<string, decimal>> GetImportExportByDay()
         {
@@ -210,10 +210,10 @@ namespace WarehouseManagement.Services
                 var transactions = _transactionRepo.GetAllTransactions();
                 Console.WriteLine($"[ChartService] GetImportExportByDay: Total transactions = {transactions.Count}");
 
-                // Láº¥y 30 ngÃ y trÆ°á»›c tá»« ngÃ y Ä‘Æ°á»£c chá»n (anchorDate)
+                // Lấy 30 ngày trước từ ngày được chọn (anchorDate)
                 DateTime startDate = anchorDate.AddDays(-29);
 
-                // Táº¡o danh sÃ¡ch cÃ¡c ngÃ y
+                // Tạo danh sách các ngày
                 for (int i = 0; i < 30; i++)
                 {
                     DateTime dayDate = startDate.AddDays(i);
@@ -225,13 +225,13 @@ namespace WarehouseManagement.Services
                     };
                 }
 
-                // TÃ­nh toÃ¡n tá»•ng giÃ¡ trá»‹ nháº­p/xuáº¥t cho má»—i ngÃ y
+                // Tính toán tổng giá trị nhập/xuất cho mỗi ngày
                 int processedCount = 0;
                 foreach (var transaction in transactions)
                 {
                     string dayKey = transaction.DateCreated.ToString("yyyy-MM-dd");
                     
-                    // Chá»‰ xá»­ lÃ½ cÃ¡c giao dá»‹ch trong 30 ngÃ y Ä‘Ã£ chá»n
+                    // Chỉ xử lý các giao dịch trong 30 ngày đã chọn
                     if (!result.ContainsKey(dayKey))
                         continue;
 
@@ -260,12 +260,8 @@ namespace WarehouseManagement.Services
             catch (Exception ex)
             {
                 Console.WriteLine($"[ChartService] ERROR: {ex.Message}\n{ex.StackTrace}");
-                throw new Exception("Lá»—i khi láº¥y dá»¯ liá»‡u nháº­p/xuáº¥t theo ngÃ y: " + ex.Message);
+                throw new Exception("Lỗi khi lấy dữ liệu nhập/xuất theo ngày: " + ex.Message);
             }
         }
     }
 }
-
-
-
-

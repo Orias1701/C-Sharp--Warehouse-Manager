@@ -6,7 +6,7 @@ using WarehouseManagement.Models;
 namespace WarehouseManagement.Controllers
 {
     /// <summary>
-    /// Controller Ä‘iá»u hÆ°á»›ng cÃ¡c thao tÃ¡c liÃªn quan Ä‘áº¿n nháº­t kÃ½ hÃ nh Ä‘á»™ng
+    /// Controller điều hướng các thao tác liên quan đến nhật ký hành động
     /// </summary>
     public class ActionsController
     {
@@ -18,7 +18,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Láº¥y danh sÃ¡ch táº¥t cáº£ nháº­t kÃ½
+        /// Lấy danh sách tất cả nhật ký
         /// </summary>
         public List<Actions> GetAllLogs()
         {
@@ -26,7 +26,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Láº¥y nháº­t kÃ½ theo ID
+        /// Lấy nhật ký theo ID
         /// </summary>
         public Actions GetLogById(int logId)
         {
@@ -34,7 +34,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Ghi nháº­t kÃ½ hÃ nh Ä‘á»™ng má»›i
+        /// Ghi nhật ký hành động mới
         /// </summary>
         public int LogAction(string actionType, string descriptions, string dataBefore = "")
         {
@@ -42,7 +42,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// XÃ³a nháº­t kÃ½
+        /// Xóa nhật ký
         /// </summary>
         public bool DeleteLog(int logId)
         {
@@ -50,7 +50,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Láº¥y nháº­t kÃ½ theo loáº¡i hÃ nh Ä‘á»™ng
+        /// Lấy nhật ký theo loại hành động
         /// </summary>
         public List<Actions> GetLogsByActionType(string actionType)
         {
@@ -58,7 +58,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Láº¥y nháº­t kÃ½ trong má»™t khoáº£ng thá»i gian
+        /// Lấy nhật ký trong một khoảng thời gian
         /// </summary>
         public List<Actions> GetLogsByDateRange(DateTime startDate, DateTime endDate)
         {
@@ -66,7 +66,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Láº¥y nháº­t kÃ½ gáº§n nháº¥t cá»§a má»™t loáº¡i hÃ nh Ä‘á»™ng
+        /// Lấy nhật ký gần nhất của một loại hành động
         /// </summary>
         public Actions GetLatestLog(string actionType)
         {
@@ -74,7 +74,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Kiá»ƒm tra cÃ³ nháº­t kÃ½ nÃ o khÃ´ng
+        /// Kiểm tra có nhật ký nào không
         /// </summary>
         public bool HasLogs()
         {
@@ -82,7 +82,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Äáº¿m tá»•ng sá»‘ nháº­t kÃ½
+        /// Đếm tổng số nhật ký
         /// </summary>
         public int CountLogs()
         {
@@ -90,7 +90,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// XÃ³a táº¥t cáº£ nháº­t kÃ½ khi káº¿t thÃºc phiÃªn
+        /// Xóa tất cả nhật ký khi kết thúc phiên
         /// </summary>
         public bool ClearAllLogs()
         {
@@ -98,8 +98,3 @@ namespace WarehouseManagement.Controllers
         }
     }
 }
-
-
-
-
-

@@ -6,7 +6,7 @@ using WarehouseManagement.Models;
 namespace WarehouseManagement.Controllers
 {
     /// <summary>
-    /// Controller Ä‘iá»u hÆ°á»›ng cÃ¡c thao tÃ¡c liÃªn quan Ä‘áº¿n ngÆ°á»i dÃ¹ng
+    /// Controller điều hướng các thao tác liên quan đến người dùng
     /// </summary>
     public class UserController
     {
@@ -18,7 +18,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// ÄÄƒng nháº­p ngÆ°á»i dÃ¹ng
+        /// Đăng nhập người dùng
         /// </summary>
         public User Login(string username, string password)
         {
@@ -26,7 +26,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Láº¥y ngÆ°á»i dÃ¹ng theo ID
+        /// Lấy người dùng theo ID
         /// </summary>
         public User GetUserById(int userId)
         {
@@ -34,7 +34,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Láº¥y danh sÃ¡ch táº¥t cáº£ ngÆ°á»i dÃ¹ng
+        /// Lấy danh sách tất cả người dùng
         /// </summary>
         public List<User> GetAllUsers()
         {
@@ -42,7 +42,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Kiá»ƒm tra tÃªn Ä‘Äƒng nháº­p cÃ³ tá»“n táº¡i hay khÃ´ng
+        /// Kiểm tra tên đăng nhập có tồn tại hay không
         /// </summary>
         public bool UsernameExists(string username)
         {
@@ -50,7 +50,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Kiá»ƒm tra ngÆ°á»i dÃ¹ng cÃ³ hoáº¡t Ä‘á»™ng hay khÃ´ng
+        /// Kiểm tra người dùng có hoạt động hay không
         /// </summary>
         public bool IsUserActive(int userId)
         {
@@ -58,7 +58,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Äáº¿m tá»•ng sá»‘ ngÆ°á»i dÃ¹ng
+        /// Đếm tổng số người dùng
         /// </summary>
         public int CountUsers()
         {
@@ -66,7 +66,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Láº¥y danh sÃ¡ch ngÆ°á»i dÃ¹ng hoáº¡t Ä‘á»™ng
+        /// Lấy danh sách người dùng hoạt động
         /// </summary>
         public List<User> GetActiveUsers()
         {
@@ -74,7 +74,3 @@ namespace WarehouseManagement.Controllers
         }
     }
 }
-
-
-
-

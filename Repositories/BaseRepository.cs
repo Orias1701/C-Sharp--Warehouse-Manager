@@ -6,7 +6,7 @@ using MySql.Data.MySqlClient;
 namespace WarehouseManagement.Repositories
 {
     /// <summary>
-    /// Lá»›p cÆ¡ sá»Ÿ cho táº¥t cáº£ repositories - khá»Ÿi táº¡o káº¿t ná»‘i MySQL
+    /// Lớp cơ sở cho tất cả repositories - khởi tạo kết nối MySQL
     /// </summary>
     public abstract class BaseRepository
     {
@@ -19,7 +19,7 @@ namespace WarehouseManagement.Repositories
         }
 
         /// <summary>
-        /// Láº¥y káº¿t ná»‘i má»›i Ä‘áº¿n database
+        /// Lấy kết nối mới đến database
         /// </summary>
         protected MySqlConnection GetConnection()
         {
@@ -27,7 +27,7 @@ namespace WarehouseManagement.Repositories
         }
 
         /// <summary>
-        /// Kiá»ƒm tra káº¿t ná»‘i tá»›i database
+        /// Kiểm tra kết nối tới database
         /// </summary>
         public bool TestConnection()
         {
@@ -46,7 +46,3 @@ namespace WarehouseManagement.Repositories
         }
     }
 }
-
-
-
-

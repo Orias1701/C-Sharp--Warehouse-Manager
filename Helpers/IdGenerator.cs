@@ -5,13 +5,13 @@ using System.Text;
 namespace WarehouseManagement.Helpers
 {
     /// <summary>
-    /// Lá»›p tiá»‡n Ã­ch Ä‘á»ƒ táº¡o cÃ¡c ID khÃ¡c nhau cho há»‡ thá»‘ng
+    /// Lớp tiện ích để tạo các ID khác nhau cho hệ thống
     /// </summary>
     public static class IdGenerator
     {
         /// <summary>
-        /// Táº¡o má»™t ID dáº¡ng hex tá»« timestamp vÃ  random bytes
-        /// Format: YYYYMMDD-HHMMSS-XXXXXXXXXXX (8-6-11 kÃ½ tá»± hex)
+        /// Tạo một ID dạng hex từ timestamp và random bytes
+        /// Format: YYYYMMDD-HHMMSS-XXXXXXXXXXX (8-6-11 ký tự hex)
         /// Example: 20250109-143025-A1B2C3D4E5F
         /// </summary>
         public static string GenerateHexId()
@@ -20,7 +20,7 @@ namespace WarehouseManagement.Helpers
             {
                 string timestamp = DateTime.Now.ToString("yyyyMMdd-HHmmss");
                 
-                // Táº¡o 6 bytes random (12 kÃ½ tá»± hex)
+                // Tạo 6 bytes random (12 ký tự hex)
                 byte[] randomBytes = new byte[6];
                 using (var rng = new RNGCryptoServiceProvider())
                 {
@@ -33,12 +33,12 @@ namespace WarehouseManagement.Helpers
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i khi táº¡o hex ID: " + ex.Message);
+                throw new Exception("Lỗi khi tạo hex ID: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Táº¡o má»™t ID dáº¡ng UUID v4
+        /// Tạo một ID dạng UUID v4
         /// </summary>
         public static string GenerateUUID()
         {
@@ -49,12 +49,12 @@ namespace WarehouseManagement.Helpers
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i khi táº¡o UUID: " + ex.Message);
+                throw new Exception("Lỗi khi tạo UUID: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Kiá»ƒm tra xem chuá»—i ID cÃ³ pháº£i hex ID há»£p lá»‡ hay khÃ´ng
+        /// Kiểm tra xem chuỗi ID có phải hex ID hợp lệ hay không
         /// </summary>
         public static bool IsValidHexId(string hexId)
         {
@@ -63,14 +63,14 @@ namespace WarehouseManagement.Helpers
                 if (string.IsNullOrEmpty(hexId))
                     return false;
 
-                // Kiá»ƒm tra format: YYYYMMDD-HHMMSS-XXXXXXXXXXX
+                // Kiểm tra format: YYYYMMDD-HHMMSS-XXXXXXXXXXX
                 if (hexId.Length != 27) // 8 + 1 + 6 + 1 + 11
                     return false;
 
                 if (hexId[8] != '-' || hexId[15] != '-')
                     return false;
 
-                // Kiá»ƒm tra pháº§n timestamp cÃ³ pháº£i hex khÃ´ng
+                // Kiểm tra phần timestamp có phải hex không
                 string timestampPart = hexId.Substring(0, 8); // YYYYMMDD
                 if (!int.TryParse(timestampPart, out _))
                     return false;
@@ -79,7 +79,7 @@ namespace WarehouseManagement.Helpers
                 if (!int.TryParse(timePart, out _))
                     return false;
 
-                // Kiá»ƒm tra pháº§n random cÃ³ pháº£i hex khÃ´ng
+                // Kiểm tra phần random có phải hex không
                 string randomPart = hexId.Substring(16, 11);
                 try
                 {
@@ -99,7 +99,7 @@ namespace WarehouseManagement.Helpers
         }
 
         /// <summary>
-        /// Táº¡o má»™t hash SHA-256 tá»« chuá»—i input (Base64 format)
+        /// Tạo một hash SHA-256 từ chuỗi input (Base64 format)
         /// </summary>
         public static string GenerateSHA256Hash(string input)
         {
@@ -118,12 +118,12 @@ namespace WarehouseManagement.Helpers
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i khi táº¡o SHA256 hash: " + ex.Message);
+                throw new Exception("Lỗi khi tạo SHA256 hash: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// XÃ¡c minh chuá»—i input vá»›i hash Ä‘Ã£ lÆ°u
+        /// Xác minh chuỗi input với hash đã lưu
         /// </summary>
         public static bool VerifySHA256Hash(string input, string hash)
         {
@@ -143,8 +143,3 @@ namespace WarehouseManagement.Helpers
         }
     }
 }
-
-
-
-
-

@@ -4,20 +4,20 @@ using Newtonsoft.Json;
 namespace WarehouseManagement.Helpers
 {
     /// <summary>
-    /// Helper chuyá»ƒn Ä‘á»•i dá»¯ liá»‡u vÃ  Ä‘á»‹nh dáº¡ng tiá»n tá»‡
+    /// Helper chuyển đổi dữ liệu và định dạng tiền tệ
     /// </summary>
     public class DataConverter
     {
         /// <summary>
-        /// Chuyá»ƒn Ä‘á»•i sá»‘ thÃ nh Ä‘á»‹nh dáº¡ng tiá»n tá»‡ VNÄ
+        /// Chuyển đổi số thành định dạng tiền tệ VNĐ
         /// </summary>
         public static string FormatCurrency(decimal amount)
         {
-            return amount.ToString("N0") + " â‚«";
+            return amount.ToString("N0") + " ₫";
         }
 
         /// <summary>
-        /// Chuyá»ƒn Ä‘á»•i chuá»—i JSON thÃ nh object
+        /// Chuyển đổi chuỗi JSON thành object
         /// </summary>
         public static T DeserializeJson<T>(string json)
         {
@@ -34,7 +34,7 @@ namespace WarehouseManagement.Helpers
         }
 
         /// <summary>
-        /// Chuyá»ƒn Ä‘á»•i object thÃ nh JSON
+        /// Chuyển đổi object thành JSON
         /// </summary>
         public static string SerializeJson<T>(T obj)
         {
@@ -49,7 +49,7 @@ namespace WarehouseManagement.Helpers
         }
 
         /// <summary>
-        /// Äá»‹nh dáº¡ng ngÃ y thÃ¡ng
+        /// Định dạng ngày tháng
         /// </summary>
         public static string FormatDate(DateTime date)
         {
@@ -57,7 +57,7 @@ namespace WarehouseManagement.Helpers
         }
 
         /// <summary>
-        /// Äá»‹nh dáº¡ng ngÃ y thÃ¡ng ngáº¯n
+        /// Định dạng ngày tháng ngắn
         /// </summary>
         public static string FormatDateShort(DateTime date)
         {
@@ -65,7 +65,7 @@ namespace WarehouseManagement.Helpers
         }
 
         /// <summary>
-        /// Äá»‹nh dáº¡ng sá»‘ lÆ°á»£ng (vá»›i dáº¥u phÃ¢n cÃ¡ch hÃ ng nghÃ¬n)
+        /// Định dạng số lượng (với dấu phân cách hàng nghìn)
         /// </summary>
         public static string FormatQuantity(int quantity)
         {
@@ -73,7 +73,7 @@ namespace WarehouseManagement.Helpers
         }
 
         /// <summary>
-        /// Kiá»ƒm tra xem chuá»—i cÃ³ pháº£i JSON há»£p lá»‡ khÃ´ng
+        /// Kiểm tra xem chuỗi có phải JSON hợp lệ không
         /// </summary>
         public static bool IsValidJson(string input)
         {
@@ -89,7 +89,3 @@ namespace WarehouseManagement.Helpers
         }
     }
 }
-
-
-
-

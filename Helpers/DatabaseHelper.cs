@@ -7,17 +7,17 @@ using WarehouseManagement.Repositories;
 namespace WarehouseManagement.Helpers
 {
     /// <summary>
-    /// Helper kiá»ƒm tra káº¿t ná»‘i database vÃ  backup
+    /// Helper kiểm tra kết nối database và backup
     /// </summary>
     public class DatabaseHelper
     {
         public DatabaseHelper()
         {
-            // BaseRepository lÃ  abstract, khÃ´ng cáº§n khá»Ÿi táº¡o
+            // BaseRepository là abstract, không cần khởi tạo
         }
 
         /// <summary>
-        /// Kiá»ƒm tra káº¿t ná»‘i Ä‘áº¿n database
+        /// Kiểm tra kết nối đến database
         /// </summary>
         public static bool TestDatabaseConnection()
         {
@@ -33,24 +33,24 @@ namespace WarehouseManagement.Helpers
         }
 
         /// <summary>
-        /// Láº¥y thÃ´ng bÃ¡o lá»—i káº¿t ná»‘i
+        /// Lấy thông báo lỗi kết nối
         /// </summary>
         public static string GetConnectionError()
         {
             try
             {
                 if (!TestDatabaseConnection())
-                    return "KhÃ´ng thá»ƒ káº¿t ná»‘i tá»›i database. Vui lÃ²ng kiá»ƒm tra App.config";
+                    return "Không thể kết nối tới database. Vui lòng kiểm tra App.config";
                 return "";
             }
             catch (Exception ex)
             {
-                return "Lá»—i: " + ex.Message;
+                return "Lỗi: " + ex.Message;
             }
         }
 
         /// <summary>
-        /// Tá»± Ä‘á»™ng cháº¡y schema.sql Ä‘á»ƒ táº¡o/reset database
+        /// Tự động chạy schema.sql để tạo/reset database
         /// </summary>
         public static bool ExecuteSchema()
         {
@@ -59,7 +59,7 @@ namespace WarehouseManagement.Helpers
                 string schemaPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "SQL", "schema.sql");
                 
                 if (!File.Exists(schemaPath))
-                    throw new FileNotFoundException("KhÃ´ng tÃ¬m tháº¥y file schema.sql");
+                    throw new FileNotFoundException("Không tìm thấy file schema.sql");
 
                 string sqlScript = File.ReadAllText(schemaPath, Encoding.UTF8);
                 
@@ -91,12 +91,12 @@ namespace WarehouseManagement.Helpers
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i khi cháº¡y schema: " + ex.Message);
+                throw new Exception("Lỗi khi chạy schema: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Táº¡o file backup Ä‘Æ¡n giáº£n (chá»‰ lÆ°u thÃ´ng tin)
+        /// Tạo file backup đơn giản (chỉ lưu thông tin)
         /// </summary>
         public static bool CreateBackup(string backupPath)
         {
@@ -116,27 +116,23 @@ namespace WarehouseManagement.Helpers
             }
             catch (Exception ex)
             {
-                throw new Exception("Lá»—i khi táº¡o backup: " + ex.Message);
+                throw new Exception("Lỗi khi tạo backup: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Láº¥y kÃ­ch thÆ°á»›c database (mÃ´ phá»ng)
+        /// Lấy kích thước database (mô phỏng)
         /// </summary>
         public static string GetDatabaseSize()
         {
             try
             {
-                return "ChÆ°a cáº­p nháº­t - cáº§n triá»ƒn khai MySQL INFORMATION_SCHEMA";
+                return "Chưa cập nhật - cần triển khai MySQL INFORMATION_SCHEMA";
             }
             catch (Exception ex)
             {
-                return "Lá»—i: " + ex.Message;
+                return "Lỗi: " + ex.Message;
             }
         }
     }
 }
-
-
-
-

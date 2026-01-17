@@ -34,7 +34,8 @@ namespace WarehouseManagement.Repositories
                                     Type = reader.GetString("Type"),
                                     DateCreated = reader.GetDateTime("DateCreated"),
                                     CreatedByUserID = reader.IsDBNull(reader.GetOrdinal("CreatedByUserID")) ? 0 : reader.GetInt32("CreatedByUserID"),
-                                    Note = reader.IsDBNull(reader.GetOrdinal("Note")) ? "" : reader.GetString("Note")
+                                    Note = reader.IsDBNull(reader.GetOrdinal("Note")) ? "" : reader.GetString("Note"),
+                                    TotalValue = reader.IsDBNull(reader.GetOrdinal("TotalValue")) ? 0 : reader.GetDecimal("TotalValue")
                                 });
                             }
                         }
@@ -99,6 +100,7 @@ namespace WarehouseManagement.Repositories
                                 transaction.DateCreated = reader.GetDateTime("DateCreated");
                                 transaction.CreatedByUserID = reader.IsDBNull(reader.GetOrdinal("CreatedByUserID")) ? 0 : reader.GetInt32("CreatedByUserID");
                                 transaction.Note = reader.IsDBNull(reader.GetOrdinal("Note")) ? "" : reader.GetString("Note");
+                                transaction.TotalValue = reader.IsDBNull(reader.GetOrdinal("TotalValue")) ? 0 : reader.GetDecimal("TotalValue");
                             }
                         }
                     }

@@ -45,7 +45,7 @@ namespace WarehouseManagement.Views.Forms
 
             Label lblCategory = new Label { Text = "Danh mục:", Left = LABEL_LEFT, Top = 20 + ITEM_SPACING, Width = LABEL_WIDTH, AutoSize = false, TextAlign = System.Drawing.ContentAlignment.MiddleLeft };
             cmbCategory = new ComboBox { Left = INPUT_LEFT, Top = 20 + ITEM_SPACING, Width = INPUT_WIDTH, Height = 25, DropDownStyle = ComboBoxStyle.DropDownList };
-            cmbCategory.Items.AddRange(new[] { "Thực phẩm", "Điện tử", "Quần áo", "Khác" });
+            LoadCategories();
 
             Label lblPrice = new Label { Text = "Giá (VNĐ):", Left = LABEL_LEFT, Top = 20 + ITEM_SPACING * 2, Width = LABEL_WIDTH, AutoSize = false, TextAlign = System.Drawing.ContentAlignment.MiddleLeft };
             txtPrice = new TextBox { Left = INPUT_LEFT, Top = 20 + ITEM_SPACING * 2, Width = INPUT_WIDTH, Height = 25 };
@@ -135,6 +135,27 @@ namespace WarehouseManagement.Views.Forms
             catch (Exception ex)
             {
                 MessageBox.Show("Lỗi: " + ex.Message);
+            }
+        }
+
+        private void LoadCategories()
+        {
+            try
+            {
+                var categories = _categoryController.GetAllCategories();
+                cmbCategory.Items.Clear();
+                foreach (var category in categories)
+                {
+                    cmbCategory.Items.Add(category.CategoryName);
+                }
+                if (cmbCategory.Items.Count > 0)
+                    cmbCategory.SelectedIndex = 0;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khi tải danh mục: " + ex.Message);
+                // Fallback to hardcoded categories
+                cmbCategory.Items.AddRange(new[] { "Điện tử", "Gia dụng", "Công cụ" });
             }
         }
 

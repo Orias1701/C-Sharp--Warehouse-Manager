@@ -19,7 +19,9 @@ namespace WarehouseManagement.Views.Commons
         {
             // Panel configuration
             BackColor = ThemeManager.Instance.BackgroundDefault;
-            ShowBorder = true;
+            ShowBorder = false;
+            HasShadow = true;
+            ShadowSize = 5;
             BorderRadius = UIConstants.Borders.RadiusMedium;
             Padding = new Padding(0);
         }

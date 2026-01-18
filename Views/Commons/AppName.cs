@@ -21,15 +21,22 @@ namespace WarehouseManagement.Views.Commons
         {
             // Panel configuration
             BackColor = ThemeManager.Instance.BackgroundLight;
-            ShowBorder = true;
+            ShowBorder = false;
+            HasShadow = true;
+            ShadowSize = 5;
             BorderRadius = UIConstants.Borders.RadiusMedium;
-            Padding = new Padding(UIConstants.Spacing.Padding.Large);
+            Padding = new Padding(
+                UIConstants.Spacing.Padding.Medium,
+                UIConstants.Spacing.Padding.Large,
+                UIConstants.Spacing.Padding.Medium,
+                UIConstants.Spacing.Padding.Large
+            );
 
             // App name label
             lblAppName = new Label
             {
-                Text = $"{UIConstants.Icons.Warehouse} Quản Lý Kho Hàng",
-                Font = ThemeManager.Instance.GetFont(UIConstants.Fonts.XLarge, FontStyle.Bold),
+                Text = $"{UIConstants.Icons.Warehouse} MANAGER",
+                Font = ThemeManager.Instance.GetFont(UIConstants.Fonts.Large, FontStyle.Bold),
                 ForeColor = ThemeManager.Instance.PrimaryDefault,
                 AutoSize = false,
                 Dock = DockStyle.Fill,

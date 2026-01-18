@@ -25,11 +25,13 @@ namespace WarehouseManagement.Views.Commons
         {
             // Panel configuration
             BackColor = ThemeManager.Instance.BackgroundLight;
-            ShowBorder = true;
+            ShowBorder = false;
+            HasShadow = true;
+            ShadowSize = 5;
             BorderRadius = UIConstants.Borders.RadiusMedium;
             Padding = new Padding(UIConstants.Spacing.Padding.Small);
 
-            int btnHeight = 55;
+            int btnHeight = 45;
             int btnMargin = 5;
 
             // Navigation buttons (Catalog)
@@ -39,9 +41,11 @@ namespace WarehouseManagement.Views.Commons
                 Dock = DockStyle.Top,
                 Height = btnHeight,
                 Margin = new Padding(btnMargin),
-                ButtonStyleType = ButtonStyle.FilledNoOutline,
+                ButtonStyleType = ButtonStyle.Menu,
                 Font = ThemeManager.Instance.FontMedium,
-                BorderRadius = UIConstants.Borders.RadiusMedium
+                BorderRadius = UIConstants.Borders.RadiusMedium,
+                TextAlign = ContentAlignment.MiddleLeft,
+                Padding = new Padding(15, 0, 0, 0)
             };
 
             BtnProducts = new CustomButton
@@ -50,9 +54,11 @@ namespace WarehouseManagement.Views.Commons
                 Dock = DockStyle.Top,
                 Height = btnHeight,
                 Margin = new Padding(btnMargin),
-                ButtonStyleType = ButtonStyle.FilledNoOutline,
+                ButtonStyleType = ButtonStyle.Menu,
                 Font = ThemeManager.Instance.FontMedium,
-                BorderRadius = UIConstants.Borders.RadiusMedium
+                BorderRadius = UIConstants.Borders.RadiusMedium,
+                TextAlign = ContentAlignment.MiddleLeft,
+                Padding = new Padding(15, 0, 0, 0)
             };
 
             BtnTransactions = new CustomButton
@@ -61,9 +67,11 @@ namespace WarehouseManagement.Views.Commons
                 Dock = DockStyle.Top,
                 Height = btnHeight,
                 Margin = new Padding(btnMargin),
-                ButtonStyleType = ButtonStyle.FilledNoOutline,
+                ButtonStyleType = ButtonStyle.Menu,
                 Font = ThemeManager.Instance.FontMedium,
-                BorderRadius = UIConstants.Borders.RadiusMedium
+                BorderRadius = UIConstants.Borders.RadiusMedium,
+                TextAlign = ContentAlignment.MiddleLeft,
+                Padding = new Padding(15, 0, 0, 0)
             };
 
             // Settings & Account buttons (Bottom)
@@ -73,9 +81,11 @@ namespace WarehouseManagement.Views.Commons
                 Dock = DockStyle.Bottom,
                 Height = btnHeight,
                 Margin = new Padding(btnMargin),
-                ButtonStyleType = ButtonStyle.Outlined,
+                ButtonStyleType = ButtonStyle.Menu,
                 Font = ThemeManager.Instance.FontRegular,
-                BorderRadius = UIConstants.Borders.RadiusMedium
+                BorderRadius = UIConstants.Borders.RadiusMedium,
+                TextAlign = ContentAlignment.MiddleLeft,
+                Padding = new Padding(15, 0, 0, 0)
             };
 
             BtnAccount = new CustomButton
@@ -84,9 +94,11 @@ namespace WarehouseManagement.Views.Commons
                 Dock = DockStyle.Bottom,
                 Height = btnHeight,
                 Margin = new Padding(btnMargin),
-                ButtonStyleType = ButtonStyle.Outlined,
+                ButtonStyleType = ButtonStyle.Menu,
                 Font = ThemeManager.Instance.FontRegular,
-                BorderRadius = UIConstants.Borders.RadiusMedium
+                BorderRadius = UIConstants.Borders.RadiusMedium,
+                TextAlign = ContentAlignment.MiddleLeft,
+                Padding = new Padding(15, 0, 0, 0)
             };
 
             Controls.Add(BtnAccount);

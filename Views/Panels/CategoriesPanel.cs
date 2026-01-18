@@ -6,6 +6,7 @@ using WarehouseManagement.Controllers;
 using WarehouseManagement.Models;
 using WarehouseManagement.Views.Forms;
 using WarehouseManagement.UI;
+using WarehouseManagement.UI.Components;
 
 namespace WarehouseManagement.Views.Panels
 {
@@ -40,58 +41,75 @@ namespace WarehouseManagement.Views.Panels
                 ReadOnly = true,
                 BackgroundColor = ThemeManager.Instance.BackgroundDefault,
                 BorderStyle = BorderStyle.None,
+                CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal,
+                ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None,
+                ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle 
+                { 
+                    Alignment = DataGridViewContentAlignment.MiddleCenter,
+                    BackColor = ThemeManager.Instance.BackgroundLight,
+                    ForeColor = ThemeManager.Instance.TextPrimary,
+                    Font = ThemeManager.Instance.FontBold,
+                    Padding = new Padding(10, 0, 0, 0)
+                },
                 RowHeadersVisible = false,
                 SelectionMode = DataGridViewSelectionMode.FullRowSelect,
                 AllowUserToResizeRows = false,
                 Font = ThemeManager.Instance.FontRegular,
                 RowTemplate = { Height = UIConstants.Sizes.TableRowHeight },
-                ColumnHeadersHeight = UIConstants.Sizes.TableHeaderHeight,
-                ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle
-                {
-                    Font = ThemeManager.Instance.FontBold,
-                    BackColor = ThemeManager.Instance.BackgroundLight,
-                    ForeColor = ThemeManager.Instance.TextPrimary,
-                    Padding = new Padding(UIConstants.Spacing.Padding.Small)
-                }
+                ColumnHeadersHeight = UIConstants.Sizes.TableHeaderHeight
             };
 
             dgvCategories.Columns.Add(new DataGridViewTextBoxColumn 
             { 
                 HeaderText = "ID", 
                 DataPropertyName = "CategoryID", 
-                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+                Width = 100,
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
+                DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter }
             });
             
             dgvCategories.Columns.Add(new DataGridViewTextBoxColumn 
             { 
-                HeaderText = $"{UIConstants.Icons.Category} Tên Danh Mục", 
+                HeaderText = "Tên Danh Mục", 
                 DataPropertyName = "CategoryName", 
                 AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
             });
             
             dgvCategories.Columns.Add(new DataGridViewTextBoxColumn 
             { 
-                HeaderText = $"{UIConstants.Icons.FileText} Mô Tả", 
+                HeaderText = "Mô Tả", 
                 DataPropertyName = "Description", 
                 AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
             });
             
-            dgvCategories.Columns.Add(new DataGridViewButtonColumn 
+            dgvCategories.Columns.Add(new DataGridViewLinkColumn 
             { 
-                HeaderText = UIConstants.Icons.Eye, 
+                HeaderText = "", 
                 Width = 60,
                 AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
-                UseColumnTextForButtonValue = true, 
-                Text = UIConstants.Icons.Eye 
+                UseColumnTextForLinkValue = true, 
+                Text = UIConstants.Icons.Transaction,
+                LinkBehavior = LinkBehavior.NeverUnderline,
+                LinkColor = ThemeManager.Instance.TextPrimary,
+                ActiveLinkColor = ThemeManager.Instance.PrimaryDefault,
+                VisitedLinkColor = ThemeManager.Instance.TextPrimary,
+                TrackVisitedState = false,
+                DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter }
             });
             
-            dgvCategories.Columns.Add(new DataGridViewButtonColumn 
+            dgvCategories.Columns.Add(new DataGridViewLinkColumn 
             { 
-                HeaderText = UIConstants.Icons.Delete, 
+                HeaderText = "", 
                 Width = 60,
                 AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
-                UseColumnTextForButtonValue = true, 
-                Text = UIConstants.Icons.Delete 
+                UseColumnTextForLinkValue = true, 
+                Text = UIConstants.Icons.Cancel,
+                LinkBehavior = LinkBehavior.NeverUnderline,
+                LinkColor = ThemeManager.Instance.TextPrimary,
+                ActiveLinkColor = UIConstants.SemanticColors.Error,
+                VisitedLinkColor = ThemeManager.Instance.TextPrimary,
+                TrackVisitedState = false,
+                DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter }
             });
 
             dgvCategories.CellClick += DgvCategories_CellClick;
@@ -101,7 +119,17 @@ namespace WarehouseManagement.Views.Panels
                     LoadData();
             };
 
-            Controls.Add(dgvCategories);
+            CustomPanel tablePanel = new CustomPanel
+            {
+                Dock = DockStyle.Fill,
+                HasShadow = true,
+                ShowBorder = false,
+                Padding = new Padding(10),
+                BorderRadius = UIConstants.Borders.RadiusMedium,
+                BackColor = ThemeManager.Instance.BackgroundDefault
+            };
+            tablePanel.Controls.Add(dgvCategories);
+            Controls.Add(tablePanel);
         }
 
         private void OnThemeChanged(object sender, EventArgs e)

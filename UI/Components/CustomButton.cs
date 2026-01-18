@@ -23,7 +23,10 @@ namespace WarehouseManagement.UI.Components
         FilledNoOutline,
         
         /// <summary>Nền và viền Transparent</summary>
-        Ghost
+        Ghost,
+
+        /// <summary>Style cho Menu: Transparent default, Primary khi Hover/Selected</summary>
+        Menu
     }
 
     /// <summary>
@@ -35,6 +38,7 @@ namespace WarehouseManagement.UI.Components
         private int _borderRadius = UIConstants.Borders.RadiusMedium;
         private bool _isHovered = false;
         private bool _isPressed = false;
+        private bool _isSelected = false; // Trạng thái được chọn (Active)
 
         public CustomButton()
         {
@@ -83,6 +87,16 @@ namespace WarehouseManagement.UI.Components
             set
             {
                 _borderRadius = value;
+                Invalidate();
+            }
+        }
+
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set
+            {
+                _isSelected = value;
                 Invalidate();
             }
         }
@@ -239,8 +253,42 @@ namespace WarehouseManagement.UI.Components
             }
             
             // Draw text
-            TextRenderer.DrawText(g, Text, Font, ClientRectangle, foreColor,
-                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+            // Draw text with respect to TextAlign
+            TextFormatFlags flags = TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis;
+            
+            // Map TextAlign to TextFormatFlags
+            switch (TextAlign)
+            {
+                case ContentAlignment.TopLeft:
+                case ContentAlignment.MiddleLeft:
+                case ContentAlignment.BottomLeft:
+                    flags |= TextFormatFlags.Left;
+                    break;
+                case ContentAlignment.TopCenter:
+                case ContentAlignment.MiddleCenter:
+                case ContentAlignment.BottomCenter:
+                    flags |= TextFormatFlags.HorizontalCenter;
+                    break;
+                case ContentAlignment.TopRight:
+                case ContentAlignment.MiddleRight:
+                case ContentAlignment.BottomRight:
+                    flags |= TextFormatFlags.Right;
+                    break;
+            }
+
+            Rectangle textRect = ClientRectangle;
+            // Adjust text rect for padding if alignment is not center
+            if ((flags & TextFormatFlags.Left) == TextFormatFlags.Left)
+            {
+                textRect.X += Padding.Left;
+                textRect.Width -= Padding.Left + Padding.Right;
+            }
+            else if ((flags & TextFormatFlags.Right) == TextFormatFlags.Right)
+            {
+                textRect.Width -= Padding.Right;
+            }
+            
+            TextRenderer.DrawText(g, Text, Font, textRect, foreColor, flags);
         }
 
         private Color GetBackgroundColor()
@@ -250,6 +298,11 @@ namespace WarehouseManagement.UI.Components
                 return _buttonStyle == ButtonStyle.Outlined || _buttonStyle == ButtonStyle.Text
                     ? ThemeManager.Instance.BackgroundLight
                     : ThemeManager.Instance.PrimaryDisabled;
+            }
+
+            if (_isSelected && _buttonStyle == ButtonStyle.Menu)
+            {
+                return ThemeManager.Instance.PrimaryActive; 
             }
 
             if (_isPressed)
@@ -264,6 +317,12 @@ namespace WarehouseManagement.UI.Components
                 return _buttonStyle == ButtonStyle.Outlined || _buttonStyle == ButtonStyle.Text
                     ? ThemeManager.Instance.BackgroundLight
                     : ThemeManager.Instance.PrimaryHover;
+            }
+
+            // Menu Style Logic
+            if (_buttonStyle == ButtonStyle.Menu)
+            {
+                return Color.Transparent; // Default transparent
             }
 
             switch (_buttonStyle)
@@ -286,6 +345,13 @@ namespace WarehouseManagement.UI.Components
             if (!Enabled)
             {
                 return ThemeManager.Instance.TextDisabled;
+            }
+            
+            if (_buttonStyle == ButtonStyle.Menu)
+            {
+                if (_isHovered || _isPressed || _isSelected)
+                    return Color.White;
+                return ThemeManager.Instance.PrimaryDefault;
             }
 
             switch (_buttonStyle)
@@ -320,6 +386,7 @@ namespace WarehouseManagement.UI.Components
                 case ButtonStyle.Text:
                 case ButtonStyle.FilledNoOutline:
                 case ButtonStyle.Ghost:
+                case ButtonStyle.Menu:
                     return Color.Transparent;
                 default:
                     return ThemeManager.Instance.PrimaryDefault;

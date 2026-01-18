@@ -67,7 +67,8 @@ namespace WarehouseManagement.Views
             // 1. FOOTER (Bottom)
             footer = new Footer
             {
-                Dock = DockStyle.Bottom
+                Dock = DockStyle.Fill,
+                Margin = new Padding(0, 20, 0, 0) // Top 20 để cách phần trên
             };
 
             // 2. MAINZONE - TableLayoutPanel với Grid 2x2
@@ -75,19 +76,20 @@ namespace WarehouseManagement.Views
             {
                 Dock = DockStyle.Fill,
                 ColumnCount = 2,
-                RowCount = 2,
+                RowCount = 3,
                 BackColor = ThemeManager.Instance.BackgroundDefault,
-                Padding = new Padding(20),
+                Padding = new Padding(0),
                 CellBorderStyle = TableLayoutPanelCellBorderStyle.None
             };
 
-            // Cấu hình columns: Col0 (220px) | Col1 (Fill)
-            mainZone.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 220F));
+            // Cấu hình columns: Col0 (200px) | Col1 (Fill)
+            mainZone.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 200F));
             mainZone.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
 
-            // Cấu hình rows: Row0 (70px) | Row1 (Fill)
-            mainZone.RowStyles.Add(new RowStyle(SizeType.Absolute, 70F));
+            // Cấu hình rows: Row0 (90px) | Row1 (Fill) | Row2 (45px)
+            mainZone.RowStyles.Add(new RowStyle(SizeType.Absolute, 90F));
             mainZone.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            mainZone.RowStyles.Add(new RowStyle(SizeType.Absolute, 65F)); // 45 + 20 margin
 
             // 3. CREATE COMPONENTS
             appName = new AppName { Dock = DockStyle.Fill, Margin = new Padding(0, 0, 10, 10) };
@@ -104,6 +106,10 @@ namespace WarehouseManagement.Views
             mainZone.Controls.Add(menuBar, 0, 1);
             // Row 1, Col 1: Content
             mainZone.Controls.Add(content, 1, 1);
+            
+            // Row 2, Col 0+1: Footer (Span 2 columns)
+            mainZone.Controls.Add(footer, 0, 2);
+            mainZone.SetColumnSpan(footer, 2);
 
             // 5. CREATE CONTENT PANELS
             CreatePanels();
@@ -113,7 +119,10 @@ namespace WarehouseManagement.Views
 
             // 6. ADD TO FORM
             Controls.Add(mainZone);
-            Controls.Add(footer);
+             // Footer now inside mainZone, no need to add separately
+            
+            // Ensure footer is on top for shadow to be visible over mainZone
+            // footer.BringToFront(); // No longer needed inside grid? Or maybe needed for Z-order inside cell?
 
             // 7. SETUP EVENT HANDLERS
             SetupEventHandlers();
@@ -209,6 +218,11 @@ namespace WarehouseManagement.Views
             productsPanel.Visible = false;
             transactionsPanel.Visible = false;
 
+            // Update Menu Button States
+            menuBar.BtnCategories.IsSelected = (index == 0);
+            menuBar.BtnProducts.IsSelected = (index == 1);
+            menuBar.BtnTransactions.IsSelected = (index == 2);
+            
             // Show selected panel
             switch (index)
             {

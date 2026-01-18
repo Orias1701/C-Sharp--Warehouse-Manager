@@ -24,6 +24,10 @@ namespace WarehouseManagement.Views.Commons
             // Panel configuration
             BackColor = ThemeManager.Instance.BackgroundLight;
             ShowBorder = false;
+            HasShadow = true;
+            ShadowSize = 5;
+            ShadowOffsetY = -4; // Shadow hắt lên trên
+            BorderRadius = 0;
             Padding = new Padding(UIConstants.Spacing.Padding.Small);
             Height = 45;
 

@@ -391,8 +391,8 @@ namespace WarehouseManagement.UI
             public const string DropdownUp = "▲";
             public const string ExpandMore = "▼";
             public const string ExpandLess = "▲";
-            public const string ChevronRight = "›";
-            public const string ChevronLeft = "‹";
+            public const string ChevronRight = ">";
+            public const string ChevronLeft = "<";
             public const string ChevronUp = "^";
             public const string ChevronDown = "v";
             
@@ -461,7 +461,7 @@ namespace WarehouseManagement.UI
             public const string World = "🌍";
             public const string Building = "🏢";
             public const string Store = "🏪";
-            public const string Warehouse = "🏭";
+
             public const string Factory = "🏭";
             
             // ===== ARROWS =====
@@ -533,6 +533,7 @@ namespace WarehouseManagement.UI
             public const string Brush = "🖌️";
             public const string Pencil = "✏️";
             public const string Eraser = "🧹";
+            public const string Warehouse = "🏠";
         }
     }
 }

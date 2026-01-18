@@ -30,18 +30,20 @@ namespace WarehouseManagement.Views.Commons
         {
             // Panel configuration
             BackColor = ThemeManager.Instance.BackgroundLight;
-            ShowBorder = true;
+            ShowBorder = false;
+            HasShadow = true;
+            ShadowSize = 5;
             BorderRadius = UIConstants.Borders.RadiusMedium;
-            Padding = new Padding(UIConstants.Spacing.Padding.Medium);
+            Padding = new Padding(UIConstants.Spacing.Padding.Large);
 
-            int topOffset = 15;
+            int topOffset = 20;
             int spacing = 8;
-            int currentX = 15;
+            int currentX = 20;
 
             // Search section (Left)
             TxtSearch = new CustomTextBox
             {
-                Placeholder = $"{UIConstants.Icons.Search} Tìm kiếm...",
+                Placeholder = $"{UIConstants.Icons.Radio} Tìm kiếm...",
                 Left = currentX,
                 Top = topOffset,
                 Width = 250
@@ -50,7 +52,7 @@ namespace WarehouseManagement.Views.Commons
 
             BtnSearch = new CustomButton
             {
-                Text = UIConstants.Icons.Search,
+                Text = UIConstants.Icons.Radio,
                 Left = currentX,
                 Top = topOffset,
                 Width = 50,

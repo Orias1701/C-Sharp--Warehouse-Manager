@@ -59,27 +59,28 @@ namespace WarehouseManagement.Views.Panels
             { 
                 HeaderText = "ID", 
                 DataPropertyName = "CategoryID", 
-                Width = 60 
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
             });
             
             dgvCategories.Columns.Add(new DataGridViewTextBoxColumn 
             { 
                 HeaderText = $"{UIConstants.Icons.Category} Tên Danh Mục", 
                 DataPropertyName = "CategoryName", 
-                Width = 250 
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
             });
             
             dgvCategories.Columns.Add(new DataGridViewTextBoxColumn 
             { 
                 HeaderText = $"{UIConstants.Icons.FileText} Mô Tả", 
                 DataPropertyName = "Description", 
-                Width = 400 
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
             });
             
             dgvCategories.Columns.Add(new DataGridViewButtonColumn 
             { 
                 HeaderText = UIConstants.Icons.Eye, 
-                Width = 60, 
+                Width = 60,
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
                 UseColumnTextForButtonValue = true, 
                 Text = UIConstants.Icons.Eye 
             });
@@ -87,7 +88,8 @@ namespace WarehouseManagement.Views.Panels
             dgvCategories.Columns.Add(new DataGridViewButtonColumn 
             { 
                 HeaderText = UIConstants.Icons.Delete, 
-                Width = 60, 
+                Width = 60,
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
                 UseColumnTextForButtonValue = true, 
                 Text = UIConstants.Icons.Delete 
             });

@@ -59,28 +59,28 @@ namespace WarehouseManagement.Views.Panels
             { 
                 HeaderText = "ID", 
                 DataPropertyName = "ProductID", 
-                Width = 50 
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
             });
             
             dgvProducts.Columns.Add(new DataGridViewTextBoxColumn 
             { 
                 HeaderText = $"{UIConstants.Icons.Product} Tên Sản Phẩm", 
                 DataPropertyName = "ProductName", 
-                Width = 200 
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
             });
             
             dgvProducts.Columns.Add(new DataGridViewTextBoxColumn 
             { 
                 HeaderText = $"{UIConstants.Icons.Category} Danh Mục", 
                 DataPropertyName = "CategoryID", 
-                Width = 80 
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
             });
             
             dgvProducts.Columns.Add(new DataGridViewTextBoxColumn 
             { 
                 HeaderText = $"{UIConstants.Icons.Money} Giá", 
                 DataPropertyName = "Price", 
-                Width = 110, 
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
                 DefaultCellStyle = new DataGridViewCellStyle 
                 { 
                     Format = "N0", 
@@ -92,7 +92,7 @@ namespace WarehouseManagement.Views.Panels
             { 
                 HeaderText = $"{UIConstants.Icons.Package} Tồn Kho", 
                 DataPropertyName = "Quantity", 
-                Width = 90, 
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
                 DefaultCellStyle = new DataGridViewCellStyle 
                 { 
                     Alignment = DataGridViewContentAlignment.MiddleRight 
@@ -103,7 +103,7 @@ namespace WarehouseManagement.Views.Panels
             { 
                 HeaderText = $"{UIConstants.Icons.Warning} Ngưỡng Min", 
                 DataPropertyName = "MinThreshold", 
-                Width = 100, 
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
                 DefaultCellStyle = new DataGridViewCellStyle 
                 { 
                     Alignment = DataGridViewContentAlignment.MiddleRight 
@@ -114,7 +114,7 @@ namespace WarehouseManagement.Views.Panels
             { 
                 HeaderText = $"{UIConstants.Icons.Chart} Tổng Giá Trị", 
                 DataPropertyName = "InventoryValue", 
-                Width = 130, 
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
                 DefaultCellStyle = new DataGridViewCellStyle 
                 { 
                     Format = "N0", 
@@ -125,7 +125,8 @@ namespace WarehouseManagement.Views.Panels
             dgvProducts.Columns.Add(new DataGridViewButtonColumn 
             { 
                 HeaderText = UIConstants.Icons.Eye, 
-                Width = 60, 
+                Width = 60,
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
                 UseColumnTextForButtonValue = true, 
                 Text = UIConstants.Icons.Eye 
             });
@@ -133,7 +134,8 @@ namespace WarehouseManagement.Views.Panels
             dgvProducts.Columns.Add(new DataGridViewButtonColumn 
             { 
                 HeaderText = UIConstants.Icons.Delete, 
-                Width = 60, 
+                Width = 60,
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
                 UseColumnTextForButtonValue = true, 
                 Text = UIConstants.Icons.Delete 
             });

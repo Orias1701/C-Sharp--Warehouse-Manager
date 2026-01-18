@@ -58,7 +58,7 @@ namespace WarehouseManagement.Views.Panels
             { 
                 HeaderText = "ID", 
                 DataPropertyName = "TransactionID", 
-                Width = 70, 
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
                 DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleRight } 
             });
             
@@ -66,7 +66,7 @@ namespace WarehouseManagement.Views.Panels
             { 
                 HeaderText = $"{UIConstants.Icons.Transaction} Loại", 
                 DataPropertyName = "Type", 
-                Width = 80, 
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
                 DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter } 
             });
             
@@ -74,7 +74,7 @@ namespace WarehouseManagement.Views.Panels
             { 
                 HeaderText = $"{UIConstants.Icons.Calendar} Ngày", 
                 DataPropertyName = "DateCreated", 
-                Width = 160, 
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
                 DefaultCellStyle = new DataGridViewCellStyle { Format = "dd/MM/yyyy HH:mm" } 
             });
             
@@ -82,7 +82,7 @@ namespace WarehouseManagement.Views.Panels
             { 
                 HeaderText = $"{UIConstants.Icons.Money} Tổng Giá Trị", 
                 DataPropertyName = "TotalValue", 
-                Width = 130, 
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
                 DefaultCellStyle = new DataGridViewCellStyle 
                 { 
                     Format = "N0", 
@@ -94,13 +94,14 @@ namespace WarehouseManagement.Views.Panels
             { 
                 HeaderText = $"{UIConstants.Icons.FileText} Ghi chú", 
                 DataPropertyName = "Note", 
-                Width = 300 
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
             });
             
             dgvTransactions.Columns.Add(new DataGridViewButtonColumn 
             { 
                 HeaderText = UIConstants.Icons.Eye, 
-                Width = 60, 
+                Width = 60,
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
                 UseColumnTextForButtonValue = true, 
                 Text = UIConstants.Icons.Eye 
             });

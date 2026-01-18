@@ -14,6 +14,7 @@ namespace WarehouseManagement.UI.Components
         private Color _borderColor = UIConstants.PrimaryColor.Default;
         private int _borderThickness = UIConstants.Borders.BorderThickness;
         private bool _showBorder = true;
+        private bool _useThemeBackColor = true;
 
         public CustomPanel()
         {
@@ -24,7 +25,10 @@ namespace WarehouseManagement.UI.Components
             // Subscribe theme changed event
             ThemeManager.Instance.ThemeChanged += OnThemeChanged;
             
-            ApplyTheme();
+            // Only apply theme colors if UseThemeBackColor is true
+            // This allows object initializer to set custom BackColor
+            if (_useThemeBackColor)
+                ApplyTheme();
             
             // Double buffering để giảm flicker
             DoubleBuffered = true;
@@ -75,6 +79,17 @@ namespace WarehouseManagement.UI.Components
             }
         }
 
+        public bool UseThemeBackColor
+        {
+            get => _useThemeBackColor;
+            set
+            {
+                _useThemeBackColor = value;
+                if (value)
+                    ApplyTheme();
+            }
+        }
+
         private void OnThemeChanged(object sender, EventArgs e)
         {
             ApplyTheme();
@@ -82,7 +97,8 @@ namespace WarehouseManagement.UI.Components
 
         private void ApplyTheme()
         {
-            BackColor = ThemeManager.Instance.BackgroundDefault;
+            if (_useThemeBackColor)
+                BackColor = ThemeManager.Instance.BackgroundDefault;
             ForeColor = ThemeManager.Instance.TextPrimary;
             Invalidate();
         }
@@ -103,6 +119,15 @@ namespace WarehouseManagement.UI.Components
                 ClientRectangle.Width - 1,
                 ClientRectangle.Height - 1
             );
+            
+            // Set Region để clip child controls theo border radius
+            if (_borderRadius > 0)
+            {
+                using (GraphicsPath regionPath = GetRoundedRectanglePath(bgRect, _borderRadius))
+                {
+                    this.Region = new Region(regionPath);
+                }
+            }
             
             // Draw background
             using (GraphicsPath bgPath = GetRoundedRectanglePath(bgRect, _borderRadius))

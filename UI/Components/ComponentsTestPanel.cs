@@ -44,6 +44,10 @@ namespace WarehouseManagement.UI.Components
             yPosition = AddSection(scrollContent, yPosition, "FONTS - Font chữ", CreateFontsSection());
             yPosition += sectionSpacing;
 
+            // ========== ICONS ==========
+            yPosition = AddSection(scrollContent, yPosition, "ICONS - Bộ biểu tượng", CreateIconsSection());
+            yPosition += sectionSpacing;
+
             // ========== BUTTONS ==========
             yPosition = AddSection(scrollContent, yPosition, "BUTTONS - 5 kiểu Button", CreateButtonsSection());
             yPosition += sectionSpacing;
@@ -256,6 +260,375 @@ namespace WarehouseManagement.UI.Components
             }
 
             return panel;
+        }
+
+        // ========== ICONS SECTION ==========
+        private Control CreateIconsSection()
+        {
+            FlowLayoutPanel mainPanel = new FlowLayoutPanel
+            {
+                FlowDirection = FlowDirection.TopDown,
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                WrapContents = false,
+                Width = 1150
+            };
+
+            // Helper method để tạo icon category
+            void AddIconCategory(string categoryName, (string name, string icon)[] icons)
+            {
+                // Category label
+                Label lblCategory = new Label
+                {
+                    Text = categoryName,
+                    Font = ThemeManager.Instance.FontBold,
+                    ForeColor = ThemeManager.Instance.PrimaryDefault,
+                    AutoSize = true,
+                    Margin = new Padding(0, 15, 0, 10)
+                };
+                mainPanel.Controls.Add(lblCategory);
+
+                // Icons grid
+                FlowLayoutPanel iconsGrid = new FlowLayoutPanel
+                {
+                    FlowDirection = FlowDirection.LeftToRight,
+                    AutoSize = true,
+                    AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                    WrapContents = true,
+                    Width = 1150,
+                    Margin = new Padding(0, 0, 0, 10)
+                };
+
+                foreach (var (name, icon) in icons)
+                {
+                    Panel iconItem = new Panel
+                    {
+                        Width = 110,
+                        Height = 80,
+                        Margin = new Padding(5)
+                    };
+
+                    // Icon display
+                    Label lblIcon = new Label
+                    {
+                        Text = icon,
+                        Width = 110,
+                        Height = 45,
+                        Location = new Point(0, 0),
+                        TextAlign = ContentAlignment.MiddleCenter,
+                        Font = new Font(UIConstants.Fonts.FontFamily, 24),
+                        Cursor = Cursors.Hand
+                    };
+
+                    // Tooltip on hover
+                    ToolTip tooltip = new ToolTip();
+                    tooltip.SetToolTip(lblIcon, $"Click to copy: {name}");
+
+                    // Click to copy
+                    lblIcon.Click += (s, e) =>
+                    {
+                        try
+                        {
+                            Clipboard.SetText(icon);
+                            tooltip.SetToolTip(lblIcon, $"Copied: {icon}");
+                            System.Threading.Tasks.Task.Delay(2000).ContinueWith(_ =>
+                            {
+                                if (lblIcon.IsHandleCreated)
+                                {
+                                    lblIcon.Invoke((MethodInvoker)(() =>
+                                    {
+                                        tooltip.SetToolTip(lblIcon, $"Click to copy: {name}");
+                                    }));
+                                }
+                            });
+                        }
+                        catch { }
+                    };
+
+                    // Icon name
+                    Label lblName = new Label
+                    {
+                        Text = name,
+                        Width = 110,
+                        Height = 35,
+                        Location = new Point(0, 45),
+                        TextAlign = ContentAlignment.TopCenter,
+                        Font = new Font(UIConstants.Fonts.FontFamily, UIConstants.Fonts.XXSmall),
+                        ForeColor = ThemeManager.Instance.TextSecondary
+                    };
+
+                    iconItem.Controls.Add(lblIcon);
+                    iconItem.Controls.Add(lblName);
+                    iconsGrid.Controls.Add(iconItem);
+                }
+
+                mainPanel.Controls.Add(iconsGrid);
+            }
+
+            // ===== NAVIGATION ICONS =====
+            AddIconCategory("Navigation", new[]
+            {
+                ("Home", UIConstants.Icons.Home),
+                ("Menu", UIConstants.Icons.Menu),
+                ("Menu Dots", UIConstants.Icons.MenuDots),
+                ("Menu Dots H", UIConstants.Icons.MenuDotsHorizontal),
+                ("Back", UIConstants.Icons.Back),
+                ("Forward", UIConstants.Icons.Forward),
+                ("Up", UIConstants.Icons.Up),
+                ("Down", UIConstants.Icons.Down),
+                ("Close", UIConstants.Icons.Close),
+                ("Minimize", UIConstants.Icons.Minimize),
+                ("Maximize", UIConstants.Icons.Maximize),
+                ("Fullscreen", UIConstants.Icons.Fullscreen)
+            });
+
+            // ===== ACTION ICONS =====
+            AddIconCategory("Actions", new[]
+            {
+                ("Add", UIConstants.Icons.Add),
+                ("Remove", UIConstants.Icons.Remove),
+                ("Edit", UIConstants.Icons.Edit),
+                ("Delete", UIConstants.Icons.Delete),
+                ("Save", UIConstants.Icons.Save),
+                ("Cancel", UIConstants.Icons.Cancel),
+                ("Refresh", UIConstants.Icons.Refresh),
+                ("Search", UIConstants.Icons.Search),
+                ("Filter", UIConstants.Icons.Filter),
+                ("Sort", UIConstants.Icons.Sort),
+                ("Copy", UIConstants.Icons.Copy),
+                ("Cut", UIConstants.Icons.Cut),
+                ("Paste", UIConstants.Icons.Paste),
+                ("Undo", UIConstants.Icons.Undo),
+                ("Redo", UIConstants.Icons.Redo),
+                ("Print", UIConstants.Icons.Print),
+                ("Download", UIConstants.Icons.Download),
+                ("Upload", UIConstants.Icons.Upload),
+                ("Import", UIConstants.Icons.Import),
+                ("Export", UIConstants.Icons.Export),
+                ("Share", UIConstants.Icons.Share),
+                ("Send", UIConstants.Icons.Send),
+                ("Pin", UIConstants.Icons.Pin)
+            });
+
+            // ===== STATUS ICONS =====
+            AddIconCategory("Status & Alerts", new[]
+            {
+                ("Success", UIConstants.Icons.Success),
+                ("Error", UIConstants.Icons.Error),
+                ("Warning", UIConstants.Icons.Warning),
+                ("Info", UIConstants.Icons.Info),
+                ("Help", UIConstants.Icons.Help),
+                ("Question", UIConstants.Icons.Question),
+                ("Exclamation", UIConstants.Icons.Exclamation),
+                ("Loading", UIConstants.Icons.Loading),
+                ("Done", UIConstants.Icons.Done),
+                ("Pending", UIConstants.Icons.Pending),
+                ("Block", UIConstants.Icons.Block)
+            });
+
+            // ===== FILES & FOLDERS =====
+            AddIconCategory("Files & Folders", new[]
+            {
+                ("File", UIConstants.Icons.File),
+                ("File Text", UIConstants.Icons.FileText),
+                ("File Image", UIConstants.Icons.FileImage),
+                ("File Video", UIConstants.Icons.FileVideo),
+                ("File Audio", UIConstants.Icons.FileAudio),
+                ("File Code", UIConstants.Icons.FileCode),
+                ("File PDF", UIConstants.Icons.FilePdf),
+                ("Folder", UIConstants.Icons.Folder),
+                ("Folder Open", UIConstants.Icons.FolderOpen),
+                ("Archive", UIConstants.Icons.Archive),
+                ("Document", UIConstants.Icons.Document)
+            });
+
+            // ===== COMMUNICATION =====
+            AddIconCategory("Communication", new[]
+            {
+                ("Mail", UIConstants.Icons.Mail),
+                ("Mail Open", UIConstants.Icons.MailOpen),
+                ("Message", UIConstants.Icons.Message),
+                ("Chat", UIConstants.Icons.Chat),
+                ("Phone", UIConstants.Icons.Phone),
+                ("Phone Call", UIConstants.Icons.PhoneCall),
+                ("Notification", UIConstants.Icons.Notification),
+                ("Alert", UIConstants.Icons.Alert),
+                ("Inbox", UIConstants.Icons.Inbox)
+            });
+
+            // ===== MEDIA =====
+            AddIconCategory("Media & Playback", new[]
+            {
+                ("Play", UIConstants.Icons.Play),
+                ("Pause", UIConstants.Icons.Pause),
+                ("Stop", UIConstants.Icons.Stop),
+                ("Record", UIConstants.Icons.Record),
+                ("Volume", UIConstants.Icons.Volume),
+                ("Volume Mute", UIConstants.Icons.VolumeMute),
+                ("Camera", UIConstants.Icons.Camera),
+                ("Video", UIConstants.Icons.Video),
+                ("Microphone", UIConstants.Icons.Microphone),
+                ("Image", UIConstants.Icons.Image)
+            });
+
+            // ===== BUSINESS =====
+            AddIconCategory("Business & Commerce", new[]
+            {
+                ("Product", UIConstants.Icons.Product),
+                ("Transaction", UIConstants.Icons.Transaction),
+                ("Money", UIConstants.Icons.Money),
+                ("Dollar", UIConstants.Icons.Dollar),
+                ("Credit Card", UIConstants.Icons.CreditCard),
+                ("Cart", UIConstants.Icons.Cart),
+                ("Bag", UIConstants.Icons.Bag),
+                ("Tag", UIConstants.Icons.Tag),
+                ("Barcode", UIConstants.Icons.Barcode),
+                ("Receipt", UIConstants.Icons.Receipt),
+                ("Report", UIConstants.Icons.Report),
+                ("Chart", UIConstants.Icons.Chart),
+                ("Analytics", UIConstants.Icons.Analytics),
+                ("Trending Up", UIConstants.Icons.TrendingUp)
+            });
+
+            // ===== USER & ACCOUNT =====
+            AddIconCategory("User & Account", new[]
+            {
+                ("User", UIConstants.Icons.User),
+                ("Users", UIConstants.Icons.Users),
+                ("Profile", UIConstants.Icons.Profile),
+                ("Login", UIConstants.Icons.Login),
+                ("Logout", UIConstants.Icons.Logout),
+                ("Lock", UIConstants.Icons.Lock),
+                ("Unlock", UIConstants.Icons.Unlock),
+                ("Key", UIConstants.Icons.Key),
+                ("Password", UIConstants.Icons.Password),
+                ("Shield", UIConstants.Icons.Shield)
+            });
+
+            // ===== VIEWS & LAYOUT =====
+            AddIconCategory("Views & Layout", new[]
+            {
+                ("List", UIConstants.Icons.List),
+                ("Grid", UIConstants.Icons.Grid),
+                ("Table", UIConstants.Icons.Table),
+                ("Dashboard", UIConstants.Icons.Dashboard),
+                ("Window", UIConstants.Icons.Window),
+                ("Layout", UIConstants.Icons.Layout)
+            });
+
+            // ===== UI CONTROLS =====
+            AddIconCategory("UI Controls", new[]
+            {
+                ("Settings", UIConstants.Icons.Settings),
+                ("Tools", UIConstants.Icons.Tools),
+                ("Sliders", UIConstants.Icons.Sliders),
+                ("Checkbox", UIConstants.Icons.Checkbox),
+                ("Dropdown", UIConstants.Icons.Dropdown),
+                ("Expand More", UIConstants.Icons.ExpandMore),
+                ("Expand Less", UIConstants.Icons.ExpandLess)
+            });
+
+            // ===== TIME =====
+            AddIconCategory("Time & Calendar", new[]
+            {
+                ("Calendar", UIConstants.Icons.Calendar),
+                ("Clock", UIConstants.Icons.Clock),
+                ("Timer", UIConstants.Icons.Timer),
+                ("Hourglass", UIConstants.Icons.Hourglass),
+                ("Today", UIConstants.Icons.Today)
+            });
+
+            // ===== VISIBILITY =====
+            AddIconCategory("Visibility", new[]
+            {
+                ("Eye", UIConstants.Icons.Eye),
+                ("Eye Off", UIConstants.Icons.EyeOff),
+                ("Show", UIConstants.Icons.Show),
+                ("Hide", UIConstants.Icons.Hide)
+            });
+
+            // ===== SOCIAL =====
+            AddIconCategory("Social & Interaction", new[]
+            {
+                ("Like", UIConstants.Icons.Like),
+                ("Dislike", UIConstants.Icons.Dislike),
+                ("Heart", UIConstants.Icons.Heart),
+                ("Star", UIConstants.Icons.Star),
+                ("Bookmark", UIConstants.Icons.Bookmark),
+                ("Comment", UIConstants.Icons.Comment),
+                ("Link", UIConstants.Icons.Link)
+            });
+
+            // ===== WEATHER =====
+            AddIconCategory("Weather & Nature", new[]
+            {
+                ("Sun", UIConstants.Icons.Sun),
+                ("Moon", UIConstants.Icons.Moon),
+                ("Cloud", UIConstants.Icons.Cloud),
+                ("Bolt", UIConstants.Icons.Bolt),
+                ("Fire", UIConstants.Icons.Fire),
+                ("Water", UIConstants.Icons.Water),
+                ("Tree", UIConstants.Icons.Tree)
+            });
+
+            // ===== LOCATION =====
+            AddIconCategory("Location & Places", new[]
+            {
+                ("Location", UIConstants.Icons.Location),
+                ("Map", UIConstants.Icons.Map),
+                ("Navigation", UIConstants.Icons.Navigation),
+                ("Globe", UIConstants.Icons.Globe),
+                ("Building", UIConstants.Icons.Building),
+                ("Store", UIConstants.Icons.Store),
+                ("Warehouse", UIConstants.Icons.Warehouse)
+            });
+
+            // ===== ARROWS =====
+            AddIconCategory("Arrows", new[]
+            {
+                ("Arrow Up", UIConstants.Icons.ArrowUp),
+                ("Arrow Down", UIConstants.Icons.ArrowDown),
+                ("Arrow Left", UIConstants.Icons.ArrowLeft),
+                ("Arrow Right", UIConstants.Icons.ArrowRight),
+                ("Arrow Up Right", UIConstants.Icons.ArrowUpRight),
+                ("Arrow Down Left", UIConstants.Icons.ArrowDownLeft)
+            });
+
+            // ===== SHAPES =====
+            AddIconCategory("Shapes & Symbols", new[]
+            {
+                ("Circle", UIConstants.Icons.Circle),
+                ("Circle Filled", UIConstants.Icons.CircleFilled),
+                ("Square", UIConstants.Icons.Square),
+                ("Square Filled", UIConstants.Icons.SquareFilled),
+                ("Triangle", UIConstants.Icons.Triangle),
+                ("Diamond", UIConstants.Icons.Diamond),
+                ("Plus", UIConstants.Icons.Plus),
+                ("Minus", UIConstants.Icons.Minus)
+            });
+
+            // ===== MISC =====
+            AddIconCategory("Miscellaneous", new[]
+            {
+                ("Database", UIConstants.Icons.Database),
+                ("Server", UIConstants.Icons.Server),
+                ("Desktop", UIConstants.Icons.Desktop),
+                ("Mobile", UIConstants.Icons.Mobile),
+                ("Wifi", UIConstants.Icons.Wifi),
+                ("Battery", UIConstants.Icons.Battery),
+                ("Power", UIConstants.Icons.Power),
+                ("Bug", UIConstants.Icons.Bug),
+                ("Code", UIConstants.Icons.Code),
+                ("Flag", UIConstants.Icons.Flag),
+                ("Award", UIConstants.Icons.Award),
+                ("Gift", UIConstants.Icons.Gift),
+                ("Rocket", UIConstants.Icons.Rocket),
+                ("Truck", UIConstants.Icons.Truck),
+                ("Palette", UIConstants.Icons.Palette),
+                ("Brush", UIConstants.Icons.Brush)
+            });
+
+            return mainPanel;
         }
 
         // ========== BUTTONS SECTION ==========

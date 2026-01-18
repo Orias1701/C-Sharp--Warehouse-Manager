@@ -196,56 +196,343 @@ namespace WarehouseManagement.UI
         
         public static class Icons
         {
-            // Navigation
+            // ===== NAVIGATION =====
             public const string Home = "🏠";
             public const string Menu = "☰";
+            public const string MenuDots = "⋮";
+            public const string MenuDotsHorizontal = "⋯";
             public const string Back = "←";
             public const string Forward = "→";
+            public const string Up = "↑";
+            public const string Down = "↓";
+            public const string Left = "←";
+            public const string Right = "→";
             public const string Close = "✕";
+            public const string Minimize = "−";
+            public const string Maximize = "□";
+            public const string Fullscreen = "⛶";
+            public const string ExitFullscreen = "⊡";
             
-            // Actions
+            // ===== ACTIONS =====
             public const string Add = "➕";
+            public const string AddCircle = "⊕";
+            public const string Remove = "➖";
+            public const string RemoveCircle = "⊖";
             public const string Edit = "✏️";
+            public const string EditAlt = "📝";
             public const string Delete = "🗑️";
+            public const string DeleteAlt = "✖";
             public const string Save = "💾";
+            public const string SaveAlt = "✓";
             public const string Cancel = "❌";
+            public const string CancelAlt = "✗";
             public const string Refresh = "🔄";
+            public const string RefreshAlt = "↻";
             public const string Search = "🔍";
             public const string Filter = "🔽";
-            
-            // Status
-            public const string Success = "✓";
-            public const string Error = "✕";
-            public const string Warning = "⚠️";
-            public const string Info = "ℹ️";
-            
-            // Data
+            public const string FilterAlt = "⊲";
+            public const string Sort = "⇅";
+            public const string SortAsc = "↑";
+            public const string SortDesc = "↓";
+            public const string Copy = "📋";
+            public const string Cut = "✂️";
+            public const string Paste = "📄";
+            public const string Undo = "↶";
+            public const string Redo = "↷";
+            public const string Print = "🖨️";
+            public const string Download = "⬇️";
+            public const string Upload = "⬆️";
             public const string Import = "📥";
             public const string Export = "📤";
-            public const string Upload = "⬆️";
-            public const string Download = "⬇️";
+            public const string Share = "📤";
+            public const string Send = "📮";
+            public const string Pin = "📌";
+            public const string Unpin = "📍";
             
-            // Views
-            public const string List = "📋";
-            public const string Grid = "⊞";
-            public const string Chart = "📊";
-            public const string Table = "📑";
+            // ===== STATUS & ALERTS =====
+            public const string Success = "✓";
+            public const string SuccessCircle = "✔";
+            public const string Error = "✕";
+            public const string ErrorCircle = "⊗";
+            public const string Warning = "⚠️";
+            public const string Info = "ℹ️";
+            public const string InfoCircle = "🛈";
+            public const string Help = "❓";
+            public const string HelpCircle = "❔";
+            public const string Question = "❓";
+            public const string Exclamation = "❗";
+            public const string Loading = "⟳";
+            public const string Done = "✓";
+            public const string Pending = "⏳";
+            public const string Block = "🚫";
             
-            // Other
-            public const string Settings = "⚙️";
-            public const string User = "👤";
+            // ===== FILES & FOLDERS =====
+            public const string File = "📄";
+            public const string FileText = "📃";
+            public const string FileImage = "🖼️";
+            public const string FileVideo = "🎬";
+            public const string FileAudio = "🎵";
+            public const string FileZip = "🗜️";
+            public const string FileCode = "📜";
+            public const string FilePdf = "📕";
+            public const string Folder = "📁";
+            public const string FolderOpen = "📂";
+            public const string FolderAdd = "📁➕";
             public const string Category = "📁";
+            public const string Archive = "🗄️";
+            public const string Document = "📰";
+            public const string Documents = "📚";
+            
+            // ===== COMMUNICATION =====
+            public const string Mail = "✉️";
+            public const string MailOpen = "📧";
+            public const string Message = "💬";
+            public const string MessageCircle = "🗨️";
+            public const string Chat = "💬";
+            public const string Phone = "📞";
+            public const string PhoneCall = "📲";
+            public const string Notification = "🔔";
+            public const string NotificationOff = "🔕";
+            public const string Alert = "🚨";
+            public const string Inbox = "📨";
+            
+            // ===== MEDIA & PLAYBACK =====
+            public const string Play = "▶";
+            public const string Pause = "⏸";
+            public const string Stop = "⏹";
+            public const string Record = "⏺";
+            public const string PlayCircle = "▶️";
+            public const string SkipBack = "⏮";
+            public const string SkipForward = "⏭";
+            public const string Rewind = "⏪";
+            public const string FastForward = "⏩";
+            public const string Volume = "🔊";
+            public const string VolumeMute = "🔇";
+            public const string VolumeUp = "🔊";
+            public const string VolumeDown = "🔉";
+            public const string Camera = "📷";
+            public const string CameraAlt = "📸";
+            public const string Video = "🎥";
+            public const string Microphone = "🎤";
+            public const string MicrophoneOff = "🔇";
+            public const string Image = "🖼️";
+            public const string Images = "🌄";
+            
+            // ===== BUSINESS & COMMERCE =====
             public const string Product = "📦";
+            public const string Package = "📦";
             public const string Transaction = "💱";
+            public const string Money = "💰";
+            public const string Dollar = "💵";
+            public const string Euro = "💶";
+            public const string Yen = "💴";
+            public const string CreditCard = "💳";
+            public const string Cart = "🛒";
+            public const string CartAdd = "🛒➕";
+            public const string Bag = "🛍️";
+            public const string Tag = "🏷️";
+            public const string Tags = "🏷️";
+            public const string Barcode = "📊";
+            public const string QRCode = "▦";
+            public const string Receipt = "🧾";
+            public const string Invoice = "📑";
             public const string Report = "📈";
-            public const string Calendar = "📅";
-            public const string Clock = "🕐";
+            public const string Chart = "📊";
+            public const string ChartBar = "📊";
+            public const string ChartLine = "📈";
+            public const string ChartPie = "⊙";
+            public const string Analytics = "📉";
+            public const string Trending = "📈";
+            public const string TrendingUp = "📈";
+            public const string TrendingDown = "📉";
+            
+            // ===== USER & ACCOUNT =====
+            public const string User = "👤";
+            public const string Users = "👥";
+            public const string UserAdd = "👤➕";
+            public const string UserRemove = "👤➖";
+            public const string UserCircle = "👤";
+            public const string Account = "👤";
+            public const string Profile = "👤";
+            public const string Login = "🔓";
+            public const string Logout = "🔒";
             public const string Lock = "🔒";
             public const string Unlock = "🔓";
+            public const string Key = "🔑";
+            public const string Password = "🔐";
+            public const string Shield = "🛡️";
+            public const string Security = "🔒";
+            
+            // ===== VIEWS & LAYOUT =====
+            public const string List = "📋";
+            public const string ListAlt = "☰";
+            public const string Grid = "⊞";
+            public const string GridAlt = "▦";
+            public const string Table = "📑";
+            public const string Kanban = "▦";
+            public const string Columns = "|||";
+            public const string Rows = "☰";
+            public const string Layout = "▦";
+            public const string Dashboard = "▦";
+            public const string Window = "🗔";
+            public const string Windows = "🗗";
+            
+            // ===== UI CONTROLS =====
+            public const string Settings = "⚙️";
+            public const string SettingsAlt = "🔧";
+            public const string Tools = "🛠️";
+            public const string Sliders = "🎚️";
+            public const string Toggle = "⎚";
+            public const string Checkbox = "☑";
+            public const string CheckboxEmpty = "☐";
+            public const string Radio = "⦿";
+            public const string RadioEmpty = "○";
+            public const string Dropdown = "▼";
+            public const string DropdownUp = "▲";
+            public const string ExpandMore = "▼";
+            public const string ExpandLess = "▲";
+            public const string ChevronRight = "›";
+            public const string ChevronLeft = "‹";
+            public const string ChevronUp = "^";
+            public const string ChevronDown = "v";
+            
+            // ===== TIME & CALENDAR =====
+            public const string Calendar = "📅";
+            public const string CalendarAlt = "🗓️";
+            public const string Clock = "🕐";
+            public const string ClockAlt = "⏰";
+            public const string Timer = "⏱️";
+            public const string Stopwatch = "⏱️";
+            public const string Hourglass = "⌛";
+            public const string Time = "🕐";
+            public const string Today = "📅";
+            public const string Week = "📆";
+            public const string Month = "📆";
+            
+            // ===== VISIBILITY =====
             public const string Eye = "👁️";
             public const string EyeOff = "🙈";
+            public const string Visible = "👁️";
+            public const string Hidden = "🙈";
+            public const string Show = "👁️";
+            public const string Hide = "🙈";
+            
+            // ===== SOCIAL & INTERACTION =====
+            public const string Like = "👍";
+            public const string Dislike = "👎";
+            public const string Heart = "♥";
+            public const string HeartOutline = "♡";
+            public const string Star = "⭐";
+            public const string StarOutline = "☆";
+            public const string StarHalf = "⭒";
+            public const string Favorite = "⭐";
+            public const string Bookmark = "🔖";
+            public const string BookmarkOutline = "🔖";
+            public const string Comment = "💬";
+            public const string Comments = "💬";
+            public const string ShareAlt = "🔗";
+            public const string Link = "🔗";
+            public const string LinkExternal = "🔗↗";
+            
+            // ===== WEATHER & NATURE =====
             public const string Sun = "☀️";
             public const string Moon = "🌙";
+            public const string Cloud = "☁️";
+            public const string CloudRain = "🌧️";
+            public const string CloudSnow = "❄️";
+            public const string Bolt = "⚡";
+            public const string Thunder = "⚡";
+            public const string Umbrella = "☂️";
+            public const string Wind = "🌀";
+            public const string Fire = "🔥";
+            public const string Water = "💧";
+            public const string Tree = "🌲";
+            public const string Leaf = "🍃";
+            
+            // ===== LOCATIONS & PLACES =====
+            public const string Location = "📍";
+            public const string LocationOn = "📍";
+            public const string LocationOff = "📌";
+            public const string Map = "🗺️";
+            public const string MapPin = "📍";
+            public const string Navigation = "🧭";
+            public const string Compass = "🧭";
+            public const string Globe = "🌐";
+            public const string World = "🌍";
+            public const string Building = "🏢";
+            public const string Store = "🏪";
+            public const string Warehouse = "🏭";
+            public const string Factory = "🏭";
+            
+            // ===== ARROWS =====
+            public const string ArrowUp = "↑";
+            public const string ArrowDown = "↓";
+            public const string ArrowLeft = "←";
+            public const string ArrowRight = "→";
+            public const string ArrowUpRight = "↗";
+            public const string ArrowUpLeft = "↖";
+            public const string ArrowDownRight = "↘";
+            public const string ArrowDownLeft = "↙";
+            public const string ArrowCircleUp = "⇧";
+            public const string ArrowCircleDown = "⇩";
+            public const string ArrowCircleLeft = "⇦";
+            public const string ArrowCircleRight = "⇨";
+            
+            // ===== SHAPES & SYMBOLS =====
+            public const string Circle = "○";
+            public const string CircleFilled = "●";
+            public const string Square = "□";
+            public const string SquareFilled = "■";
+            public const string Triangle = "△";
+            public const string TriangleFilled = "▲";
+            public const string Diamond = "◇";
+            public const string DiamondFilled = "◆";
+            public const string Plus = "＋";
+            public const string Minus = "－";
+            public const string Multiply = "×";
+            public const string Divide = "÷";
+            public const string Equal = "＝";
+            public const string NotEqual = "≠";
+            public const string Percent = "％";
+            public const string Infinity = "∞";
+            
+            // ===== MISC =====
+            public const string Database = "🗄️";
+            public const string Server = "🖥️";
+            public const string Desktop = "💻";
+            public const string Laptop = "💻";
+            public const string Mobile = "📱";
+            public const string Tablet = "📱";
+            public const string Keyboard = "⌨️";
+            public const string Mouse = "🖱️";
+            public const string Wifi = "📡";
+            public const string WifiOff = "📡✕";
+            public const string Bluetooth = "🔵";
+            public const string Battery = "🔋";
+            public const string BatteryLow = "🔋";
+            public const string Power = "⏻";
+            public const string PowerOff = "⏼";
+            public const string Plug = "🔌";
+            public const string Bug = "🐛";
+            public const string Code = "💻";
+            public const string Terminal = "💻";
+            public const string Cpu = "⚙️";
+            public const string Memory = "🧠";
+            public const string Flag = "🚩";
+            public const string FlagAlt = "⚑";
+            public const string Award = "🏆";
+            public const string Trophy = "🏆";
+            public const string Medal = "🏅";
+            public const string Gift = "🎁";
+            public const string Rocket = "🚀";
+            public const string Plane = "✈️";
+            public const string Car = "🚗";
+            public const string Truck = "🚚";
+            public const string Box = "📦";
+            public const string Palette = "🎨";
+            public const string Brush = "🖌️";
+            public const string Pencil = "✏️";
+            public const string Eraser = "🧹";
         }
     }
 }

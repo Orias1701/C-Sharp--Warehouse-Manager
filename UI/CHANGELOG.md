@@ -1,5 +1,46 @@
 # 📝 CHANGELOG - UI Components System
 
+## [1.0.4] - 2026-01-18
+
+### ✨ New Features
+
+**Icons Library - Bộ biểu tượng mở rộng:**
+- ✅ Added: Mở rộng từ 35 icons lên 250+ icons
+- **Categories**: 18 categories được tổ chức rõ ràng
+  - Navigation (12 icons)
+  - Actions (23 icons)
+  - Status & Alerts (11 icons)
+  - Files & Folders (14 icons)
+  - Communication (9 icons)
+  - Media & Playback (12 icons)
+  - Business & Commerce (18 icons)
+  - User & Account (12 icons)
+  - Views & Layout (8 icons)
+  - UI Controls (10 icons)
+  - Time & Calendar (8 icons)
+  - Visibility (4 icons)
+  - Social & Interaction (8 icons)
+  - Weather & Nature (9 icons)
+  - Location & Places (8 icons)
+  - Arrows (12 icons)
+  - Shapes & Symbols (12 icons)
+  - Miscellaneous (20+ icons)
+- **Features**:
+  - Click to copy icon
+  - Tooltip hiển thị tên icon
+  - Grid layout dễ xem
+  - Tổ chức theo categories
+- **Impact**: Developers có bộ icons đầy đủ, nhất quán cho toàn bộ ứng dụng
+
+**ComponentsTestPanel - Icons Section:**
+- ✅ Added: Section mới để xem trước tất cả icons
+- ✅ Interactive: Click icon để copy vào clipboard
+- ✅ Organized: Icons được nhóm theo 18 categories
+- ✅ User-friendly: Tooltip và visual feedback
+- **Impact**: Dễ dàng tìm và sử dụng icons
+
+---
+
 ## [1.0.3] - 2026-01-18
 
 ### 🐛 Bug Fixes

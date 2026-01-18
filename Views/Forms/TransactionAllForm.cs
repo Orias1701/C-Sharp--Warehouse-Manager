@@ -1,9 +1,12 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using WarehouseManagement.Controllers;
 using WarehouseManagement.Models;
+using WarehouseManagement.UI;
+using WarehouseManagement.UI.Components;
 
 namespace WarehouseManagement.Views.Forms
 {
@@ -15,10 +18,11 @@ namespace WarehouseManagement.Views.Forms
         private string _transactionType; // "Import" hoặc "Export"
         private InventoryController _inventoryController;
         private ProductController _productController;
-        private ComboBox cmbProduct;
-        private TextBox txtQuantity, txtUnitPrice, txtNote;
+        private CustomComboBox cmbProduct;
+        private CustomTextBox txtQuantity, txtUnitPrice;
+        private CustomTextArea txtNote;
         private DataGridView dgvDetails;
-        private Button btnAddDetail, btnRemoveDetail, btnSaveTransaction, btnCancel;
+        private CustomButton btnAddDetail, btnRemoveDetail, btnSaveTransaction, btnCancel, btnExportVoucher;
         private List<(int ProductID, int Quantity, decimal UnitPrice)> _details;
 
         public TransactionAllForm(string type)
@@ -28,86 +32,210 @@ namespace WarehouseManagement.Views.Forms
             _details = new List<(int, int, decimal)>();
             _inventoryController = new InventoryController();
             _productController = new ProductController();
-            Text = type == "Import" ? "Phiếu Nhập Kho" : "Phiếu Xuất Kho";
+            
+            string icon = type == "Import" ? UIConstants.Icons.Import : UIConstants.Icons.Export;
+            Text = type == "Import" ? $"{icon} Phiếu Nhập Kho" : $"{icon} Phiếu Xuất Kho";
+            
+            // Apply theme
+            ThemeManager.Instance.ApplyThemeToForm(this);
         }
 
         private void InitializeComponent()
         {
             SuspendLayout();
 
-            // Layout standard: Label 100px, Input 300px, spacing 20px
-            const int LABEL_WIDTH = 100;
-            const int INPUT_WIDTH = 300;
-            const int LABEL_LEFT = 20;
-            const int INPUT_LEFT = 130;
-            const int ITEM_SPACING = 40;
-            const int BUTTON_WIDTH = 100;
-            const int BUTTON_HEIGHT = 35;
+            // Main container
+            CustomPanel mainPanel = new CustomPanel
+            {
+                Dock = DockStyle.Fill,
+                BorderRadius = UIConstants.Borders.RadiusLarge,
+                ShowBorder = false,
+                Padding = new Padding(UIConstants.Spacing.Padding.Large)
+            };
 
-            // Labels và controls
-            Label lblProduct = new Label { Text = "Sản phẩm:", Left = LABEL_LEFT, Top = 20, Width = LABEL_WIDTH, AutoSize = false, TextAlign = System.Drawing.ContentAlignment.MiddleLeft };
-            cmbProduct = new ComboBox { Left = INPUT_LEFT, Top = 20, Width = INPUT_WIDTH, Height = 25, DropDownStyle = ComboBoxStyle.DropDownList };
+            const int LEFT_MARGIN = 20;
+            int currentY = 20;
+            int spacing = UIConstants.Spacing.Margin.Medium;
 
-            Label lblQuantity = new Label { Text = "Số lượng:", Left = LABEL_LEFT, Top = 20 + ITEM_SPACING, Width = LABEL_WIDTH, AutoSize = false, TextAlign = System.Drawing.ContentAlignment.MiddleLeft };
-            txtQuantity = new TextBox { Left = INPUT_LEFT, Top = 20 + ITEM_SPACING, Width = 140, Height = 25 };
+            // Product
+            Label lblProduct = new Label 
+            { 
+                Text = $"{UIConstants.Icons.Product} Sản phẩm:", 
+                Left = LEFT_MARGIN, 
+                Top = currentY, 
+                Width = 110,
+                Font = ThemeManager.Instance.FontRegular,
+                TextAlign = ContentAlignment.MiddleLeft
+            };
+            currentY += 25;
 
-            Label lblPrice = new Label { Text = "Đơn giá:", Left = LABEL_LEFT + 160, Top = 20 + ITEM_SPACING, Width = 60, AutoSize = false, TextAlign = System.Drawing.ContentAlignment.MiddleLeft };
-            txtUnitPrice = new TextBox { Left = LABEL_LEFT + 230, Top = 20 + ITEM_SPACING, Width = 130, Height = 25 };
+            cmbProduct = new CustomComboBox 
+            { 
+                Left = LEFT_MARGIN, 
+                Top = currentY, 
+                Width = 520
+            };
+            currentY += UIConstants.Sizes.InputHeight + spacing;
 
-            Label lblNote = new Label { Text = "Ghi chú:", Left = LABEL_LEFT, Top = 20 + ITEM_SPACING * 2, Width = LABEL_WIDTH, AutoSize = false, TextAlign = System.Drawing.ContentAlignment.TopLeft };
-            txtNote = new TextBox { Left = INPUT_LEFT, Top = 20 + ITEM_SPACING * 2, Width = INPUT_WIDTH, Height = 50, Multiline = true };
+            // Quantity and Price (same row)
+            Label lblQuantity = new Label 
+            { 
+                Text = $"{UIConstants.Icons.Package} Số lượng:", 
+                Left = LEFT_MARGIN, 
+                Top = currentY, 
+                Width = 100,
+                Font = ThemeManager.Instance.FontRegular,
+                TextAlign = ContentAlignment.MiddleLeft
+            };
 
-            btnAddDetail = new Button { Text = "➕ Thêm", Left = INPUT_LEFT, Top = 20 + ITEM_SPACING * 3 + 20, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT };
-            btnRemoveDetail = new Button { Text = "🗑️ Xóa", Left = INPUT_LEFT + BUTTON_WIDTH + 10, Top = 20 + ITEM_SPACING * 3 + 20, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT };
+            Label lblPrice = new Label 
+            { 
+                Text = $"{UIConstants.Icons.Money} Đơn giá:", 
+                Left = LEFT_MARGIN + 250, 
+                Top = currentY, 
+                Width = 80,
+                Font = ThemeManager.Instance.FontRegular,
+                TextAlign = ContentAlignment.MiddleLeft
+            };
+            currentY += 25;
+
+            txtQuantity = new CustomTextBox 
+            { 
+                Left = LEFT_MARGIN, 
+                Top = currentY, 
+                Width = 220,
+                Placeholder = "Số lượng..."
+            };
+
+            txtUnitPrice = new CustomTextBox 
+            { 
+                Left = LEFT_MARGIN + 250, 
+                Top = currentY, 
+                Width = 270,
+                Placeholder = "Đơn giá..."
+            };
+            currentY += UIConstants.Sizes.InputHeight + spacing;
+
+            // Note
+            Label lblNote = new Label 
+            { 
+                Text = $"{UIConstants.Icons.FileText} Ghi chú:", 
+                Left = LEFT_MARGIN, 
+                Top = currentY, 
+                Width = 100,
+                Font = ThemeManager.Instance.FontRegular,
+                TextAlign = ContentAlignment.TopLeft
+            };
+            currentY += 25;
+
+            txtNote = new CustomTextArea 
+            { 
+                Left = LEFT_MARGIN, 
+                Top = currentY, 
+                Width = 520, 
+                Height = 60,
+                Placeholder = "Ghi chú (không bắt buộc)..."
+            };
+            currentY += 60 + spacing;
+
+            // Add/Remove buttons
+            btnAddDetail = new CustomButton 
+            { 
+                Text = $"{UIConstants.Icons.Add} Thêm", 
+                Left = LEFT_MARGIN, 
+                Top = currentY, 
+                Width = 110,
+                ButtonStyleType = ButtonStyle.FilledNoOutline
+            };
+
+            btnRemoveDetail = new CustomButton 
+            { 
+                Text = $"{UIConstants.Icons.Delete} Xóa", 
+                Left = LEFT_MARGIN + 110 + spacing, 
+                Top = currentY, 
+                Width = 110,
+                ButtonStyleType = ButtonStyle.Outlined
+            };
 
             btnAddDetail.Click += BtnAddDetail_Click;
             btnRemoveDetail.Click += BtnRemoveDetail_Click;
+            currentY += UIConstants.Sizes.ButtonHeight + spacing;
 
             // DataGridView
             dgvDetails = new DataGridView
             {
-                Left = LABEL_LEFT,
-                Top = 20 + ITEM_SPACING * 4 + 30,
+                Left = LEFT_MARGIN,
+                Top = currentY,
                 Width = 520,
                 Height = 180,
                 AutoGenerateColumns = false,
                 AllowUserToAddRows = false,
-                ReadOnly = true
+                ReadOnly = true,
+                BackgroundColor = ThemeManager.Instance.BackgroundDefault,
+                BorderStyle = BorderStyle.FixedSingle
             };
 
             dgvDetails.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Sản phẩm", DataPropertyName = "ProductName", Width = 250 });
             dgvDetails.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Số lượng", DataPropertyName = "Quantity", Width = 80 });
             dgvDetails.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Đơn giá", DataPropertyName = "UnitPrice", Width = 140, DefaultCellStyle = new DataGridViewCellStyle { Format = "N0" } });
+            currentY += 180 + spacing;
 
-            btnSaveTransaction = new Button { Text = "💾 Lưu Phiếu", Left = INPUT_LEFT, Top = 20 + ITEM_SPACING * 4 + 220, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT };
-            btnCancel = new Button { Text = "❌ Hủy", Left = INPUT_LEFT + BUTTON_WIDTH + 10, Top = 20 + ITEM_SPACING * 4 + 220, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT, CausesValidation = false };
-            Button btnExportVoucher = new Button { Text = "📄 Xuất Phiếu", Left = INPUT_LEFT + (BUTTON_WIDTH + 10) * 2, Top = 20 + ITEM_SPACING * 4 + 220, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT };
+            // Bottom buttons
+            btnSaveTransaction = new CustomButton 
+            { 
+                Text = $"{UIConstants.Icons.Save} Lưu Phiếu", 
+                Left = LEFT_MARGIN, 
+                Top = currentY, 
+                Width = 120,
+                ButtonStyleType = ButtonStyle.FilledNoOutline
+            };
+
+            btnExportVoucher = new CustomButton 
+            { 
+                Text = $"{UIConstants.Icons.Export} Xuất Phiếu", 
+                Left = LEFT_MARGIN + 120 + spacing, 
+                Top = currentY, 
+                Width = 120,
+                ButtonStyleType = ButtonStyle.Outlined
+            };
+
+            btnCancel = new CustomButton 
+            { 
+                Text = $"{UIConstants.Icons.Cancel} Hủy", 
+                Left = LEFT_MARGIN + 240 + spacing * 2, 
+                Top = currentY, 
+                Width = 100,
+                ButtonStyleType = ButtonStyle.Text,
+                CausesValidation = false
+            };
 
             btnSaveTransaction.Click += BtnSaveTransaction_Click;
             btnCancel.Click += BtnCancel_Click;
             btnExportVoucher.Click += BtnExportVoucher_Click;
 
-            Controls.Add(lblProduct);
-            Controls.Add(cmbProduct);
-            Controls.Add(lblQuantity);
-            Controls.Add(txtQuantity);
-            Controls.Add(lblPrice);
-            Controls.Add(txtUnitPrice);
-            Controls.Add(lblNote);
-            Controls.Add(txtNote);
-            Controls.Add(btnAddDetail);
-            Controls.Add(btnRemoveDetail);
-            Controls.Add(btnSaveTransaction);
-            Controls.Add(btnExportVoucher);
-            Controls.Add(btnCancel);
-            Controls.Add(dgvDetails);
+            mainPanel.Controls.Add(lblProduct);
+            mainPanel.Controls.Add(cmbProduct);
+            mainPanel.Controls.Add(lblQuantity);
+            mainPanel.Controls.Add(txtQuantity);
+            mainPanel.Controls.Add(lblPrice);
+            mainPanel.Controls.Add(txtUnitPrice);
+            mainPanel.Controls.Add(lblNote);
+            mainPanel.Controls.Add(txtNote);
+            mainPanel.Controls.Add(btnAddDetail);
+            mainPanel.Controls.Add(btnRemoveDetail);
+            mainPanel.Controls.Add(btnSaveTransaction);
+            mainPanel.Controls.Add(btnExportVoucher);
+            mainPanel.Controls.Add(btnCancel);
+            mainPanel.Controls.Add(dgvDetails);
 
-            Width = 600;
-            Height = 580;
+            Controls.Add(mainPanel);
+
+            ClientSize = new Size(620, 600);
             StartPosition = FormStartPosition.CenterParent;
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false;
             MinimizeBox = false;
+            BackColor = ThemeManager.Instance.BackgroundLight;
 
             Load += TransactionAllForm_Load;
             ResumeLayout(false);
@@ -117,7 +245,8 @@ namespace WarehouseManagement.Views.Forms
         {
             if (_details.Count == 0)
             {
-                MessageBox.Show("❌ Vui lòng thêm ít nhất 1 sản phẩm trước khi xuất phiếu");
+                MessageBox.Show($"{UIConstants.Icons.Warning} Vui lòng thêm ít nhất 1 sản phẩm trước khi xuất phiếu", "Cảnh báo", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -133,12 +262,14 @@ namespace WarehouseManagement.Views.Forms
                 if (saveDialog.ShowDialog() == DialogResult.OK)
                 {
                     ExportVoucherToFile(saveDialog.FileName);
-                    MessageBox.Show("Xuất phiếu thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show($"{UIConstants.Icons.Success} Xuất phiếu thành công!", "Thành công", 
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lỗi xuất phiếu: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"{UIConstants.Icons.Error} Lỗi xuất phiếu: {ex.Message}", "Lỗi", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -193,72 +324,81 @@ namespace WarehouseManagement.Views.Forms
             {
                 List<Product> products = _productController.GetAllProducts();
             
-            cmbProduct.DataSource = products;
-            cmbProduct.DisplayMember = "ProductName";
-            cmbProduct.ValueMember = "ProductID";
+                cmbProduct.DataSource = products;
+                cmbProduct.DisplayMember = "ProductName";
+                cmbProduct.ValueMember = "ProductID";
 
-            if (cmbProduct.Items.Count > 0) cmbProduct.SelectedIndex = 0;
+                if (cmbProduct.Items.Count > 0) cmbProduct.SelectedIndex = 0;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"{UIConstants.Icons.Error} Lỗi tải sản phẩm: {ex.Message}", "Lỗi", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
-        catch (Exception ex)
-        {
-            MessageBox.Show("Lỗi tải sản phẩm: " + ex.Message);
-        }
-    }
 
         private void BtnAddDetail_Click(object sender, EventArgs e)
         {
             if (cmbProduct.SelectedIndex < 0)
             {
-                MessageBox.Show("❌ Vui lòng chọn sản phẩm");
+                MessageBox.Show($"{UIConstants.Icons.Warning} Vui lòng chọn sản phẩm", "Cảnh báo", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 cmbProduct.Focus();
                 return;
             }
 
             if (!int.TryParse(txtQuantity.Text, out int quantity))
             {
-                MessageBox.Show("❌ Số lượng phải là số nguyên");
+                MessageBox.Show($"{UIConstants.Icons.Warning} Số lượng phải là số nguyên", "Cảnh báo", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 txtQuantity.Focus();
                 return;
             }
 
             if (quantity <= 0)
             {
-                MessageBox.Show("❌ Số lượng phải lớn hơn 0");
+                MessageBox.Show($"{UIConstants.Icons.Warning} Số lượng phải lớn hơn 0", "Cảnh báo", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 txtQuantity.Focus();
                 return;
             }
 
             if (quantity > 999999)
             {
-                MessageBox.Show("❌ Số lượng quá lớn (tối đa: 999,999)");
+                MessageBox.Show($"{UIConstants.Icons.Warning} Số lượng quá lớn (tối đa: 999,999)", "Cảnh báo", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 txtQuantity.Focus();
                 return;
             }
 
             if (!decimal.TryParse(txtUnitPrice.Text, out decimal price))
             {
-                MessageBox.Show("❌ Đơn giá phải là số");
+                MessageBox.Show($"{UIConstants.Icons.Warning} Đơn giá phải là số", "Cảnh báo", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 txtUnitPrice.Focus();
                 return;
             }
 
             if (price < 0)
             {
-                MessageBox.Show("❌ Đơn giá không được âm");
+                MessageBox.Show($"{UIConstants.Icons.Warning} Đơn giá không được âm", "Cảnh báo", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 txtUnitPrice.Focus();
                 return;
             }
 
             if (price > 999999999)
             {
-                MessageBox.Show("❌ Đơn giá quá lớn (tối đa: 999,999,999)");
+                MessageBox.Show($"{UIConstants.Icons.Warning} Đơn giá quá lớn (tối đa: 999,999,999)", "Cảnh báo", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 txtUnitPrice.Focus();
                 return;
             }
 
             if (cmbProduct.SelectedValue == null)
             {
-                MessageBox.Show("❌ Vui lòng chọn sản phẩm hợp lệ từ danh sách");
+                MessageBox.Show($"{UIConstants.Icons.Warning} Vui lòng chọn sản phẩm hợp lệ từ danh sách", "Cảnh báo", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 cmbProduct.Focus();
                 return;
             }
@@ -271,12 +411,14 @@ namespace WarehouseManagement.Views.Forms
                 Product product = _productController.GetProductById(productId);
                 if (product == null)
                 {
-                    MessageBox.Show("❌ Không tìm thấy thông tin sản phẩm");
+                    MessageBox.Show($"{UIConstants.Icons.Error} Không tìm thấy thông tin sản phẩm", "Lỗi", 
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
                 if (product.Quantity < quantity)
                 {
-                    MessageBox.Show($"❌ Tồn kho không đủ (hiện có: {product.Quantity})");
+                    MessageBox.Show($"{UIConstants.Icons.Warning} Tồn kho không đủ (hiện có: {product.Quantity})", "Cảnh báo", 
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     txtQuantity.Focus();
                     return;
                 }
@@ -284,8 +426,8 @@ namespace WarehouseManagement.Views.Forms
 
             _details.Add((productId, quantity, price));
             RefreshDetails();
-            txtQuantity.Clear();
-            txtUnitPrice.Clear();
+            txtQuantity.Text = "";
+            txtUnitPrice.Text = "";
         }
 
         private void RefreshDetails()
@@ -304,7 +446,8 @@ namespace WarehouseManagement.Views.Forms
         {
             if (dgvDetails.SelectedRows.Count == 0)
             {
-                MessageBox.Show("❌ Vui lòng chọn dòng để xóa");
+                MessageBox.Show($"{UIConstants.Icons.Warning} Vui lòng chọn dòng để xóa", "Cảnh báo", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -320,7 +463,8 @@ namespace WarehouseManagement.Views.Forms
         {
             if (_details.Count == 0)
             {
-                MessageBox.Show("❌ Vui lòng thêm ít nhất một sản phẩm");
+                MessageBox.Show($"{UIConstants.Icons.Warning} Vui lòng thêm ít nhất một sản phẩm", "Cảnh báo", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -334,13 +478,15 @@ namespace WarehouseManagement.Views.Forms
                 {
                     _inventoryController.ExportBatch(_details, txtNote.Text);
                 }
-                MessageBox.Show("✅ Lưu phiếu thành công!");
+                MessageBox.Show($"{UIConstants.Icons.Success} Lưu phiếu thành công!", "Thành công", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
                 DialogResult = DialogResult.OK;
                 Close();
             }
             catch (Exception ex)
             {
-                MessageBox.Show("❌ Lỗi: " + ex.Message);
+                MessageBox.Show($"{UIConstants.Icons.Error} Lỗi: {ex.Message}", "Lỗi", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

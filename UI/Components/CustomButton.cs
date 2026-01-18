@@ -46,6 +46,8 @@ namespace WarehouseManagement.UI.Components
             Font = ThemeManager.Instance.FontRegular;
             FlatStyle = FlatStyle.Flat;
             FlatAppearance.BorderSize = 0;
+            FlatAppearance.MouseDownBackColor = Color.Transparent;
+            FlatAppearance.MouseOverBackColor = Color.Transparent;
             Cursor = Cursors.Hand;
             
             // Subscribe events
@@ -59,6 +61,8 @@ namespace WarehouseManagement.UI.Components
                      ControlStyles.OptimizedDoubleBuffer | 
                      ControlStyles.ResizeRedraw | 
                      ControlStyles.SupportsTransparentBackColor, true);
+            
+            UpdateStyles();
         }
 
         // Properties
@@ -189,39 +193,47 @@ namespace WarehouseManagement.UI.Components
 
         protected override void OnPaint(PaintEventArgs pevent)
         {
+            // KHÔNG gọi base.OnPaint() vì UserPaint = true
+            
             Graphics g = pevent.Graphics;
             g.SmoothingMode = SmoothingMode.AntiAlias;
             
-            // Clear toàn bộ background trước để tránh hiển thị backdrop
-            g.Clear(Parent?.BackColor ?? SystemColors.Control);
+            // Clear toàn bộ để tránh backdrop
+            g.Clear(Parent?.BackColor ?? ThemeManager.Instance.BackgroundDefault);
             
             // Determine colors based on state
             Color backColor = GetBackgroundColor();
             Color foreColor = GetForegroundColor();
             Color borderColor = GetBorderColor();
             
-            // Draw background with border radius
-            using (GraphicsPath path = GetRoundedRectanglePath(ClientRectangle, _borderRadius))
+            // Rectangle cho background (full size)
+            Rectangle bgRect = ClientRectangle;
+            
+            // Rectangle cho border (shrink để border không bị clip)
+            Rectangle borderRect = new Rectangle(
+                ClientRectangle.X,
+                ClientRectangle.Y,
+                ClientRectangle.Width - 1,
+                ClientRectangle.Height - 1
+            );
+            
+            // Draw background
+            using (GraphicsPath bgPath = GetRoundedRectanglePath(bgRect, _borderRadius))
             {
-                // Fill background
                 using (SolidBrush brush = new SolidBrush(backColor))
                 {
-                    g.FillPath(brush, path);
+                    g.FillPath(brush, bgPath);
                 }
-                
-                // Draw border (nếu không transparent)
-                if (borderColor != Color.Transparent)
+            }
+            
+            // Draw border nếu có
+            if (borderColor != Color.Transparent)
+            {
+                using (GraphicsPath borderPath = GetRoundedRectanglePath(borderRect, _borderRadius))
                 {
                     using (Pen pen = new Pen(borderColor, UIConstants.Borders.BorderThickness))
                     {
-                        Rectangle borderRect = ClientRectangle;
-                        borderRect.Width -= 1;
-                        borderRect.Height -= 1;
-                        
-                        using (GraphicsPath borderPath = GetRoundedRectanglePath(borderRect, _borderRadius))
-                        {
-                            g.DrawPath(pen, borderPath);
-                        }
+                        g.DrawPath(pen, borderPath);
                     }
                 }
             }

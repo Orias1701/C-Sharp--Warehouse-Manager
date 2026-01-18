@@ -93,28 +93,34 @@ namespace WarehouseManagement.UI.Components
             
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
             
-            // Vẽ background với border radius
-            using (GraphicsPath path = GetRoundedRectanglePath(ClientRectangle, _borderRadius))
+            // Rectangle cho background
+            Rectangle bgRect = ClientRectangle;
+            
+            // Rectangle cho border (shrink để không bị clip)
+            Rectangle borderRect = new Rectangle(
+                ClientRectangle.X,
+                ClientRectangle.Y,
+                ClientRectangle.Width - 1,
+                ClientRectangle.Height - 1
+            );
+            
+            // Draw background
+            using (GraphicsPath bgPath = GetRoundedRectanglePath(bgRect, _borderRadius))
             {
-                // Fill background
                 using (SolidBrush brush = new SolidBrush(BackColor))
                 {
-                    e.Graphics.FillPath(brush, path);
+                    e.Graphics.FillPath(brush, bgPath);
                 }
-                
-                // Draw border
-                if (_showBorder)
+            }
+            
+            // Draw border
+            if (_showBorder)
+            {
+                using (GraphicsPath borderPath = GetRoundedRectanglePath(borderRect, _borderRadius))
                 {
                     using (Pen pen = new Pen(_borderColor, _borderThickness))
                     {
-                        Rectangle borderRect = ClientRectangle;
-                        borderRect.Width -= 1;
-                        borderRect.Height -= 1;
-                        
-                        using (GraphicsPath borderPath = GetRoundedRectanglePath(borderRect, _borderRadius))
-                        {
-                            e.Graphics.DrawPath(pen, borderPath);
-                        }
+                        e.Graphics.DrawPath(pen, borderPath);
                     }
                 }
             }

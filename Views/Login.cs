@@ -1,8 +1,11 @@
-﻿using System;
+using System;
+using System.Drawing;
 using System.Windows.Forms;
 using WarehouseManagement.Controllers;
 using WarehouseManagement.Models;
 using WarehouseManagement.Helpers;
+using WarehouseManagement.UI;
+using WarehouseManagement.UI.Components;
 
 namespace WarehouseManagement.Views
 {
@@ -14,16 +17,19 @@ namespace WarehouseManagement.Views
         {
             InitializeComponent();
             _userController = new UserController();
+            
+            // Apply theme
+            ThemeManager.Instance.ApplyThemeToForm(this);
         }
 
         private void Login_Load(object sender, EventArgs e)
         {
-            this.Text = "Đăng Nhập Hệ Thống";
-            this.StartPosition = FormStartPosition.CenterScreen;
-            this.MaximizeBox = false;
-            this.MinimizeBox = true;
-            this.FormBorderStyle = FormBorderStyle.FixedSingle;
-            this.Size = new System.Drawing.Size(400, 250);
+            Text = "Đăng Nhập Hệ Thống";
+            StartPosition = FormStartPosition.CenterScreen;
+            MaximizeBox = false;
+            MinimizeBox = true;
+            FormBorderStyle = FormBorderStyle.FixedSingle;
+            BackColor = ThemeManager.Instance.BackgroundLight;
             
             txtUsername.Focus();
         }
@@ -88,85 +94,116 @@ namespace WarehouseManagement.Views
 
         private void InitializeComponent()
         {
-            this.lblUsername = new System.Windows.Forms.Label();
-            this.lblPassword = new System.Windows.Forms.Label();
-            this.txtUsername = new System.Windows.Forms.TextBox();
-            this.txtPassword = new System.Windows.Forms.TextBox();
-            this.btnLogin = new System.Windows.Forms.Button();
-            this.btnCancel = new System.Windows.Forms.Button();
-            this.SuspendLayout();
+            SuspendLayout();
 
-            // lblUsername
-            this.lblUsername.AutoSize = true;
-            this.lblUsername.Location = new System.Drawing.Point(30, 30);
-            this.lblUsername.Name = "lblUsername";
-            this.lblUsername.Size = new System.Drawing.Size(80, 13);
-            this.lblUsername.TabIndex = 0;
-            this.lblUsername.Text = "Tên đăng nhập:";
+            // Main container panel
+            CustomPanel mainPanel = new CustomPanel
+            {
+                Dock = DockStyle.Fill,
+                BorderRadius = UIConstants.Borders.RadiusLarge,
+                ShowBorder = false,
+                Padding = new Padding(UIConstants.Spacing.Padding.XXLarge)
+            };
 
-            // lblPassword
-            this.lblPassword.AutoSize = true;
-            this.lblPassword.Location = new System.Drawing.Point(30, 80);
-            this.lblPassword.Name = "lblPassword";
-            this.lblPassword.Size = new System.Drawing.Size(60, 13);
-            this.lblPassword.TabIndex = 2;
-            this.lblPassword.Text = "Mật khẩu:";
+            // Title Label
+            Label lblTitle = new Label
+            {
+                Text = $"{UIConstants.Icons.Lock} ĐĂNG NHẬP HỆ THỐNG",
+                Font = ThemeManager.Instance.FontXLarge,
+                ForeColor = ThemeManager.Instance.PrimaryDefault,
+                AutoSize = true,
+                Location = new Point(40, 30)
+            };
 
-            // txtUsername
-            this.txtUsername.Location = new System.Drawing.Point(30, 50);
-            this.txtUsername.Name = "txtUsername";
-            this.txtUsername.Size = new System.Drawing.Size(340, 20);
-            this.txtUsername.TabIndex = 1;
-            this.txtUsername.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TxtUsername_KeyDown);
+            // Username Label
+            lblUsername = new Label
+            {
+                Text = $"{UIConstants.Icons.User} Tên đăng nhập:",
+                Font = ThemeManager.Instance.FontRegular,
+                AutoSize = true,
+                Location = new Point(40, 90),
+                TabIndex = 0
+            };
 
-            // txtPassword
-            this.txtPassword.Location = new System.Drawing.Point(30, 100);
-            this.txtPassword.Name = "txtPassword";
-            this.txtPassword.PasswordChar = '*';
-            this.txtPassword.Size = new System.Drawing.Size(340, 20);
-            this.txtPassword.TabIndex = 3;
-            this.txtPassword.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TxtPassword_KeyDown);
+            // Username TextBox
+            txtUsername = new CustomTextBox
+            {
+                Location = new Point(40, 115),
+                Width = 380,
+                Placeholder = "Nhập tên đăng nhập...",
+                TabIndex = 1
+            };
+            txtUsername.KeyDown += TxtUsername_KeyDown;
 
-            // btnLogin
-            this.btnLogin.Location = new System.Drawing.Point(150, 160);
-            this.btnLogin.Name = "btnLogin";
-            this.btnLogin.Size = new System.Drawing.Size(100, 30);
-            this.btnLogin.TabIndex = 4;
-            this.btnLogin.Text = "Đăng Nhập";
-            this.btnLogin.UseVisualStyleBackColor = true;
-            this.btnLogin.Click += new System.EventHandler(this.BtnLogin_Click);
+            // Password Label
+            lblPassword = new Label
+            {
+                Text = $"{UIConstants.Icons.Password} Mật khẩu:",
+                Font = ThemeManager.Instance.FontRegular,
+                AutoSize = true,
+                Location = new Point(40, 170),
+                TabIndex = 2
+            };
 
-            // btnCancel
-            this.btnCancel.Location = new System.Drawing.Point(270, 160);
-            this.btnCancel.Name = "btnCancel";
-            this.btnCancel.Size = new System.Drawing.Size(100, 30);
-            this.btnCancel.TabIndex = 5;
-            this.btnCancel.Text = "Thoát";
-            this.btnCancel.UseVisualStyleBackColor = true;
-            this.btnCancel.Click += new System.EventHandler(this.BtnCancel_Click);
+            // Password TextBox
+            txtPassword = new CustomTextBox
+            {
+                Location = new Point(40, 195),
+                Width = 380,
+                Placeholder = "Nhập mật khẩu...",
+                IsPassword = true,
+                TabIndex = 3
+            };
+            txtPassword.KeyDown += TxtPassword_KeyDown;
 
-            // LoginForm
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(400, 250);
-            this.Controls.Add(this.btnCancel);
-            this.Controls.Add(this.btnLogin);
-            this.Controls.Add(this.txtPassword);
-            this.Controls.Add(this.lblPassword);
-            this.Controls.Add(this.txtUsername);
-            this.Controls.Add(this.lblUsername);
-            this.Name = "Login";
-            this.Text = "Login";
-            this.Load += new System.EventHandler(this.Login_Load);
-            this.ResumeLayout(false);
-            this.PerformLayout();
+            // Login Button
+            btnLogin = new CustomButton
+            {
+                Text = $"{UIConstants.Icons.Login} Đăng Nhập",
+                Location = new Point(140, 270),
+                Width = 140,
+                Height = UIConstants.Sizes.ButtonHeight,
+                ButtonStyleType = ButtonStyle.FilledNoOutline,
+                TabIndex = 4
+            };
+            btnLogin.Click += BtnLogin_Click;
+
+            // Cancel Button
+            btnCancel = new CustomButton
+            {
+                Text = $"{UIConstants.Icons.Close} Thoát",
+                Location = new Point(290, 270),
+                Width = 130,
+                Height = UIConstants.Sizes.ButtonHeight,
+                ButtonStyleType = ButtonStyle.Outlined,
+                TabIndex = 5
+            };
+            btnCancel.Click += BtnCancel_Click;
+
+            // Add controls to main panel
+            mainPanel.Controls.Add(lblTitle);
+            mainPanel.Controls.Add(lblUsername);
+            mainPanel.Controls.Add(txtUsername);
+            mainPanel.Controls.Add(lblPassword);
+            mainPanel.Controls.Add(txtPassword);
+            mainPanel.Controls.Add(btnLogin);
+            mainPanel.Controls.Add(btnCancel);
+
+            // Form settings
+            ClientSize = new Size(480, 360);
+            Controls.Add(mainPanel);
+            Name = "Login";
+            Text = "Login";
+            Load += Login_Load;
+            
+            ResumeLayout(false);
         }
 
-        private System.Windows.Forms.Label lblUsername;
-        private System.Windows.Forms.Label lblPassword;
-        private System.Windows.Forms.TextBox txtUsername;
-        private System.Windows.Forms.TextBox txtPassword;
-        private System.Windows.Forms.Button btnLogin;
-        private System.Windows.Forms.Button btnCancel;
+        private Label lblUsername;
+        private Label lblPassword;
+        private CustomTextBox txtUsername;
+        private CustomTextBox txtPassword;
+        private CustomButton btnLogin;
+        private CustomButton btnCancel;
     }
 }

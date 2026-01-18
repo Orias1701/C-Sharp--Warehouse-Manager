@@ -1,10 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using WarehouseManagement.Controllers;
 using WarehouseManagement.Models;
 using WarehouseManagement.Views.Forms;
+using WarehouseManagement.UI;
 
 namespace WarehouseManagement.Views.Panels
 {
@@ -19,11 +20,16 @@ namespace WarehouseManagement.Views.Panels
             _inventoryController = new InventoryController();
             InitializeComponent();
             SettingsForm.SettingsChanged += (s, e) => LoadData();
+            
+            // Subscribe to theme changes
+            ThemeManager.Instance.ThemeChanged += OnThemeChanged;
+            ApplyTheme();
         }
 
         private void InitializeComponent()
         {
             Dock = DockStyle.Fill;
+            BackColor = ThemeManager.Instance.BackgroundDefault;
 
             dgvTransactions = new DataGridView
             {
@@ -31,20 +37,77 @@ namespace WarehouseManagement.Views.Panels
                 AutoGenerateColumns = false,
                 AllowUserToAddRows = false,
                 ReadOnly = true,
-                BackgroundColor = Color.White
+                BackgroundColor = ThemeManager.Instance.BackgroundDefault,
+                BorderStyle = BorderStyle.None,
+                RowHeadersVisible = false,
+                SelectionMode = DataGridViewSelectionMode.FullRowSelect,
+                AllowUserToResizeRows = false,
+                Font = ThemeManager.Instance.FontRegular,
+                RowTemplate = { Height = UIConstants.Sizes.TableRowHeight },
+                ColumnHeadersHeight = UIConstants.Sizes.TableHeaderHeight,
+                ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle
+                {
+                    Font = ThemeManager.Instance.FontBold,
+                    BackColor = ThemeManager.Instance.BackgroundLight,
+                    ForeColor = ThemeManager.Instance.TextPrimary,
+                    Padding = new Padding(UIConstants.Spacing.Padding.Small)
+                }
             };
 
-            dgvTransactions.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "ID Phiếu", DataPropertyName = "TransactionID", Width = 80, DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleRight } });
-            dgvTransactions.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Loại", DataPropertyName = "Type", Width = 60, DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter } });
-            dgvTransactions.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Ngày", DataPropertyName = "DateCreated", Width = 150, DefaultCellStyle = new DataGridViewCellStyle { Format = "dd/MM/yyyy HH:mm" } });
-            dgvTransactions.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Tổng Giá Trị", DataPropertyName = "TotalValue", Width = 120, DefaultCellStyle = new DataGridViewCellStyle { Format = "N0", Alignment = DataGridViewContentAlignment.MiddleRight } });
-            dgvTransactions.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Ghi chú", DataPropertyName = "Note", Width = 250 });
-            dgvTransactions.Columns.Add(new DataGridViewButtonColumn { HeaderText = "Ẩn", Width = 50, UseColumnTextForButtonValue = true, Text = "👁️" });
+            dgvTransactions.Columns.Add(new DataGridViewTextBoxColumn 
+            { 
+                HeaderText = "ID", 
+                DataPropertyName = "TransactionID", 
+                Width = 70, 
+                DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleRight } 
+            });
+            
+            dgvTransactions.Columns.Add(new DataGridViewTextBoxColumn 
+            { 
+                HeaderText = $"{UIConstants.Icons.Transaction} Loại", 
+                DataPropertyName = "Type", 
+                Width = 80, 
+                DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter } 
+            });
+            
+            dgvTransactions.Columns.Add(new DataGridViewTextBoxColumn 
+            { 
+                HeaderText = $"{UIConstants.Icons.Calendar} Ngày", 
+                DataPropertyName = "DateCreated", 
+                Width = 160, 
+                DefaultCellStyle = new DataGridViewCellStyle { Format = "dd/MM/yyyy HH:mm" } 
+            });
+            
+            dgvTransactions.Columns.Add(new DataGridViewTextBoxColumn 
+            { 
+                HeaderText = $"{UIConstants.Icons.Money} Tổng Giá Trị", 
+                DataPropertyName = "TotalValue", 
+                Width = 130, 
+                DefaultCellStyle = new DataGridViewCellStyle 
+                { 
+                    Format = "N0", 
+                    Alignment = DataGridViewContentAlignment.MiddleRight 
+                } 
+            });
+            
+            dgvTransactions.Columns.Add(new DataGridViewTextBoxColumn 
+            { 
+                HeaderText = $"{UIConstants.Icons.FileText} Ghi chú", 
+                DataPropertyName = "Note", 
+                Width = 300 
+            });
+            
+            dgvTransactions.Columns.Add(new DataGridViewButtonColumn 
+            { 
+                HeaderText = UIConstants.Icons.Eye, 
+                Width = 60, 
+                UseColumnTextForButtonValue = true, 
+                Text = UIConstants.Icons.Eye 
+            });
 
             dgvTransactions.CellDoubleClick += DgvTransactions_CellDoubleClick;
             dgvTransactions.CellClick += DgvTransactions_CellClick;
             dgvTransactions.CellFormatting += DgvTransactions_CellFormatting;
-            dgvTransactions.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgvTransactions.VisibleChanged += (s, e) =>
             {
                 if (this.Visible)
@@ -52,6 +115,21 @@ namespace WarehouseManagement.Views.Panels
             };
 
             Controls.Add(dgvTransactions);
+        }
+
+        private void OnThemeChanged(object sender, EventArgs e)
+        {
+            ApplyTheme();
+        }
+
+        private void ApplyTheme()
+        {
+            BackColor = ThemeManager.Instance.BackgroundDefault;
+            dgvTransactions.BackgroundColor = ThemeManager.Instance.BackgroundDefault;
+            dgvTransactions.DefaultCellStyle.BackColor = ThemeManager.Instance.BackgroundDefault;
+            dgvTransactions.DefaultCellStyle.ForeColor = ThemeManager.Instance.TextPrimary;
+            dgvTransactions.ColumnHeadersDefaultCellStyle.BackColor = ThemeManager.Instance.BackgroundLight;
+            dgvTransactions.ColumnHeadersDefaultCellStyle.ForeColor = ThemeManager.Instance.TextPrimary;
         }
 
         public void LoadData()
@@ -63,7 +141,8 @@ namespace WarehouseManagement.Views.Panels
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi tải giao dịch: " + ex.Message);
+                MessageBox.Show($"{UIConstants.Icons.Error} Lỗi tải giao dịch: {ex.Message}", "Lỗi", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -97,12 +176,14 @@ namespace WarehouseManagement.Views.Panels
                 }
                 else
                 {
-                    MessageBox.Show("Không tìm thấy giao dịch");
+                    MessageBox.Show($"{UIConstants.Icons.Error} Không tìm thấy giao dịch", "Lỗi", 
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi tải giao dịch: " + ex.Message);
+                MessageBox.Show($"{UIConstants.Icons.Error} Lỗi tải giao dịch: {ex.Message}", "Lỗi", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -116,8 +197,8 @@ namespace WarehouseManagement.Views.Panels
                 int transactionId = (int)dgvTransactions.Rows[e.RowIndex].Cells[0].Value;
                 
                 DialogResult result = MessageBox.Show(
-                    "Bạn chắc chắn muốn đảo trạng thái giao dịch này?",
-                    "Xác nhận đảo trạng thái",
+                    $"{UIConstants.Icons.Question} Bạn chắc chắn muốn đảo trạng thái giao dịch này?",
+                    "Xác nhận",
                     MessageBoxButtons.YesNo,
                     MessageBoxIcon.Question);
 
@@ -126,12 +207,14 @@ namespace WarehouseManagement.Views.Panels
                     try
                     {
                         _inventoryController.HideTransaction(transactionId);
-                        MessageBox.Show("Trạng thái giao dịch đã được thay đổi.");
+                        MessageBox.Show($"{UIConstants.Icons.Success} Trạng thái giao dịch đã được thay đổi.", "Thành công", 
+                            MessageBoxButtons.OK, MessageBoxIcon.Information);
                         LoadData();
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show("Lỗi ẩn giao dịch: " + ex.Message);
+                        MessageBox.Show($"{UIConstants.Icons.Error} Lỗi ẩn giao dịch: {ex.Message}", "Lỗi", 
+                            MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
                 return;
@@ -150,26 +233,49 @@ namespace WarehouseManagement.Views.Panels
                 }
                 else
                 {
-                    MessageBox.Show("Không tìm thấy giao dịch");
+                    MessageBox.Show($"{UIConstants.Icons.Error} Không tìm thấy giao dịch", "Lỗi", 
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi tải giao dịch: " + ex.Message);
+                MessageBox.Show($"{UIConstants.Icons.Error} Lỗi tải giao dịch: {ex.Message}", "Lỗi", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private void DgvTransactions_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {
-            // Format Type column to show Vietnamese names
+            // Format Type column to show Vietnamese names with icons
             if (e.ColumnIndex == 1 && dgvTransactions.Rows[e.RowIndex].DataBoundItem is StockTransaction transaction)
             {
                 if (e.Value != null)
                 {
-                    e.Value = transaction.Type == "Import" ? "Nhập" : transaction.Type == "Export" ? "Xuất" : transaction.Type;
+                    string icon = transaction.Type == "Import" ? UIConstants.Icons.Import : UIConstants.Icons.Export;
+                    string text = transaction.Type == "Import" ? "Nhập" : transaction.Type == "Export" ? "Xuất" : transaction.Type;
+                    e.Value = $"{icon} {text}";
                     e.FormattingApplied = true;
+                    
+                    // Set color based on type
+                    if (transaction.Type == "Import")
+                    {
+                        e.CellStyle.ForeColor = UIConstants.SemanticColors.Success;
+                    }
+                    else if (transaction.Type == "Export")
+                    {
+                        e.CellStyle.ForeColor = UIConstants.SemanticColors.Info;
+                    }
                 }
             }
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                ThemeManager.Instance.ThemeChanged -= OnThemeChanged;
+            }
+            base.Dispose(disposing);
         }
     }
 }

@@ -1,10 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using WarehouseManagement.Controllers;
 using WarehouseManagement.Models;
 using WarehouseManagement.Views.Forms;
+using WarehouseManagement.UI;
 
 namespace WarehouseManagement.Views.Panels
 {
@@ -19,11 +20,16 @@ namespace WarehouseManagement.Views.Panels
             _productController = new ProductController();
             InitializeComponent();
             SettingsForm.SettingsChanged += (s, e) => LoadData();
+            
+            // Subscribe to theme changes
+            ThemeManager.Instance.ThemeChanged += OnThemeChanged;
+            ApplyTheme();
         }
 
         private void InitializeComponent()
         {
             Dock = DockStyle.Fill;
+            BackColor = ThemeManager.Instance.BackgroundDefault;
 
             // DataGridView
             dgvProducts = new DataGridView
@@ -32,22 +38,108 @@ namespace WarehouseManagement.Views.Panels
                 AutoGenerateColumns = false,
                 AllowUserToAddRows = false,
                 ReadOnly = true,
-                BackgroundColor = Color.White
+                BackgroundColor = ThemeManager.Instance.BackgroundDefault,
+                BorderStyle = BorderStyle.None,
+                RowHeadersVisible = false,
+                SelectionMode = DataGridViewSelectionMode.FullRowSelect,
+                AllowUserToResizeRows = false,
+                Font = ThemeManager.Instance.FontRegular,
+                RowTemplate = { Height = UIConstants.Sizes.TableRowHeight },
+                ColumnHeadersHeight = UIConstants.Sizes.TableHeaderHeight,
+                ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle
+                {
+                    Font = ThemeManager.Instance.FontBold,
+                    BackColor = ThemeManager.Instance.BackgroundLight,
+                    ForeColor = ThemeManager.Instance.TextPrimary,
+                    Padding = new Padding(UIConstants.Spacing.Padding.Small)
+                }
             };
 
-            dgvProducts.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "ID", DataPropertyName = "ProductID", Width = 50 });
-            dgvProducts.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Tên Sản Phẩm", DataPropertyName = "ProductName", Width = 180 });
-            dgvProducts.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Danh Mục", DataPropertyName = "CategoryID", Width = 80 });
-            dgvProducts.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Giá", DataPropertyName = "Price", Width = 90, DefaultCellStyle = new DataGridViewCellStyle { Format = "N0", Alignment = DataGridViewContentAlignment.MiddleRight } });
-            dgvProducts.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Tồn Kho", DataPropertyName = "Quantity", Width = 80, DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleRight } });
-            dgvProducts.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Ngưỡng Min", DataPropertyName = "MinThreshold", Width = 80, DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleRight } });
-            dgvProducts.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Tổng Giá Trị", DataPropertyName = "InventoryValue", Width = 120, DefaultCellStyle = new DataGridViewCellStyle { Format = "N0", Alignment = DataGridViewContentAlignment.MiddleRight } });
-            dgvProducts.Columns.Add(new DataGridViewButtonColumn { HeaderText = "Ẩn", Width = 50, UseColumnTextForButtonValue = true, Text = "👁️" });
-            dgvProducts.Columns.Add(new DataGridViewButtonColumn { HeaderText = "Xóa", Width = 50, UseColumnTextForButtonValue = true, Text = "🗑️" });
+            dgvProducts.Columns.Add(new DataGridViewTextBoxColumn 
+            { 
+                HeaderText = "ID", 
+                DataPropertyName = "ProductID", 
+                Width = 50 
+            });
+            
+            dgvProducts.Columns.Add(new DataGridViewTextBoxColumn 
+            { 
+                HeaderText = $"{UIConstants.Icons.Product} Tên Sản Phẩm", 
+                DataPropertyName = "ProductName", 
+                Width = 200 
+            });
+            
+            dgvProducts.Columns.Add(new DataGridViewTextBoxColumn 
+            { 
+                HeaderText = $"{UIConstants.Icons.Category} Danh Mục", 
+                DataPropertyName = "CategoryID", 
+                Width = 80 
+            });
+            
+            dgvProducts.Columns.Add(new DataGridViewTextBoxColumn 
+            { 
+                HeaderText = $"{UIConstants.Icons.Money} Giá", 
+                DataPropertyName = "Price", 
+                Width = 110, 
+                DefaultCellStyle = new DataGridViewCellStyle 
+                { 
+                    Format = "N0", 
+                    Alignment = DataGridViewContentAlignment.MiddleRight 
+                } 
+            });
+            
+            dgvProducts.Columns.Add(new DataGridViewTextBoxColumn 
+            { 
+                HeaderText = $"{UIConstants.Icons.Package} Tồn Kho", 
+                DataPropertyName = "Quantity", 
+                Width = 90, 
+                DefaultCellStyle = new DataGridViewCellStyle 
+                { 
+                    Alignment = DataGridViewContentAlignment.MiddleRight 
+                } 
+            });
+            
+            dgvProducts.Columns.Add(new DataGridViewTextBoxColumn 
+            { 
+                HeaderText = $"{UIConstants.Icons.Warning} Ngưỡng Min", 
+                DataPropertyName = "MinThreshold", 
+                Width = 100, 
+                DefaultCellStyle = new DataGridViewCellStyle 
+                { 
+                    Alignment = DataGridViewContentAlignment.MiddleRight 
+                } 
+            });
+            
+            dgvProducts.Columns.Add(new DataGridViewTextBoxColumn 
+            { 
+                HeaderText = $"{UIConstants.Icons.Chart} Tổng Giá Trị", 
+                DataPropertyName = "InventoryValue", 
+                Width = 130, 
+                DefaultCellStyle = new DataGridViewCellStyle 
+                { 
+                    Format = "N0", 
+                    Alignment = DataGridViewContentAlignment.MiddleRight 
+                } 
+            });
+            
+            dgvProducts.Columns.Add(new DataGridViewButtonColumn 
+            { 
+                HeaderText = UIConstants.Icons.Eye, 
+                Width = 60, 
+                UseColumnTextForButtonValue = true, 
+                Text = UIConstants.Icons.Eye 
+            });
+            
+            dgvProducts.Columns.Add(new DataGridViewButtonColumn 
+            { 
+                HeaderText = UIConstants.Icons.Delete, 
+                Width = 60, 
+                UseColumnTextForButtonValue = true, 
+                Text = UIConstants.Icons.Delete 
+            });
 
             dgvProducts.CellFormatting += DgvProducts_CellFormatting;
             dgvProducts.CellClick += DgvProducts_CellClick;
-            dgvProducts.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgvProducts.VisibleChanged += (s, e) =>
             {
                 if (this.Visible)
@@ -55,6 +147,21 @@ namespace WarehouseManagement.Views.Panels
             };
 
             Controls.Add(dgvProducts);
+        }
+
+        private void OnThemeChanged(object sender, EventArgs e)
+        {
+            ApplyTheme();
+        }
+
+        private void ApplyTheme()
+        {
+            BackColor = ThemeManager.Instance.BackgroundDefault;
+            dgvProducts.BackgroundColor = ThemeManager.Instance.BackgroundDefault;
+            dgvProducts.DefaultCellStyle.BackColor = ThemeManager.Instance.BackgroundDefault;
+            dgvProducts.DefaultCellStyle.ForeColor = ThemeManager.Instance.TextPrimary;
+            dgvProducts.ColumnHeadersDefaultCellStyle.BackColor = ThemeManager.Instance.BackgroundLight;
+            dgvProducts.ColumnHeadersDefaultCellStyle.ForeColor = ThemeManager.Instance.TextPrimary;
         }
 
         public void LoadData()
@@ -66,7 +173,8 @@ namespace WarehouseManagement.Views.Panels
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi tải dữ liệu: " + ex.Message);
+                MessageBox.Show($"{UIConstants.Icons.Error} Lỗi tải dữ liệu: {ex.Message}", "Lỗi", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -87,13 +195,14 @@ namespace WarehouseManagement.Views.Panels
             {
                 if (product.IsLowStock)
                 {
-                    e.CellStyle.BackColor = Color.LightCoral;
-                    e.CellStyle.ForeColor = Color.DarkRed;
+                    e.CellStyle.BackColor = UIConstants.SemanticColors.Error;
+                    e.CellStyle.ForeColor = Color.White;
+                    e.CellStyle.Font = ThemeManager.Instance.FontBold;
                 }
                 else
                 {
-                    e.CellStyle.BackColor = Color.White;
-                    e.CellStyle.ForeColor = Color.Black;
+                    e.CellStyle.BackColor = ThemeManager.Instance.BackgroundDefault;
+                    e.CellStyle.ForeColor = ThemeManager.Instance.TextPrimary;
                 }
             }
         }
@@ -109,8 +218,8 @@ namespace WarehouseManagement.Views.Panels
                 string productName = dgvProducts.Rows[e.RowIndex].Cells[1].Value?.ToString() ?? "";
                 
                 DialogResult result = MessageBox.Show(
-                    $"Bạn chắc chắn muốn đảo trạng thái sản phẩm '{productName}'?",
-                    "Xác nhận đảo trạng thái",
+                    $"{UIConstants.Icons.Question} Bạn chắc chắn muốn đảo trạng thái sản phẩm '{productName}'?",
+                    "Xác nhận",
                     MessageBoxButtons.YesNo,
                     MessageBoxIcon.Question);
 
@@ -119,12 +228,14 @@ namespace WarehouseManagement.Views.Panels
                     try
                     {
                         _productController.HideProduct(productId);
-                        MessageBox.Show("Trạng thái sản phẩm đã được thay đổi.");
+                        MessageBox.Show($"{UIConstants.Icons.Success} Trạng thái sản phẩm đã được thay đổi.", "Thành công", 
+                            MessageBoxButtons.OK, MessageBoxIcon.Information);
                         LoadData();
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show("Lỗi ẩn sản phẩm: " + ex.Message);
+                        MessageBox.Show($"{UIConstants.Icons.Error} Lỗi ẩn sản phẩm: {ex.Message}", "Lỗi", 
+                            MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
                 return;
@@ -137,22 +248,24 @@ namespace WarehouseManagement.Views.Panels
                 string productName = dgvProducts.Rows[e.RowIndex].Cells[1].Value?.ToString() ?? "";
                 
                 DialogResult result = MessageBox.Show(
-                    $"Bạn chắc chắn muốn xóa sản phẩm '{productName}'?",
+                    $"{UIConstants.Icons.Warning} Bạn chắc chắn muốn xóa sản phẩm '{productName}'?",
                     "Xác nhận xóa",
                     MessageBoxButtons.YesNo,
-                    MessageBoxIcon.Question);
+                    MessageBoxIcon.Warning);
 
                 if (result == DialogResult.Yes)
                 {
                     try
                     {
                         _productController.DeleteProduct(productId);
-                        MessageBox.Show("Sản phẩm đã được xóa thành công.");
+                        MessageBox.Show($"{UIConstants.Icons.Success} Sản phẩm đã được xóa thành công.", "Thành công", 
+                            MessageBoxButtons.OK, MessageBoxIcon.Information);
                         LoadData();
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show("Lỗi xóa sản phẩm: " + ex.Message);
+                        MessageBox.Show($"{UIConstants.Icons.Error} Lỗi xóa sản phẩm: {ex.Message}", "Lỗi", 
+                            MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
                 return;
@@ -165,6 +278,15 @@ namespace WarehouseManagement.Views.Panels
             {
                 LoadData();
             }
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                ThemeManager.Instance.ThemeChanged -= OnThemeChanged;
+            }
+            base.Dispose(disposing);
         }
     }
 }

@@ -14,6 +14,7 @@ UI/
 │   ├── CustomTextBox.cs    - TextBox với border radius & placeholder
 │   ├── CustomComboBox.cs   - ComboBox với border radius
 │   ├── CustomTextArea.cs   - TextArea (multi-line) với border radius
+│   ├── CustomDateTimePicker.cs - DateTimePicker với border radius
 │   └── ComponentsTestPanel.cs - Panel test/preview components
 └── README.md              - File này
 ```
@@ -277,6 +278,30 @@ CustomTextArea area = new CustomTextArea
 - Placeholder
 - Apply theme
 
+### 6. CustomDateTimePicker
+
+DateTimePicker với border radius và custom format.
+
+```csharp
+CustomDateTimePicker dtp = new CustomDateTimePicker
+{
+    Width = 250,
+    Value = DateTime.Now,
+    CustomFormat = "dd/MM/yyyy",
+    BorderRadius = UIConstants.Borders.RadiusMedium
+};
+dtp.ValueChanged += (s, e) => {
+    // Handle date change
+};
+```
+
+**Features:**
+- Border radius
+- Custom format (date, datetime, time)
+- Focus state
+- Min/Max date
+- Apply theme
+
 ## 🧪 ComponentsTestPanel
 
 Panel để xem trước tất cả components.
@@ -318,6 +343,7 @@ Tất cả custom components tự động cập nhật khi theme thay đổi:
 - CustomTextBox
 - CustomComboBox
 - CustomTextArea
+- CustomDateTimePicker
 
 ## 📝 Best Practices
 

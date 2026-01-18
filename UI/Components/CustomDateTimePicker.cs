@@ -6,42 +6,36 @@ using System.Windows.Forms;
 namespace WarehouseManagement.UI.Components
 {
     /// <summary>
-    /// Custom TextArea (multi-line textbox) với border radius và theme support
+    /// Custom DateTimePicker với border radius và theme support
     /// </summary>
-    public class CustomTextArea : Control
+    public class CustomDateTimePicker : Control
     {
-        private TextBox _textBox;
+        private DateTimePicker _dateTimePicker;
         private int _borderRadius = UIConstants.Borders.RadiusMedium;
         private Color _borderColor = UIConstants.PrimaryColor.Default;
         private int _borderThickness = UIConstants.Borders.BorderThickness;
         private bool _isFocused = false;
-        private string _placeholder = "";
 
-        public CustomTextArea()
+        public CustomDateTimePicker()
         {
-            // Tạo TextBox bên trong
-            _textBox = new TextBox
+            // Tạo DateTimePicker bên trong - FLAT STYLE để không có border
+            _dateTimePicker = new DateTimePicker
             {
-                BorderStyle = BorderStyle.None,
-                Multiline = true,
-                Font = ThemeManager.Instance.FontRegular,
-                Location = new Point(UIConstants.Spacing.Padding.Medium, UIConstants.Spacing.Padding.Small + 2),
-                ScrollBars = ScrollBars.Vertical,
-                WordWrap = true
+                Format = DateTimePickerFormat.Custom,
+                CustomFormat = "dd/MM/yyyy",
+                Font = ThemeManager.Instance.FontRegular
             };
 
-            _textBox.TextChanged += (s, e) => OnTextChanged(e);
-            _textBox.Enter += (s, e) => { _isFocused = true; Invalidate(); };
-            _textBox.Leave += (s, e) => { _isFocused = false; Invalidate(); };
-            _textBox.GotFocus += TextBox_GotFocus;
-            _textBox.LostFocus += TextBox_LostFocus;
+            _dateTimePicker.ValueChanged += (s, e) => OnValueChanged(e);
+            _dateTimePicker.Enter += (s, e) => { _isFocused = true; Invalidate(); };
+            _dateTimePicker.Leave += (s, e) => { _isFocused = false; Invalidate(); };
 
             // Thiết lập control
-            Height = 100; // Default height for text area
+            Height = UIConstants.Sizes.InputHeight;
             Padding = UIConstants.Spacing.Padding.Input;
             Margin = UIConstants.Spacing.Margin.Input;
             
-            Controls.Add(_textBox);
+            Controls.Add(_dateTimePicker);
             
             // Subscribe theme changed
             ThemeManager.Instance.ThemeChanged += OnThemeChanged;
@@ -55,24 +49,26 @@ namespace WarehouseManagement.UI.Components
                      ControlStyles.ResizeRedraw | 
                      ControlStyles.SupportsTransparentBackColor, true);
 
-            UpdateTextBoxSize();
+            UpdateDateTimePickerSize();
         }
 
         // Properties
-        public override string Text
+        public DateTime Value
         {
-            get => _textBox.Text;
-            set => _textBox.Text = value;
+            get => _dateTimePicker.Value;
+            set => _dateTimePicker.Value = value;
         }
 
-        public string Placeholder
+        public DateTimePickerFormat Format
         {
-            get => _placeholder;
-            set
-            {
-                _placeholder = value;
-                UpdatePlaceholder();
-            }
+            get => _dateTimePicker.Format;
+            set => _dateTimePicker.Format = value;
+        }
+
+        public string CustomFormat
+        {
+            get => _dateTimePicker.CustomFormat;
+            set => _dateTimePicker.CustomFormat = value;
         }
 
         public int BorderRadius
@@ -105,28 +101,30 @@ namespace WarehouseManagement.UI.Components
             }
         }
 
-        public int MaxLength
+        public DateTime MinDate
         {
-            get => _textBox.MaxLength;
-            set => _textBox.MaxLength = value;
+            get => _dateTimePicker.MinDate;
+            set => _dateTimePicker.MinDate = value;
         }
 
-        public bool ReadOnly
+        public DateTime MaxDate
         {
-            get => _textBox.ReadOnly;
-            set => _textBox.ReadOnly = value;
+            get => _dateTimePicker.MaxDate;
+            set => _dateTimePicker.MaxDate = value;
         }
 
-        public bool WordWrap
+        public bool ShowUpDown
         {
-            get => _textBox.WordWrap;
-            set => _textBox.WordWrap = value;
+            get => _dateTimePicker.ShowUpDown;
+            set => _dateTimePicker.ShowUpDown = value;
         }
 
-        public ScrollBars ScrollBars
+        // Events
+        public event EventHandler ValueChanged;
+
+        protected virtual void OnValueChanged(EventArgs e)
         {
-            get => _textBox.ScrollBars;
-            set => _textBox.ScrollBars = value;
+            ValueChanged?.Invoke(this, e);
         }
 
         private void OnThemeChanged(object sender, EventArgs e)
@@ -137,51 +135,30 @@ namespace WarehouseManagement.UI.Components
         private void ApplyTheme()
         {
             BackColor = ThemeManager.Instance.BackgroundDefault;
-            _textBox.BackColor = ThemeManager.Instance.BackgroundDefault;
-            _textBox.ForeColor = ThemeManager.Instance.TextPrimary;
-            UpdatePlaceholder();
+            _dateTimePicker.BackColor = ThemeManager.Instance.BackgroundDefault;
+            _dateTimePicker.ForeColor = ThemeManager.Instance.TextPrimary;
             Invalidate();
-        }
-
-        private void UpdatePlaceholder()
-        {
-            if (!_isFocused && string.IsNullOrEmpty(_textBox.Text) && !string.IsNullOrEmpty(_placeholder))
-            {
-                _textBox.Text = _placeholder;
-                _textBox.ForeColor = ThemeManager.Instance.TextHint;
-            }
-        }
-
-        private void TextBox_GotFocus(object sender, EventArgs e)
-        {
-            if (_textBox.Text == _placeholder)
-            {
-                _textBox.Text = "";
-                _textBox.ForeColor = ThemeManager.Instance.TextPrimary;
-            }
-        }
-
-        private void TextBox_LostFocus(object sender, EventArgs e)
-        {
-            if (string.IsNullOrEmpty(_textBox.Text))
-            {
-                UpdatePlaceholder();
-            }
         }
 
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-            UpdateTextBoxSize();
+            UpdateDateTimePickerSize();
         }
 
-        private void UpdateTextBoxSize()
+        private void UpdateDateTimePickerSize()
         {
-            if (_textBox != null)
+            if (_dateTimePicker != null)
             {
-                _textBox.Size = new Size(
+                // Tính toán vị trí Y để center theo chiều dọc
+                int dtpHeight = _dateTimePicker.PreferredHeight;
+                int yPosition = (Height - dtpHeight) / 2;
+                
+                // Đặt DateTimePicker vừa khít trong container
+                _dateTimePicker.Location = new Point(UIConstants.Spacing.Padding.Medium, yPosition);
+                _dateTimePicker.Size = new Size(
                     Width - UIConstants.Spacing.Padding.Medium * 2,
-                    Height - UIConstants.Spacing.Padding.Small * 2 - 4
+                    dtpHeight
                 );
             }
         }
@@ -265,7 +242,7 @@ namespace WarehouseManagement.UI.Components
             if (disposing)
             {
                 ThemeManager.Instance.ThemeChanged -= OnThemeChanged;
-                _textBox?.Dispose();
+                _dateTimePicker?.Dispose();
             }
             base.Dispose(disposing);
         }

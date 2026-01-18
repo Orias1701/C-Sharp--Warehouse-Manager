@@ -56,6 +56,10 @@ namespace WarehouseManagement.UI.Components
             yPosition = AddSection(scrollContent, yPosition, "INPUTS - TextBox & ComboBox", CreateInputsSection());
             yPosition += sectionSpacing;
 
+            // ========== DATE TIME PICKER ==========
+            yPosition = AddSection(scrollContent, yPosition, "DATE TIME PICKER - Chọn ngày giờ", CreateDateTimePickerSection());
+            yPosition += sectionSpacing;
+
             // ========== TEXT AREA ==========
             yPosition = AddSection(scrollContent, yPosition, "TEXT AREA - Vùng văn bản", CreateTextAreaSection());
             yPosition += sectionSpacing;
@@ -762,6 +766,101 @@ namespace WarehouseManagement.UI.Components
             row2.Controls.Add(combo);
 
             panel.Controls.Add(row2);
+
+            return panel;
+        }
+
+        // ========== DATE TIME PICKER SECTION ==========
+        private Control CreateDateTimePickerSection()
+        {
+            FlowLayoutPanel panel = new FlowLayoutPanel
+            {
+                FlowDirection = FlowDirection.TopDown,
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                WrapContents = false
+            };
+
+            // DateTimePicker - Date format
+            FlowLayoutPanel row1 = new FlowLayoutPanel
+            {
+                FlowDirection = FlowDirection.LeftToRight,
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                Margin = new Padding(0, 5, 0, 5)
+            };
+
+            Label lbl1 = new Label
+            {
+                Text = "Date Format:",
+                Width = 150,
+                TextAlign = ContentAlignment.MiddleLeft
+            };
+            row1.Controls.Add(lbl1);
+
+            CustomDateTimePicker dtp1 = new CustomDateTimePicker
+            {
+                Width = 250,
+                Value = DateTime.Now,
+                CustomFormat = "dd/MM/yyyy"
+            };
+            row1.Controls.Add(dtp1);
+
+            panel.Controls.Add(row1);
+
+            // DateTimePicker - DateTime format
+            FlowLayoutPanel row2 = new FlowLayoutPanel
+            {
+                FlowDirection = FlowDirection.LeftToRight,
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                Margin = new Padding(0, 5, 0, 5)
+            };
+
+            Label lbl2 = new Label
+            {
+                Text = "DateTime Format:",
+                Width = 150,
+                TextAlign = ContentAlignment.MiddleLeft
+            };
+            row2.Controls.Add(lbl2);
+
+            CustomDateTimePicker dtp2 = new CustomDateTimePicker
+            {
+                Width = 250,
+                Value = DateTime.Now,
+                CustomFormat = "dd/MM/yyyy HH:mm"
+            };
+            row2.Controls.Add(dtp2);
+
+            panel.Controls.Add(row2);
+
+            // DateTimePicker - Time format
+            FlowLayoutPanel row3 = new FlowLayoutPanel
+            {
+                FlowDirection = FlowDirection.LeftToRight,
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                Margin = new Padding(0, 5, 0, 5)
+            };
+
+            Label lbl3 = new Label
+            {
+                Text = "Time Format:",
+                Width = 150,
+                TextAlign = ContentAlignment.MiddleLeft
+            };
+            row3.Controls.Add(lbl3);
+
+            CustomDateTimePicker dtp3 = new CustomDateTimePicker
+            {
+                Width = 250,
+                Value = DateTime.Now,
+                CustomFormat = "HH:mm:ss"
+            };
+            row3.Controls.Add(dtp3);
+
+            panel.Controls.Add(row3);
 
             return panel;
         }

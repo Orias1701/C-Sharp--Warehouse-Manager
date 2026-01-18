@@ -1,8 +1,10 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using WarehouseManagement.Services;
+using WarehouseManagement.UI;
+using WarehouseManagement.UI.Components;
 
 namespace WarehouseManagement.Views.Forms
 {
@@ -19,7 +21,8 @@ namespace WarehouseManagement.Views.Forms
         private List<decimal> imports;
         private List<decimal> exports;
         private decimal maxValue;
-        private DateTimePicker dtpAnchorDate;
+        private CustomDateTimePicker dtpAnchorDate;
+        private CustomButton btnExportReport;
 
         public TransactionReportForm()
         {
@@ -30,6 +33,9 @@ namespace WarehouseManagement.Views.Forms
             Console.WriteLine("[TransactionReportForm] Constructor started");
             InitializeComponent();
             Console.WriteLine("[TransactionReportForm] Constructor completed");
+            
+            // Apply theme
+            ThemeManager.Instance.ApplyThemeToForm(this);
         }
 
         private void InitializeComponent()
@@ -39,51 +45,55 @@ namespace WarehouseManagement.Views.Forms
                 Console.WriteLine("[INFO] InitializeComponent: Bắt đầu");
 
                 // Form settings
-                Text = "📊 Báo Cáo Nhập/Xuất";
+                Text = $"{UIConstants.Icons.Chart} Báo Cáo Nhập/Xuất";
                 Width = 1000;
                 Height = 700;
                 StartPosition = FormStartPosition.CenterParent;
                 MaximizeBox = true;
                 MinimizeBox = true;
+                BackColor = ThemeManager.Instance.BackgroundLight;
 
                 // Panel nút (trên cùng)
-                Panel buttonPanel = new Panel
+                CustomPanel buttonPanel = new CustomPanel
                 {
                     Dock = DockStyle.Top,
-                    Height = 60,
-                    BackColor = Color.LightGray,
-                    BorderStyle = BorderStyle.FixedSingle
+                    Height = 65,
+                    BackColor = ThemeManager.Instance.BackgroundLight,
+                    ShowBorder = false,
+                    Padding = new Padding(UIConstants.Spacing.Padding.Medium)
                 };
 
                 Label lblAnchorDate = new Label
                 {
-                    Text = "Chọn ngày:",
-                    Left = 10,
-                    Top = 10,
-                    Width = 70,
-                    Height = 20
+                    Text = $"{UIConstants.Icons.Calendar} Chọn ngày:",
+                    Left = 15,
+                    Top = 18,
+                    Width = 95,
+                    Height = 25,
+                    Font = ThemeManager.Instance.FontRegular,
+                    TextAlign = ContentAlignment.MiddleLeft
                 };
                 buttonPanel.Controls.Add(lblAnchorDate);
 
-                dtpAnchorDate = new DateTimePicker
+                dtpAnchorDate = new CustomDateTimePicker
                 {
-                    Left = 85,
-                    Top = 8,
-                    Width = 120,
-                    Height = 25,
+                    Left = 115,
+                    Top = 15,
+                    Width = 160,
                     Value = DateTime.Now,
-                    Format = DateTimePickerFormat.Short
+                    CustomFormat = "dd/MM/yyyy",
+                    BorderRadius = UIConstants.Borders.RadiusMedium
                 };
                 dtpAnchorDate.ValueChanged += (s, e) => LoadReport();
                 buttonPanel.Controls.Add(dtpAnchorDate);
 
-                Button btnExportReport = new Button
+                btnExportReport = new CustomButton
                 {
-                    Text = "📄 Xuất Báo Cáo",
-                    Left = 215,
-                    Top = 8,
-                    Width = 120,
-                    Height = 30
+                    Text = $"{UIConstants.Icons.Export} Xuất Báo Cáo",
+                    Left = 290,
+                    Top = 15,
+                    Width = 150,
+                    ButtonStyleType = ButtonStyle.FilledNoOutline
                 };
                 btnExportReport.Click += BtnExportReport_Click;
                 buttonPanel.Controls.Add(btnExportReport);
@@ -93,8 +103,8 @@ namespace WarehouseManagement.Views.Forms
                 {
                     Dock = DockStyle.Top,
                     Height = 350,
-                    BackColor = Color.White,
-                    BorderStyle = BorderStyle.Fixed3D
+                    BackColor = ThemeManager.Instance.BackgroundDefault,
+                    BorderStyle = BorderStyle.FixedSingle
                 };
                 pictureBox.Resize += PictureBox_Resize;
 
@@ -106,8 +116,10 @@ namespace WarehouseManagement.Views.Forms
                     ReadOnly = true,
                     AllowUserToAddRows = false,
                     AllowUserToDeleteRows = false,
-                    BackgroundColor = Color.White,
-                    BorderStyle = BorderStyle.Fixed3D
+                    BackgroundColor = ThemeManager.Instance.BackgroundDefault,
+                    BorderStyle = BorderStyle.FixedSingle,
+                    RowHeadersVisible = false,
+                    Font = ThemeManager.Instance.FontRegular
                 };
 
                 dgvReport.Columns.Add("Day", "Ngày");
@@ -125,7 +137,8 @@ namespace WarehouseManagement.Views.Forms
             catch (Exception ex)
             {
                 Console.WriteLine($"[ERROR] InitializeComponent: {ex.Message}");
-                MessageBox.Show($"Lỗi khởi tạo form: {ex.Message}");
+                MessageBox.Show($"{UIConstants.Icons.Error} Lỗi khởi tạo form: {ex.Message}", "Lỗi", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -155,12 +168,14 @@ namespace WarehouseManagement.Views.Forms
                     {
                         ExportToExcel(saveDialog.FileName);
                     }
-                    MessageBox.Show("Xuất báo cáo thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show($"{UIConstants.Icons.Success} Xuất báo cáo thành công!", "Thành công", 
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lỗi xuất báo cáo: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"{UIConstants.Icons.Error} Lỗi xuất báo cáo: {ex.Message}", "Lỗi", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -289,7 +304,8 @@ namespace WarehouseManagement.Views.Forms
             {
                 Console.WriteLine($"[ReportForm] LoadReport ERROR: {ex.Message}");
                 Console.WriteLine($"[ReportForm] {ex.StackTrace}");
-                MessageBox.Show($"Lỗi tải báo cáo: {ex.Message}");
+                MessageBox.Show($"{UIConstants.Icons.Error} Lỗi tải báo cáo: {ex.Message}", "Lỗi", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

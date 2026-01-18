@@ -81,7 +81,21 @@ CustomTextArea area = new CustomTextArea
 };
 ```
 
-### 6. Panel với Border Radius
+### 6. DateTimePicker
+
+```csharp
+CustomDateTimePicker dtp = new CustomDateTimePicker
+{
+    Width = 250,
+    Value = DateTime.Now,
+    CustomFormat = "dd/MM/yyyy"
+};
+dtp.ValueChanged += (s, e) => {
+    DateTime selected = dtp.Value;
+};
+```
+
+### 7. Panel với Border Radius
 
 ```csharp
 CustomPanel panel = new CustomPanel

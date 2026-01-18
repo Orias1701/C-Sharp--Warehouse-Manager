@@ -197,26 +197,32 @@ namespace WarehouseManagement.UI.Components
                 ? ThemeManager.Instance.PrimaryActive 
                 : _borderColor;
             
-            // Draw background with border radius
-            using (GraphicsPath path = GetRoundedRectanglePath(ClientRectangle, _borderRadius))
+            // Rectangle cho background
+            Rectangle bgRect = ClientRectangle;
+            
+            // Rectangle cho border (shrink để không bị clip)
+            Rectangle borderRect = new Rectangle(
+                ClientRectangle.X,
+                ClientRectangle.Y,
+                ClientRectangle.Width - 1,
+                ClientRectangle.Height - 1
+            );
+            
+            // Draw background
+            using (GraphicsPath bgPath = GetRoundedRectanglePath(bgRect, _borderRadius))
             {
-                // Fill background
                 using (SolidBrush brush = new SolidBrush(BackColor))
                 {
-                    g.FillPath(brush, path);
+                    g.FillPath(brush, bgPath);
                 }
-                
-                // Draw border
+            }
+            
+            // Draw border
+            using (GraphicsPath borderPath = GetRoundedRectanglePath(borderRect, _borderRadius))
+            {
                 using (Pen pen = new Pen(currentBorderColor, _borderThickness))
                 {
-                    Rectangle borderRect = ClientRectangle;
-                    borderRect.Width -= 1;
-                    borderRect.Height -= 1;
-                    
-                    using (GraphicsPath borderPath = GetRoundedRectanglePath(borderRect, _borderRadius))
-                    {
-                        g.DrawPath(pen, borderPath);
-                    }
+                    g.DrawPath(pen, borderPath);
                 }
             }
         }

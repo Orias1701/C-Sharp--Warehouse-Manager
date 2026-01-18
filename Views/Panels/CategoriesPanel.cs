@@ -1,10 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using WarehouseManagement.Controllers;
 using WarehouseManagement.Models;
 using WarehouseManagement.Views.Forms;
+using WarehouseManagement.UI;
 
 namespace WarehouseManagement.Views.Panels
 {
@@ -19,11 +20,16 @@ namespace WarehouseManagement.Views.Panels
             _categoryController = new CategoryController();
             InitializeComponent();
             SettingsForm.SettingsChanged += (s, e) => LoadData();
+            
+            // Subscribe to theme changes
+            ThemeManager.Instance.ThemeChanged += OnThemeChanged;
+            ApplyTheme();
         }
 
         private void InitializeComponent()
         {
             Dock = DockStyle.Fill;
+            BackColor = ThemeManager.Instance.BackgroundDefault;
 
             // DataGridView
             dgvCategories = new DataGridView
@@ -32,14 +38,59 @@ namespace WarehouseManagement.Views.Panels
                 AutoGenerateColumns = false,
                 AllowUserToAddRows = false,
                 ReadOnly = true,
-                BackgroundColor = Color.White
+                BackgroundColor = ThemeManager.Instance.BackgroundDefault,
+                BorderStyle = BorderStyle.None,
+                RowHeadersVisible = false,
+                SelectionMode = DataGridViewSelectionMode.FullRowSelect,
+                AllowUserToResizeRows = false,
+                Font = ThemeManager.Instance.FontRegular,
+                RowTemplate = { Height = UIConstants.Sizes.TableRowHeight },
+                ColumnHeadersHeight = UIConstants.Sizes.TableHeaderHeight,
+                ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle
+                {
+                    Font = ThemeManager.Instance.FontBold,
+                    BackColor = ThemeManager.Instance.BackgroundLight,
+                    ForeColor = ThemeManager.Instance.TextPrimary,
+                    Padding = new Padding(UIConstants.Spacing.Padding.Small)
+                }
             };
 
-            dgvCategories.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "ID", DataPropertyName = "CategoryID", Width = 50 });
-            dgvCategories.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Tên Danh Mục", DataPropertyName = "CategoryName", Width = 200 });
-            dgvCategories.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Mô Tả", DataPropertyName = "Description", Width = 300 });
-            dgvCategories.Columns.Add(new DataGridViewButtonColumn { HeaderText = "Ẩn", Width = 50, UseColumnTextForButtonValue = true, Text = "👁️" });
-            dgvCategories.Columns.Add(new DataGridViewButtonColumn { HeaderText = "Xóa", Width = 50, UseColumnTextForButtonValue = true, Text = "🗑️" });
+            dgvCategories.Columns.Add(new DataGridViewTextBoxColumn 
+            { 
+                HeaderText = "ID", 
+                DataPropertyName = "CategoryID", 
+                Width = 60 
+            });
+            
+            dgvCategories.Columns.Add(new DataGridViewTextBoxColumn 
+            { 
+                HeaderText = $"{UIConstants.Icons.Category} Tên Danh Mục", 
+                DataPropertyName = "CategoryName", 
+                Width = 250 
+            });
+            
+            dgvCategories.Columns.Add(new DataGridViewTextBoxColumn 
+            { 
+                HeaderText = $"{UIConstants.Icons.FileText} Mô Tả", 
+                DataPropertyName = "Description", 
+                Width = 400 
+            });
+            
+            dgvCategories.Columns.Add(new DataGridViewButtonColumn 
+            { 
+                HeaderText = UIConstants.Icons.Eye, 
+                Width = 60, 
+                UseColumnTextForButtonValue = true, 
+                Text = UIConstants.Icons.Eye 
+            });
+            
+            dgvCategories.Columns.Add(new DataGridViewButtonColumn 
+            { 
+                HeaderText = UIConstants.Icons.Delete, 
+                Width = 60, 
+                UseColumnTextForButtonValue = true, 
+                Text = UIConstants.Icons.Delete 
+            });
 
             dgvCategories.CellClick += DgvCategories_CellClick;
             dgvCategories.VisibleChanged += (s, e) =>
@@ -47,9 +98,23 @@ namespace WarehouseManagement.Views.Panels
                 if (this.Visible)
                     LoadData();
             };
-            dgvCategories.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
 
             Controls.Add(dgvCategories);
+        }
+
+        private void OnThemeChanged(object sender, EventArgs e)
+        {
+            ApplyTheme();
+        }
+
+        private void ApplyTheme()
+        {
+            BackColor = ThemeManager.Instance.BackgroundDefault;
+            dgvCategories.BackgroundColor = ThemeManager.Instance.BackgroundDefault;
+            dgvCategories.DefaultCellStyle.BackColor = ThemeManager.Instance.BackgroundDefault;
+            dgvCategories.DefaultCellStyle.ForeColor = ThemeManager.Instance.TextPrimary;
+            dgvCategories.ColumnHeadersDefaultCellStyle.BackColor = ThemeManager.Instance.BackgroundLight;
+            dgvCategories.ColumnHeadersDefaultCellStyle.ForeColor = ThemeManager.Instance.TextPrimary;
         }
 
         public void LoadData()
@@ -62,7 +127,8 @@ namespace WarehouseManagement.Views.Panels
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi tải danh mục: " + ex.Message);
+                MessageBox.Show($"{UIConstants.Icons.Error} Lỗi tải danh mục: {ex.Message}", "Lỗi", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -88,8 +154,8 @@ namespace WarehouseManagement.Views.Panels
             if (e.ColumnIndex == 3)
             {
                 DialogResult result = MessageBox.Show(
-                    $"Bạn chắc chắn muốn đảo trạng thái danh mục '{categoryName}'?",
-                    "Xác nhận đảo trạng thái",
+                    $"{UIConstants.Icons.Question} Bạn chắc chắn muốn đảo trạng thái danh mục '{categoryName}'?",
+                    "Xác nhận",
                     MessageBoxButtons.YesNo,
                     MessageBoxIcon.Question);
 
@@ -98,12 +164,14 @@ namespace WarehouseManagement.Views.Panels
                     try
                     {
                         _categoryController.HideCategory(categoryId);
-                        MessageBox.Show("Trạng thái danh mục đã được thay đổi.");
+                        MessageBox.Show($"{UIConstants.Icons.Success} Trạng thái danh mục đã được thay đổi.", "Thành công", 
+                            MessageBoxButtons.OK, MessageBoxIcon.Information);
                         LoadData();
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show("Lỗi ẩn danh mục: " + ex.Message);
+                        MessageBox.Show($"{UIConstants.Icons.Error} Lỗi ẩn danh mục: {ex.Message}", "Lỗi", 
+                            MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
                 return;
@@ -113,22 +181,24 @@ namespace WarehouseManagement.Views.Panels
             if (e.ColumnIndex == 4)
             {
                 DialogResult result = MessageBox.Show(
-                    $"Bạn chắc chắn muốn xóa danh mục '{categoryName}'?",
+                    $"{UIConstants.Icons.Warning} Bạn chắc chắn muốn xóa danh mục '{categoryName}'?",
                     "Xác nhận xóa",
                     MessageBoxButtons.YesNo,
-                    MessageBoxIcon.Question);
+                    MessageBoxIcon.Warning);
 
                 if (result == DialogResult.Yes)
                 {
                     try
                     {
                         _categoryController.DeleteCategory(categoryId);
-                        MessageBox.Show("Danh mục đã được xóa thành công.");
+                        MessageBox.Show($"{UIConstants.Icons.Success} Danh mục đã được xóa thành công.", "Thành công", 
+                            MessageBoxButtons.OK, MessageBoxIcon.Information);
                         LoadData();
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show("Lỗi xóa danh mục: " + ex.Message);
+                        MessageBox.Show($"{UIConstants.Icons.Error} Lỗi xóa danh mục: {ex.Message}", "Lỗi", 
+                            MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
                 return;
@@ -141,6 +211,15 @@ namespace WarehouseManagement.Views.Panels
                 LoadData();
             }
             dgvCategories.Rows[e.RowIndex].Selected = true;
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                ThemeManager.Instance.ThemeChanged -= OnThemeChanged;
+            }
+            base.Dispose(disposing);
         }
     }
 }

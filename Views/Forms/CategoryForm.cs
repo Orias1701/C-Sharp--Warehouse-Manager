@@ -1,8 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+using System;
+using System.Drawing;
 using System.Windows.Forms;
 using WarehouseManagement.Controllers;
 using WarehouseManagement.Models;
+using WarehouseManagement.UI;
+using WarehouseManagement.UI.Components;
 
 namespace WarehouseManagement.Views.Forms
 {
@@ -13,61 +15,126 @@ namespace WarehouseManagement.Views.Forms
     {
         private CategoryController _categoryController;
         private int? _categoryId = null;
-        private TextBox txtCategoryName;
-        private TextBox txtCategoryDesc;
-        private Button btnSave, btnCancel;
+        private CustomTextBox txtCategoryName;
+        private CustomTextArea txtCategoryDesc;
+        private CustomButton btnSave, btnCancel;
 
         public CategoryForm(int? categoryId = null)
         {
             _categoryId = categoryId;
             _categoryController = new CategoryController();
             InitializeComponent();
-            Text = categoryId.HasValue ? "Sửa danh mục" : "Thêm danh mục";
+            Text = categoryId.HasValue 
+                ? $"{UIConstants.Icons.Edit} Sửa danh mục" 
+                : $"{UIConstants.Icons.Add} Thêm danh mục";
+            
+            // Apply theme
+            ThemeManager.Instance.ApplyThemeToForm(this);
         }
 
         private void InitializeComponent()
         {
             SuspendLayout();
 
-            // Layout standard: Label 100px, Input 300px, spacing 35px
-            const int LABEL_WIDTH = 100;
-            const int INPUT_WIDTH = 300;
-            const int LABEL_LEFT = 20;
-            const int INPUT_LEFT = 130;
-            // const int ITEM_SPACING = 35;
-            const int BUTTON_WIDTH = 100;
-            const int BUTTON_HEIGHT = 35;
+            // Main container
+            CustomPanel mainPanel = new CustomPanel
+            {
+                Dock = DockStyle.Fill,
+                BorderRadius = UIConstants.Borders.RadiusLarge,
+                ShowBorder = false,
+                Padding = new Padding(UIConstants.Spacing.Padding.XLarge)
+            };
 
-            // Labels và TextBoxes
-            Label lblCategoryName = new Label { Text = "Tên danh mục:", Left = LABEL_LEFT, Top = 20, Width = LABEL_WIDTH, AutoSize = false, TextAlign = System.Drawing.ContentAlignment.MiddleLeft };
-            txtCategoryName = new TextBox { Left = INPUT_LEFT, Top = 20, Width = INPUT_WIDTH, Height = 25 };
+            // Layout
+            const int LABEL_WIDTH = 110;
+            const int INPUT_WIDTH = 350;
+            const int LEFT_MARGIN = 20;
+            int currentY = 20;
 
-            Label lblCategoryDesc = new Label { Text = "Mô tả:", Left = LABEL_LEFT, Top = 60, Width = LABEL_WIDTH, AutoSize = false, TextAlign = System.Drawing.ContentAlignment.MiddleLeft };
-            txtCategoryDesc = new TextBox { Left = INPUT_LEFT, Top = 60, Width = INPUT_WIDTH, Height = 60, Multiline = true, ScrollBars = ScrollBars.Vertical };
+            // Category Name
+            Label lblCategoryName = new Label 
+            { 
+                Text = $"{UIConstants.Icons.Tag} Tên danh mục:", 
+                Left = LEFT_MARGIN, 
+                Top = currentY, 
+                Width = LABEL_WIDTH,
+                Font = ThemeManager.Instance.FontRegular,
+                TextAlign = ContentAlignment.MiddleLeft
+            };
+            currentY += 25;
 
-            btnSave = new Button { Text = "💾 Lưu", Left = INPUT_LEFT, Top = 130, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT };
-            btnCancel = new Button { Text = "❌ Hủy", Left = INPUT_LEFT + BUTTON_WIDTH + 15, Top = 130, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT, CausesValidation = false };
+            txtCategoryName = new CustomTextBox 
+            { 
+                Left = LEFT_MARGIN, 
+                Top = currentY, 
+                Width = INPUT_WIDTH,
+                Placeholder = "Nhập tên danh mục..."
+            };
+            currentY += UIConstants.Sizes.InputHeight + UIConstants.Spacing.Margin.Large;
+
+            // Category Description
+            Label lblCategoryDesc = new Label 
+            { 
+                Text = $"{UIConstants.Icons.FileText} Mô tả:", 
+                Left = LEFT_MARGIN, 
+                Top = currentY, 
+                Width = LABEL_WIDTH,
+                Font = ThemeManager.Instance.FontRegular,
+                TextAlign = ContentAlignment.MiddleLeft
+            };
+            currentY += 25;
+
+            txtCategoryDesc = new CustomTextArea 
+            { 
+                Left = LEFT_MARGIN, 
+                Top = currentY, 
+                Width = INPUT_WIDTH, 
+                Height = 90,
+                Placeholder = "Nhập mô tả (không bắt buộc)..."
+            };
+            currentY += 90 + UIConstants.Spacing.Margin.XLarge;
+
+            // Buttons
+            btnSave = new CustomButton 
+            { 
+                Text = $"{UIConstants.Icons.Save} Lưu", 
+                Left = LEFT_MARGIN, 
+                Top = currentY, 
+                Width = 120,
+                ButtonStyleType = ButtonStyle.FilledNoOutline
+            };
+
+            btnCancel = new CustomButton 
+            { 
+                Text = $"{UIConstants.Icons.Cancel} Hủy", 
+                Left = LEFT_MARGIN + 120 + UIConstants.Spacing.Margin.Medium, 
+                Top = currentY, 
+                Width = 120,
+                ButtonStyleType = ButtonStyle.Outlined,
+                CausesValidation = false
+            };
 
             btnSave.Click += BtnSave_Click;
             btnCancel.Click += BtnCancel_Click;
 
-            Controls.Add(lblCategoryName);
-            Controls.Add(txtCategoryName);
-            Controls.Add(lblCategoryDesc);
-            Controls.Add(txtCategoryDesc);
-            Controls.Add(btnSave);
-            Controls.Add(btnCancel);
+            mainPanel.Controls.Add(lblCategoryName);
+            mainPanel.Controls.Add(txtCategoryName);
+            mainPanel.Controls.Add(lblCategoryDesc);
+            mainPanel.Controls.Add(txtCategoryDesc);
+            mainPanel.Controls.Add(btnSave);
+            mainPanel.Controls.Add(btnCancel);
 
-            Width = 480;
-            Height = 230;
+            Controls.Add(mainPanel);
+
+            ClientSize = new Size(510, 300);
             StartPosition = FormStartPosition.CenterParent;
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false;
             MinimizeBox = false;
-            Padding = new Padding(10);
+            BackColor = ThemeManager.Instance.BackgroundLight;
 
             Load += CategoryForm_Load;
-            ResumeLayout(true);
+            ResumeLayout(false);
         }
 
         private void CategoryForm_Load(object sender, EventArgs e)
@@ -91,36 +158,27 @@ namespace WarehouseManagement.Views.Forms
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi: " + ex.Message);
+                MessageBox.Show($"{UIConstants.Icons.Error} Lỗi: {ex.Message}", "Lỗi", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        /// <summary>
-        /// Nút Lưu
-        /// </suHủy
-        /// </summary>
-        private void BtnCancel_Click(object sender, EventArgs e)
-        {
-            DialogResult = DialogResult.Cancel;
-            Close();
-        }
-
-        /// <summary>
-        /// Nút mmary>
         private void BtnSave_Click(object sender, EventArgs e)
         {
             // Frontend validation
             string categoryName = txtCategoryName.Text.Trim();
             if (string.IsNullOrWhiteSpace(categoryName))
             {
-                MessageBox.Show("❌ Vui lòng nhập tên danh mục");
+                MessageBox.Show($"{UIConstants.Icons.Warning} Vui lòng nhập tên danh mục", "Cảnh báo", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 txtCategoryName.Focus();
                 return;
             }
 
             if (categoryName.Length > 100)
             {
-                MessageBox.Show("❌ Tên danh mục không được vượt quá 100 ký tự");
+                MessageBox.Show($"{UIConstants.Icons.Warning} Tên danh mục không được vượt quá 100 ký tự", "Cảnh báo", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 txtCategoryName.Focus();
                 return;
             }
@@ -129,22 +187,30 @@ namespace WarehouseManagement.Views.Forms
             {
                 if (_categoryId.HasValue)
                 {
-                    // Update: cần thêm UpdateCategory với description
                     _categoryController.UpdateCategory(_categoryId.Value, categoryName);
-                    MessageBox.Show("Cập nhật danh mục thành công!");
+                    MessageBox.Show($"{UIConstants.Icons.Success} Cập nhật danh mục thành công!", "Thành công", 
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 else
                 {
                     _categoryController.CreateCategory(categoryName);
-                    MessageBox.Show("Thêm danh mục thành công!");
+                    MessageBox.Show($"{UIConstants.Icons.Success} Thêm danh mục thành công!", "Thành công", 
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 DialogResult = DialogResult.OK;
                 Close();
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi: " + ex.Message);
+                MessageBox.Show($"{UIConstants.Icons.Error} Lỗi: {ex.Message}", "Lỗi", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private void BtnCancel_Click(object sender, EventArgs e)
+        {
+            DialogResult = DialogResult.Cancel;
+            Close();
         }
     }
 }

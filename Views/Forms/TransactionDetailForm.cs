@@ -1,7 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+using System;
+using System.Drawing;
 using System.Windows.Forms;
 using WarehouseManagement.Models;
+using WarehouseManagement.UI;
+using WarehouseManagement.UI.Components;
 
 namespace WarehouseManagement.Views.Forms
 {
@@ -13,77 +15,183 @@ namespace WarehouseManagement.Views.Forms
         private StockTransaction _transaction;
         private Label lblType, lblDate, lblNote;
         private DataGridView dgvDetails;
-        private Button btnClose;
+        private CustomButton btnClose;
 
         public TransactionDetailForm(StockTransaction transaction)
         {
             InitializeComponent();
             _transaction = transaction;
-            Text = $"Chi Tiết Giao Dịch #{transaction.TransactionID}";
+            Text = $"{UIConstants.Icons.FileText} Chi Tiết Giao Dịch #{transaction.TransactionID}";
+            
+            // Apply theme
+            ThemeManager.Instance.ApplyThemeToForm(this);
         }
 
         private void InitializeComponent()
         {
             SuspendLayout();
 
-            // Layout standard: Label 100px, Input 300px, spacing 20px
-            const int LABEL_WIDTH = 100;
-            const int INPUT_WIDTH = 300;
-            const int LABEL_LEFT = 20;
-            const int INPUT_LEFT = 130;
-            const int ITEM_SPACING = 40;
-            const int BUTTON_WIDTH = 100;
-            const int BUTTON_HEIGHT = 35;
-
-            // Labels và controls (Read-only)
-            Label lblTypeLabel = new Label { Text = "Loại Giao Dịch:", Left = LABEL_LEFT, Top = 20, Width = LABEL_WIDTH, AutoSize = false, TextAlign = System.Drawing.ContentAlignment.MiddleLeft };
-            lblType = new Label { Left = INPUT_LEFT, Top = 20, Width = INPUT_WIDTH, Height = 25, AutoSize = false, TextAlign = System.Drawing.ContentAlignment.MiddleLeft, BorderStyle = BorderStyle.FixedSingle, BackColor = System.Drawing.Color.White };
-
-            Label lblDateLabel = new Label { Text = "Ngày Tạo:", Left = LABEL_LEFT, Top = 20 + ITEM_SPACING, Width = LABEL_WIDTH, AutoSize = false, TextAlign = System.Drawing.ContentAlignment.MiddleLeft };
-            lblDate = new Label { Left = INPUT_LEFT, Top = 20 + ITEM_SPACING, Width = INPUT_WIDTH, Height = 25, AutoSize = false, TextAlign = System.Drawing.ContentAlignment.MiddleLeft, BorderStyle = BorderStyle.FixedSingle, BackColor = System.Drawing.Color.White };
-
-            Label lblNoteLabel = new Label { Text = "Ghi Chú:", Left = LABEL_LEFT, Top = 20 + ITEM_SPACING * 2, Width = LABEL_WIDTH, AutoSize = false, TextAlign = System.Drawing.ContentAlignment.TopLeft };
-            lblNote = new Label { Left = INPUT_LEFT, Top = 20 + ITEM_SPACING * 2, Width = INPUT_WIDTH, Height = 50, AutoSize = false, TextAlign = System.Drawing.ContentAlignment.TopLeft, BorderStyle = BorderStyle.FixedSingle, BackColor = System.Drawing.Color.White, Padding = new Padding(5) };
-
-            // DataGridView - Read-only
-            dgvDetails = new DataGridView
+            // Main container
+            CustomPanel mainPanel = new CustomPanel
             {
-                Left = LABEL_LEFT,
-                Top = 20 + ITEM_SPACING * 3 + 30,
-                Width = 520,
-                Height = 180,
-                AutoGenerateColumns = false,
-                AllowUserToAddRows = false,
-                ReadOnly = true
+                Dock = DockStyle.Fill,
+                BorderRadius = UIConstants.Borders.RadiusLarge,
+                ShowBorder = false,
+                Padding = new Padding(UIConstants.Spacing.Padding.Large)
             };
 
-            dgvDetails.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Sản phẩm", DataPropertyName = "ProductName", Width = 250 });
-            dgvDetails.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Số lượng", DataPropertyName = "Quantity", Width = 80 });
-            dgvDetails.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Đơn giá", DataPropertyName = "UnitPrice", Width = 140, DefaultCellStyle = new DataGridViewCellStyle { Format = "N0" } });
-            dgvDetails.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Thành tiền", DataPropertyName = "TotalPrice", Width = 140, DefaultCellStyle = new DataGridViewCellStyle { Format = "N0" } });
+            const int LEFT_MARGIN = 20;
+            const int LABEL_WIDTH = 110;
+            const int VALUE_WIDTH = 400;
+            int currentY = 20;
+            int spacing = UIConstants.Spacing.Margin.Medium;
 
-            // Nút đóng
-            btnClose = new Button { Text = "✖️ Đóng", Left = INPUT_LEFT, Top = 20 + ITEM_SPACING * 4 + 220, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT };
+            // Transaction Type
+            Label lblTypeLabel = new Label 
+            { 
+                Text = $"{UIConstants.Icons.Transaction} Loại Giao Dịch:", 
+                Left = LEFT_MARGIN, 
+                Top = currentY, 
+                Width = LABEL_WIDTH,
+                Font = ThemeManager.Instance.FontRegular,
+                TextAlign = ContentAlignment.MiddleLeft
+            };
+            currentY += 25;
+
+            lblType = new Label 
+            { 
+                Left = LEFT_MARGIN, 
+                Top = currentY, 
+                Width = VALUE_WIDTH, 
+                Height = 30,
+                AutoSize = false, 
+                TextAlign = ContentAlignment.MiddleLeft, 
+                BorderStyle = BorderStyle.FixedSingle, 
+                BackColor = ThemeManager.Instance.BackgroundLight,
+                Padding = new Padding(UIConstants.Spacing.Padding.Small),
+                Font = ThemeManager.Instance.FontRegular
+            };
+            currentY += 30 + spacing;
+
+            // Date
+            Label lblDateLabel = new Label 
+            { 
+                Text = $"{UIConstants.Icons.Calendar} Ngày Tạo:", 
+                Left = LEFT_MARGIN, 
+                Top = currentY, 
+                Width = LABEL_WIDTH,
+                Font = ThemeManager.Instance.FontRegular,
+                TextAlign = ContentAlignment.MiddleLeft
+            };
+            currentY += 25;
+
+            lblDate = new Label 
+            { 
+                Left = LEFT_MARGIN, 
+                Top = currentY, 
+                Width = VALUE_WIDTH, 
+                Height = 30,
+                AutoSize = false, 
+                TextAlign = ContentAlignment.MiddleLeft, 
+                BorderStyle = BorderStyle.FixedSingle, 
+                BackColor = ThemeManager.Instance.BackgroundLight,
+                Padding = new Padding(UIConstants.Spacing.Padding.Small),
+                Font = ThemeManager.Instance.FontRegular
+            };
+            currentY += 30 + spacing;
+
+            // Note
+            Label lblNoteLabel = new Label 
+            { 
+                Text = $"{UIConstants.Icons.FileText} Ghi Chú:", 
+                Left = LEFT_MARGIN, 
+                Top = currentY, 
+                Width = LABEL_WIDTH,
+                Font = ThemeManager.Instance.FontRegular,
+                TextAlign = ContentAlignment.TopLeft
+            };
+            currentY += 25;
+
+            lblNote = new Label 
+            { 
+                Left = LEFT_MARGIN, 
+                Top = currentY, 
+                Width = VALUE_WIDTH, 
+                Height = 60,
+                AutoSize = false, 
+                TextAlign = ContentAlignment.TopLeft, 
+                BorderStyle = BorderStyle.FixedSingle, 
+                BackColor = ThemeManager.Instance.BackgroundLight,
+                Padding = new Padding(UIConstants.Spacing.Padding.Small),
+                Font = ThemeManager.Instance.FontRegular
+            };
+            currentY += 60 + spacing + 10;
+
+            // DataGridView title
+            Label lblDetailsTitle = new Label
+            {
+                Text = $"{UIConstants.Icons.List} Chi Tiết Sản Phẩm:",
+                Left = LEFT_MARGIN,
+                Top = currentY,
+                Width = 200,
+                Font = ThemeManager.Instance.FontBold
+            };
+            currentY += 25;
+
+            // DataGridView
+            dgvDetails = new DataGridView
+            {
+                Left = LEFT_MARGIN,
+                Top = currentY,
+                Width = 520,
+                Height = 200,
+                AutoGenerateColumns = false,
+                AllowUserToAddRows = false,
+                ReadOnly = true,
+                BackgroundColor = ThemeManager.Instance.BackgroundDefault,
+                BorderStyle = BorderStyle.FixedSingle,
+                RowHeadersVisible = false,
+                AllowUserToResizeRows = false
+            };
+
+            dgvDetails.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Sản phẩm", DataPropertyName = "ProductName", Width = 200 });
+            dgvDetails.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Số lượng", DataPropertyName = "Quantity", Width = 90 });
+            dgvDetails.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Đơn giá", DataPropertyName = "UnitPrice", Width = 110, DefaultCellStyle = new DataGridViewCellStyle { Format = "N0" } });
+            dgvDetails.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Thành tiền", DataPropertyName = "TotalPrice", Width = 110, DefaultCellStyle = new DataGridViewCellStyle { Format = "N0" } });
+            currentY += 200 + UIConstants.Spacing.Margin.Large;
+
+            // Close button
+            btnClose = new CustomButton 
+            { 
+                Text = $"{UIConstants.Icons.Close} Đóng", 
+                Left = LEFT_MARGIN, 
+                Top = currentY, 
+                Width = 120,
+                ButtonStyleType = ButtonStyle.FilledNoOutline
+            };
             btnClose.Click += (s, e) => {
                 DialogResult = DialogResult.OK;
                 Close();
             };
 
-            Controls.Add(lblTypeLabel);
-            Controls.Add(lblType);
-            Controls.Add(lblDateLabel);
-            Controls.Add(lblDate);
-            Controls.Add(lblNoteLabel);
-            Controls.Add(lblNote);
-            Controls.Add(btnClose);
-            Controls.Add(dgvDetails);
+            mainPanel.Controls.Add(lblTypeLabel);
+            mainPanel.Controls.Add(lblType);
+            mainPanel.Controls.Add(lblDateLabel);
+            mainPanel.Controls.Add(lblDate);
+            mainPanel.Controls.Add(lblNoteLabel);
+            mainPanel.Controls.Add(lblNote);
+            mainPanel.Controls.Add(lblDetailsTitle);
+            mainPanel.Controls.Add(dgvDetails);
+            mainPanel.Controls.Add(btnClose);
 
-            Width = 600;
-            Height = 580;
+            Controls.Add(mainPanel);
+
+            ClientSize = new Size(620, 600);
             StartPosition = FormStartPosition.CenterParent;
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false;
             MinimizeBox = false;
+            BackColor = ThemeManager.Instance.BackgroundLight;
 
             Load += TransactionDetailForm_Load;
             ResumeLayout(false);
@@ -94,22 +202,21 @@ namespace WarehouseManagement.Views.Forms
             try
             {
                 // Set các giá trị cho label
-                lblType.Text = _transaction.Type;
-                lblDate.Text = _transaction.DateCreated.ToString("dd/MM/yyyy HH:mm");
-                lblNote.Text = _transaction.Note ?? "";
+                string typeIcon = _transaction.Type == "Import" ? UIConstants.Icons.Import : UIConstants.Icons.Export;
+                lblType.Text = $"{typeIcon} {_transaction.Type}";
+                lblDate.Text = $"{UIConstants.Icons.Clock} {_transaction.DateCreated:dd/MM/yyyy HH:mm}";
+                lblNote.Text = _transaction.Note ?? "(Không có ghi chú)";
                 
                 // Hiển thị chi tiết giao dịch
                 if (_transaction.Details != null && _transaction.Details.Count > 0)
                 {
                     dgvDetails.DataSource = _transaction.Details;
                 }
-                else
-                {
-                }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi tải chi tiết giao dịch: " + ex.Message);
+                MessageBox.Show($"{UIConstants.Icons.Error} Lỗi tải chi tiết giao dịch: {ex.Message}", "Lỗi", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }

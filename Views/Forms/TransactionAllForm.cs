@@ -68,7 +68,7 @@ namespace WarehouseManagement.Views.Forms
             {
                 Dock = DockStyle.Fill,
                 BackColor = ThemeManager.Instance.BackgroundLight,
-                Padding = new Padding(UIConstants.Spacing.Padding.Large)
+                Padding = new Padding(0)
             };
 
             InitializeFormContent();
@@ -89,7 +89,7 @@ namespace WarehouseManagement.Views.Forms
 
         private void InitializeFormContent()
         {
-            const int LEFT_MARGIN = 20;
+            const int LEFT_MARGIN = 40;
             int currentY = 20;
             int spacing = UIConstants.Spacing.Margin.Medium;
 

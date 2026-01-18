@@ -13,7 +13,8 @@ namespace WarehouseManagement.Views.Forms
     public partial class TransactionDetailForm : Form
     {
         private StockTransaction _transaction;
-        private Label lblType, lblDate, lblNote;
+        private CustomTextBox txtTransactionID, txtType, txtDate, txtTotalValue, txtCreatedBy;
+        private CustomTextArea txtNote;
         private DataGridView dgvDetails;
         private CustomButton btnClose;
 
@@ -37,93 +38,149 @@ namespace WarehouseManagement.Views.Forms
                 Dock = DockStyle.Fill,
                 BorderRadius = UIConstants.Borders.RadiusLarge,
                 ShowBorder = false,
-                Padding = new Padding(UIConstants.Spacing.Padding.Large)
+                Padding = new Padding(0)
             };
 
-            const int LEFT_MARGIN = 20;
-            const int LABEL_WIDTH = 110;
-            const int VALUE_WIDTH = 400;
+            const int LEFT_MARGIN = 40;
             int currentY = 20;
             int spacing = UIConstants.Spacing.Margin.Medium;
 
-            // Transaction Type
+            // Mã Giao Dịch và Loại Giao Dịch (cùng hàng)
+            Label lblTransactionIDLabel = new Label 
+            { 
+                Text = "Mã Giao Dịch:",
+                Left = LEFT_MARGIN, 
+                Top = currentY, 
+                Width = 100,
+                Font = ThemeManager.Instance.FontSmall,
+                ForeColor = Color.FromArgb(180, UIConstants.PrimaryColor.Default.R, 
+                                          UIConstants.PrimaryColor.Default.G, 
+                                          UIConstants.PrimaryColor.Default.B)
+            };
+
             Label lblTypeLabel = new Label 
             { 
-                Text = $"{UIConstants.Icons.Transaction} Loại Giao Dịch:", 
-                Left = LEFT_MARGIN, 
+                Text = "Loại Giao Dịch:",
+                Left = LEFT_MARGIN + 250, 
                 Top = currentY, 
-                Width = LABEL_WIDTH,
-                Font = ThemeManager.Instance.FontRegular,
-                TextAlign = ContentAlignment.MiddleLeft
+                Width = 100,
+                Font = ThemeManager.Instance.FontSmall,
+                ForeColor = Color.FromArgb(180, UIConstants.PrimaryColor.Default.R, 
+                                          UIConstants.PrimaryColor.Default.G, 
+                                          UIConstants.PrimaryColor.Default.B)
             };
-            currentY += 25;
+            currentY += 20;
 
-            lblType = new Label 
+            txtTransactionID = new CustomTextBox 
             { 
                 Left = LEFT_MARGIN, 
                 Top = currentY, 
-                Width = VALUE_WIDTH, 
-                Height = 30,
-                AutoSize = false, 
-                TextAlign = ContentAlignment.MiddleLeft, 
-                BorderStyle = BorderStyle.FixedSingle, 
-                BackColor = ThemeManager.Instance.BackgroundLight,
-                Padding = new Padding(UIConstants.Spacing.Padding.Small),
-                Font = ThemeManager.Instance.FontRegular
+                Width = 220,
+                ReadOnly = true,
+                TabStop = false
             };
-            currentY += 30 + spacing;
 
-            // Date
+            txtType = new CustomTextBox 
+            { 
+                Left = LEFT_MARGIN + 250, 
+                Top = currentY, 
+                Width = 270,
+                ReadOnly = true,
+                TabStop = false
+            };
+            currentY += UIConstants.Sizes.InputHeight + spacing;
+
+            // Ngày Tạo và Người Tạo (cùng hàng)
             Label lblDateLabel = new Label 
             { 
-                Text = $"{UIConstants.Icons.Calendar} Ngày Tạo:", 
+                Text = "Ngày Tạo:",
                 Left = LEFT_MARGIN, 
                 Top = currentY, 
-                Width = LABEL_WIDTH,
-                Font = ThemeManager.Instance.FontRegular,
-                TextAlign = ContentAlignment.MiddleLeft
+                Width = 100,
+                Font = ThemeManager.Instance.FontSmall,
+                ForeColor = Color.FromArgb(180, UIConstants.PrimaryColor.Default.R, 
+                                          UIConstants.PrimaryColor.Default.G, 
+                                          UIConstants.PrimaryColor.Default.B)
             };
-            currentY += 25;
 
-            lblDate = new Label 
+            Label lblCreatedByLabel = new Label 
+            { 
+                Text = "Người Tạo:",
+                Left = LEFT_MARGIN + 250, 
+                Top = currentY, 
+                Width = 100,
+                Font = ThemeManager.Instance.FontSmall,
+                ForeColor = Color.FromArgb(180, UIConstants.PrimaryColor.Default.R, 
+                                          UIConstants.PrimaryColor.Default.G, 
+                                          UIConstants.PrimaryColor.Default.B)
+            };
+            currentY += 20;
+
+            txtDate = new CustomTextBox 
             { 
                 Left = LEFT_MARGIN, 
                 Top = currentY, 
-                Width = VALUE_WIDTH, 
-                Height = 30,
-                AutoSize = false, 
-                TextAlign = ContentAlignment.MiddleLeft, 
-                BorderStyle = BorderStyle.FixedSingle, 
-                BackColor = ThemeManager.Instance.BackgroundLight,
-                Padding = new Padding(UIConstants.Spacing.Padding.Small),
-                Font = ThemeManager.Instance.FontRegular
+                Width = 220,
+                ReadOnly = true,
+                TabStop = false
             };
-            currentY += 30 + spacing;
+
+            txtCreatedBy = new CustomTextBox 
+            { 
+                Left = LEFT_MARGIN + 250, 
+                Top = currentY, 
+                Width = 270,
+                ReadOnly = true,
+                TabStop = false
+            };
+            currentY += UIConstants.Sizes.InputHeight + spacing;
+
+            // Tổng Giá Trị
+            Label lblTotalValueLabel = new Label 
+            { 
+                Text = "Tổng Giá Trị:",
+                Left = LEFT_MARGIN, 
+                Top = currentY, 
+                Width = 100,
+                Font = ThemeManager.Instance.FontSmall,
+                ForeColor = Color.FromArgb(180, UIConstants.PrimaryColor.Default.R, 
+                                          UIConstants.PrimaryColor.Default.G, 
+                                          UIConstants.PrimaryColor.Default.B)
+            };
+            currentY += 20;
+
+            txtTotalValue = new CustomTextBox 
+            { 
+                Left = LEFT_MARGIN, 
+                Top = currentY, 
+                Width = 520,
+                ReadOnly = true,
+                TabStop = false
+            };
+            currentY += UIConstants.Sizes.InputHeight + spacing;
 
             // Note
             Label lblNoteLabel = new Label 
             { 
-                Text = $"{UIConstants.Icons.FileText} Ghi Chú:", 
+                Text = "Ghi chú:",
                 Left = LEFT_MARGIN, 
                 Top = currentY, 
-                Width = LABEL_WIDTH,
-                Font = ThemeManager.Instance.FontRegular,
-                TextAlign = ContentAlignment.TopLeft
+                Width = 100,
+                Font = ThemeManager.Instance.FontSmall,
+                ForeColor = Color.FromArgb(180, UIConstants.PrimaryColor.Default.R, 
+                                          UIConstants.PrimaryColor.Default.G, 
+                                          UIConstants.PrimaryColor.Default.B)
             };
-            currentY += 25;
+            currentY += 20;
 
-            lblNote = new Label 
+            txtNote = new CustomTextArea 
             { 
                 Left = LEFT_MARGIN, 
                 Top = currentY, 
-                Width = VALUE_WIDTH, 
+                Width = 520, 
                 Height = 60,
-                AutoSize = false, 
-                TextAlign = ContentAlignment.TopLeft, 
-                BorderStyle = BorderStyle.FixedSingle, 
-                BackColor = ThemeManager.Instance.BackgroundLight,
-                Padding = new Padding(UIConstants.Spacing.Padding.Small),
-                Font = ThemeManager.Instance.FontRegular
+                ReadOnly = true,
+                TabStop = false
             };
             currentY += 60 + spacing + 10;
 
@@ -144,21 +201,19 @@ namespace WarehouseManagement.Views.Forms
                 Left = LEFT_MARGIN,
                 Top = currentY,
                 Width = 520,
-                Height = 200,
+                Height = 180,
                 AutoGenerateColumns = false,
                 AllowUserToAddRows = false,
                 ReadOnly = true,
                 BackgroundColor = ThemeManager.Instance.BackgroundDefault,
-                BorderStyle = BorderStyle.FixedSingle,
-                RowHeadersVisible = false,
-                AllowUserToResizeRows = false
+                BorderStyle = BorderStyle.FixedSingle
             };
 
             dgvDetails.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Sản phẩm", DataPropertyName = "ProductName", Width = 200 });
             dgvDetails.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Số lượng", DataPropertyName = "Quantity", Width = 90 });
             dgvDetails.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Đơn giá", DataPropertyName = "UnitPrice", Width = 110, DefaultCellStyle = new DataGridViewCellStyle { Format = "N0" } });
             dgvDetails.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Thành tiền", DataPropertyName = "TotalPrice", Width = 110, DefaultCellStyle = new DataGridViewCellStyle { Format = "N0" } });
-            currentY += 200 + UIConstants.Spacing.Margin.Large;
+            currentY += 180 + spacing;
 
             // Close button
             btnClose = new CustomButton 
@@ -174,24 +229,34 @@ namespace WarehouseManagement.Views.Forms
                 Close();
             };
 
+            mainPanel.Controls.Add(lblTransactionIDLabel);
+            mainPanel.Controls.Add(txtTransactionID);
             mainPanel.Controls.Add(lblTypeLabel);
-            mainPanel.Controls.Add(lblType);
+            mainPanel.Controls.Add(txtType);
             mainPanel.Controls.Add(lblDateLabel);
-            mainPanel.Controls.Add(lblDate);
+            mainPanel.Controls.Add(txtDate);
+            mainPanel.Controls.Add(lblTotalValueLabel);
+            mainPanel.Controls.Add(txtTotalValue);
+            mainPanel.Controls.Add(lblCreatedByLabel);
+            mainPanel.Controls.Add(txtCreatedBy);
             mainPanel.Controls.Add(lblNoteLabel);
-            mainPanel.Controls.Add(lblNote);
+            mainPanel.Controls.Add(txtNote);
             mainPanel.Controls.Add(lblDetailsTitle);
             mainPanel.Controls.Add(dgvDetails);
             mainPanel.Controls.Add(btnClose);
 
             Controls.Add(mainPanel);
 
-            ClientSize = new Size(620, 600);
+            ClientSize = new Size(620, 635);
             StartPosition = FormStartPosition.CenterParent;
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false;
             MinimizeBox = false;
             BackColor = ThemeManager.Instance.BackgroundLight;
+            
+            // Set nút Đóng là default button để focus vào đó
+            AcceptButton = btnClose;
+            CancelButton = btnClose;
 
             Load += TransactionDetailForm_Load;
             ResumeLayout(false);
@@ -201,17 +266,26 @@ namespace WarehouseManagement.Views.Forms
         {
             try
             {
-                // Set các giá trị cho label
+                // Set các giá trị
+                txtTransactionID.Text = $"#{_transaction.TransactionID}";
+                
                 string typeIcon = _transaction.Type == "Import" ? UIConstants.Icons.Import : UIConstants.Icons.Export;
-                lblType.Text = $"{typeIcon} {_transaction.Type}";
-                lblDate.Text = $"{UIConstants.Icons.Clock} {_transaction.DateCreated:dd/MM/yyyy HH:mm}";
-                lblNote.Text = _transaction.Note ?? "(Không có ghi chú)";
+                string typeName = _transaction.Type == "Import" ? "Nhập" : "Xuất";
+                txtType.Text = $"{typeIcon} {typeName}";
+                
+                txtDate.Text = _transaction.DateCreated.ToString("dd/MM/yyyy HH:mm");
+                txtTotalValue.Text = $"{_transaction.TotalValue:N0} ₫";
+                txtCreatedBy.Text = $"User ID: {_transaction.CreatedByUserID}";
+                txtNote.Text = _transaction.Note ?? "(Không có ghi chú)";
                 
                 // Hiển thị chi tiết giao dịch
                 if (_transaction.Details != null && _transaction.Details.Count > 0)
                 {
                     dgvDetails.DataSource = _transaction.Details;
                 }
+                
+                // Force focus vào nút Đóng - dùng ActiveControl
+                ActiveControl = btnClose;
             }
             catch (Exception ex)
             {

@@ -66,48 +66,39 @@ namespace WarehouseManagement.Views.Forms
             MinimizeBox = true;
             BackColor = ThemeManager.Instance.BackgroundLight;
 
-            // Button panel (top area with margin from form edges)
-            CustomPanel buttonPanel = new CustomPanel
+            // Filter/Button panel - styled panel at top
+            Panel filterPanel = new Panel
             {
-                Location = new Point(MARGIN, MARGIN / 2), // Margin từ trái và trên
-                Size = new Size(CONTENT_WIDTH, BUTTON_HEIGHT),
-                BackColor = ThemeManager.Instance.BackgroundLight,
-                ShowBorder = false
+                Location = new Point(MARGIN, 20),
+                Size = new Size(CONTENT_WIDTH, 50),
+                BackColor = ThemeManager.Instance.BackgroundDefault
             };
-
-            Label lblAnchorDate = new Label
-            {
-                Text = $"{UIConstants.Icons.Calendar} Chọn ngày:",
-                Location = new Point(15, 18),
-                Size = new Size(95, 25),
-                Font = ThemeManager.Instance.FontRegular,
-                TextAlign = ContentAlignment.MiddleLeft
-            };
-            buttonPanel.Controls.Add(lblAnchorDate);
 
             dtpAnchorDate = new CustomDateTimePicker
             {
-                Location = new Point(115, 15),
-                Size = new Size(160, UIConstants.Sizes.InputHeight),
+                Location = new Point(0, 10),
+                Size = new Size(200, UIConstants.Sizes.InputHeight),
                 Value = DateTime.Now,
                 CustomFormat = "dd/MM/yyyy",
                 BorderRadius = UIConstants.Borders.RadiusMedium
             };
             dtpAnchorDate.ValueChanged += (s, e) => LoadReport();
-            buttonPanel.Controls.Add(dtpAnchorDate);
+            filterPanel.Controls.Add(dtpAnchorDate);
 
             btnExportReport = new CustomButton
             {
-                Text = $"{UIConstants.Icons.Export} Export",
-                Location = new Point(290, 15),
-                Size = new Size(150, UIConstants.Sizes.ButtonHeight),
+                Text = $"{UIConstants.Icons.Export} Xuất Báo Cáo",
+                Location = new Point(CONTENT_WIDTH - 160, 10),
+                Size = new Size(160, UIConstants.Sizes.ButtonHeight),
                 ButtonStyleType = ButtonStyle.FilledNoOutline
             };
             btnExportReport.Click += BtnExportReport_Click;
-            buttonPanel.Controls.Add(btnExportReport);
+            filterPanel.Controls.Add(btnExportReport);
 
-            // Content starts after button panel + gap
-            int contentTop = (MARGIN / 2) + BUTTON_HEIGHT + 20;
+            Controls.Add(filterPanel);
+
+            // Content starts after filter panel
+            int contentTop = 90;
 
             // Data table panel (left side)
             CustomPanel dataPanel = new CustomPanel
@@ -152,7 +143,7 @@ namespace WarehouseManagement.Views.Forms
                 HeaderText = "Ngày", 
                 DataPropertyName = "Day",
                 AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
-                DefaultCellStyle = new DataGridViewCellStyle { Padding = new Padding(8, 4, 20, 4) }
+                DefaultCellStyle = new DataGridViewCellStyle { Padding = new Padding(8, 2, 10, 4) }
             });
             
             dgvReport.Columns.Add(new DataGridViewTextBoxColumn 
@@ -163,7 +154,7 @@ namespace WarehouseManagement.Views.Forms
                 DefaultCellStyle = new DataGridViewCellStyle 
                 { 
                     Alignment = DataGridViewContentAlignment.MiddleRight,
-                    Padding = new Padding(8, 4, 20, 4)
+                    Padding = new Padding(8, 2, 10, 4)
                 }
             });
             
@@ -175,7 +166,7 @@ namespace WarehouseManagement.Views.Forms
                 DefaultCellStyle = new DataGridViewCellStyle 
                 { 
                     Alignment = DataGridViewContentAlignment.MiddleRight,
-                    Padding = new Padding(8, 4, 20, 4)
+                    Padding = new Padding(8, 2, 10, 4)
                 }
             });
 
@@ -186,7 +177,7 @@ namespace WarehouseManagement.Views.Forms
                 {
                     col.HeaderCell.Style.Alignment = col.DefaultCellStyle.Alignment;
                 }
-                col.HeaderCell.Style.Padding = new Padding(8, 4, 20, 4);
+                col.HeaderCell.Style.Padding = new Padding(8, 2, 10, 4);
             }
             
             // Apply theme
@@ -260,8 +251,7 @@ namespace WarehouseManagement.Views.Forms
             };
             exportChartPanel.Controls.Add(pictureBoxExport);
 
-            // Add all to form
-            Controls.Add(buttonPanel);
+            // Add all to form (button controls already added above)
             Controls.Add(dataPanel);
             Controls.Add(importChartPanel);
             Controls.Add(exportChartPanel);
@@ -363,10 +353,16 @@ namespace WarehouseManagement.Views.Forms
         {
             try
             {
-                DateTime anchorDate = dtpAnchorDate != null ? dtpAnchorDate.Value : DateTime.Now;
+                if (dtpAnchorDate == null)
+                {
+                    MessageBox.Show("DateTimePicker chưa được khởi tạo!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                DateTime anchorDate = dtpAnchorDate.Value;
                 var dailyData = chartService.GetImportExportByDay(anchorDate);
 
-                dgvReport.Rows.Clear();
+                // Clear data lists
                 days.Clear();
                 imports.Clear();
                 exports.Clear();
@@ -390,6 +386,8 @@ namespace WarehouseManagement.Views.Forms
                     displayList.Add(new { Day = day, Import = importValue.ToString("N0"), Export = exportValue.ToString("N0") });
                 }
 
+                // Set DataSource (no need to clear Rows when using DataSource)
+                dgvReport.DataSource = null;
                 dgvReport.DataSource = displayList;
 
                 if (pictureBoxImport.Width > 0 && pictureBoxImport.Height > 0)

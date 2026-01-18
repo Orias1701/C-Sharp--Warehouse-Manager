@@ -6,6 +6,7 @@ obj/
 # Visual Studio Cache/Option Files
 .vs/
 .vscode/
+.cursor/
 
 # User-specific files
 *.rsuser

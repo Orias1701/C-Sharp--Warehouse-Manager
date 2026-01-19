@@ -28,15 +28,15 @@ namespace WarehouseManagement.Views.Forms
 
         // Kích thước cố định dựa trên A4 landscape scaled 1.4x
         private const int FORM_WIDTH = 1400;
-        private const int FORM_HEIGHT = 900;
-        private const int MARGIN = 75; // 2cm vùng an toàn
-        private const int BUTTON_HEIGHT = 65;
+        private const int FORM_HEIGHT = 950;
+        private const int MARGIN = 75;
+        private const int BUTTON_HEIGHT = 55;
         private const int GAP = 20;
         
         // Tính toán kích thước nội dung
         private const int CONTENT_WIDTH = FORM_WIDTH - (MARGIN * 2); // 1250px - margin trái phải
         // CONTENT_HEIGHT = Total height - Button height - Margin below button - Margin at bottom
-        private const int CONTENT_HEIGHT = FORM_HEIGHT - BUTTON_HEIGHT - (MARGIN * 2); // 900 - 65 - 150 = 685px
+        private const int CONTENT_HEIGHT = FORM_HEIGHT - BUTTON_HEIGHT - MARGIN*2 + GAP*2; // 950 - 65 - 150 + 40 = 775px
         private const int TABLE_WIDTH = (int)(CONTENT_WIDTH * 0.34); // 34%
         private const int CHART_AREA_WIDTH = CONTENT_WIDTH - TABLE_WIDTH - GAP;
         private const int CHART_HEIGHT = (CONTENT_HEIGHT - GAP) / 2;
@@ -148,7 +148,7 @@ namespace WarehouseManagement.Views.Forms
             
             dgvReport.Columns.Add(new DataGridViewTextBoxColumn 
             { 
-                HeaderText = "Tổng Nhập Kho", 
+                HeaderText = "Nhập Kho", 
                 DataPropertyName = "Import",
                 AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
                 DefaultCellStyle = new DataGridViewCellStyle 
@@ -160,7 +160,7 @@ namespace WarehouseManagement.Views.Forms
             
             dgvReport.Columns.Add(new DataGridViewTextBoxColumn 
             { 
-                HeaderText = "Tổng Xuất Kho", 
+                HeaderText = "Xuất Kho", 
                 DataPropertyName = "Export",
                 AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
                 DefaultCellStyle = new DataGridViewCellStyle 

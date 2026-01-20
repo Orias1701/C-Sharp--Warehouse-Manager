@@ -122,7 +122,7 @@ namespace WarehouseManagement.Views.Panels
                 Text = UIConstants.Icons.Edit,
                 LinkColor = ThemeManager.Instance.PrimaryDefault,
                 ActiveLinkColor = ThemeManager.Instance.PrimaryDefault,
-                VisistedLinkColor = ThemeManager.Instance.PrimaryDefault,
+                VisitedLinkColor = ThemeManager.Instance.PrimaryDefault,
                 DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter }
             });
             
@@ -134,7 +134,7 @@ namespace WarehouseManagement.Views.Panels
                 Text = UIConstants.Icons.Delete,
                 LinkColor = UIConstants.SemanticColors.Error,
                 ActiveLinkColor = UIConstants.SemanticColors.Error,
-                VisistedLinkColor = UIConstants.SemanticColors.Error,
+                VisitedLinkColor = UIConstants.SemanticColors.Error,
                 DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter }
             });
 

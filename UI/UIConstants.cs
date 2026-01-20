@@ -265,6 +265,7 @@ namespace WarehouseManagement.UI
             public const string Done = "✓";
             public const string Pending = "⏳";
             public const string Block = "🚫";
+            public const string Detail = "📄";
             
             // ===== FILES & FOLDERS =====
             public const string File = "📄";

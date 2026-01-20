@@ -56,7 +56,7 @@ namespace WarehouseManagement.Views.Forms
 
             // Layout constants
             const int LEFT_MARGIN = 40;
-            const int INPUT_WIDTH = 720; // 800 - 40 - 40
+            const int INPUT_WIDTH = 540; // Reduced from 720 to match Transaction forms (approx 620px total)
             int currentY = 30;
             int inputSpacing = 20;
 
@@ -200,42 +200,41 @@ namespace WarehouseManagement.Views.Forms
                 SelectionMode = DataGridViewSelectionMode.FullRowSelect,
                 AllowUserToResizeRows = false,
                 Font = ThemeManager.Instance.FontRegular,
-                RowTemplate = { Height = UIConstants.Sizes.TableRowHeight },
-                ColumnHeadersHeight = UIConstants.Sizes.TableHeaderHeight
+                RowTemplate = { Height = 32 }
             };
 
-            // Setup Columns (Same as before)
-            // Add Headers Alignment Sync later
+            // Setup Columns -> Fit to 540 Width
+            // Suggested: ID(40) + Name(140) + Sys(70) + Act(70) + Diff(70) + Reason(150) = 540
             dgvDetails.Columns.Add(new DataGridViewTextBoxColumn 
             { 
                 HeaderText = "ID", 
                 DataPropertyName = "ProductID", 
-                Width = 60, 
+                Width = 40, 
                 ReadOnly = true,
                 DefaultCellStyle = new DataGridViewCellStyle 
                 { 
-                    Alignment = DataGridViewContentAlignment.MiddleCenter, 
-                    Padding = new Padding(10, 5, 10, 5) 
+                    Alignment = DataGridViewContentAlignment.MiddleCenter,
+                    Padding = new Padding(10, 4, 10, 4)
                 }
             });
             dgvDetails.Columns.Add(new DataGridViewTextBoxColumn 
             { 
                 HeaderText = "Tên sản phẩm", 
                 Name = "ProductName", 
-                Width = 200, 
+                Width = 140, 
                 ReadOnly = true,
-                DefaultCellStyle = new DataGridViewCellStyle { Padding = new Padding(10, 5, 10, 5) }
+                DefaultCellStyle = new DataGridViewCellStyle { Padding = new Padding(10, 4, 10, 4) }
             }); 
             dgvDetails.Columns.Add(new DataGridViewTextBoxColumn 
             { 
                 HeaderText = "Tồn Máy", 
                 DataPropertyName = "SystemQuantity", 
-                Width = 90, 
+                Width = 70, 
                 ReadOnly = true,
                 DefaultCellStyle = new DataGridViewCellStyle 
                 { 
                     Alignment = DataGridViewContentAlignment.MiddleRight,
-                    Padding = new Padding(10, 5, 30, 5) 
+                    Padding = new Padding(10, 4, 10, 4)
                 }
             });
             
@@ -243,11 +242,11 @@ namespace WarehouseManagement.Views.Forms
             { 
                 HeaderText = "Tồn Thực", 
                 DataPropertyName = "ActualQuantity", 
-                Width = 90,
+                Width = 70,
                 DefaultCellStyle = new DataGridViewCellStyle 
                 { 
                     Alignment = DataGridViewContentAlignment.MiddleRight,
-                    Padding = new Padding(10, 5, 30, 5) 
+                    Padding = new Padding(10, 4, 10, 4)
                 }
             };
             colActual.DefaultCellStyle.BackColor = _isNew ? Color.White : Color.WhiteSmoke;
@@ -258,12 +257,12 @@ namespace WarehouseManagement.Views.Forms
             { 
                 HeaderText = "Chênh lệch", 
                 DataPropertyName = "Difference", 
-                Width = 90, 
+                Width = 70, 
                 ReadOnly = true,
                 DefaultCellStyle = new DataGridViewCellStyle 
                 { 
                     Alignment = DataGridViewContentAlignment.MiddleRight,
-                    Padding = new Padding(10, 5, 30, 5) 
+                    Padding = new Padding(10, 4, 10, 4)
                 }
             });
             
@@ -272,7 +271,7 @@ namespace WarehouseManagement.Views.Forms
                 HeaderText = "Lý do", 
                 DataPropertyName = "Reason", 
                 Width = 150,
-                DefaultCellStyle = new DataGridViewCellStyle { Padding = new Padding(10, 5, 10, 5) }
+                DefaultCellStyle = new DataGridViewCellStyle { Padding = new Padding(10, 4, 10, 4) }
             };
             colReason.ReadOnly = !_isNew;
             dgvDetails.Columns.Add(colReason);
@@ -282,7 +281,7 @@ namespace WarehouseManagement.Views.Forms
             {
                 if (col.DefaultCellStyle.Alignment != DataGridViewContentAlignment.NotSet)
                     col.HeaderCell.Style.Alignment = col.DefaultCellStyle.Alignment;
-                col.HeaderCell.Style.Padding = new Padding(10, 5, 10, 5);
+                col.HeaderCell.Style.Padding = new Padding(10, 4, 10, 4);
             }
 
             dgvDetails.CellEndEdit += DgvDetails_CellEndEdit;
@@ -378,7 +377,7 @@ namespace WarehouseManagement.Views.Forms
             int calculatedHeight = contentHeight + paddingBottom;
 
             // Use ClientSize to keep inner size correct
-            ClientSize = new Size(800, calculatedHeight);
+            ClientSize = new Size(620, calculatedHeight);
             
             StartPosition = FormStartPosition.CenterParent;
             FormBorderStyle = FormBorderStyle.FixedDialog;

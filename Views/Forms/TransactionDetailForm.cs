@@ -203,16 +203,15 @@ namespace WarehouseManagement.Views.Forms
                 SelectionMode = DataGridViewSelectionMode.FullRowSelect,
                 AllowUserToResizeRows = false,
                 Font = ThemeManager.Instance.FontRegular,
-                RowTemplate = { Height = UIConstants.Sizes.TableRowHeight },
-                ColumnHeadersHeight = UIConstants.Sizes.TableHeaderHeight
+                RowTemplate = { Height = 32 }
             };
 
             dgvDetails.Columns.Add(new DataGridViewTextBoxColumn 
             { 
                 HeaderText = "Sản phẩm", 
                 DataPropertyName = "ProductName", 
-                Width = 200,
-                DefaultCellStyle = new DataGridViewCellStyle { Padding = new Padding(10, 5, 10, 5) }
+                Width = 210,
+                DefaultCellStyle = new DataGridViewCellStyle { Padding = new Padding(10, 4, 10, 4) }
             });
             dgvDetails.Columns.Add(new DataGridViewTextBoxColumn 
             { 
@@ -222,7 +221,7 @@ namespace WarehouseManagement.Views.Forms
                 DefaultCellStyle = new DataGridViewCellStyle 
                 { 
                     Alignment = DataGridViewContentAlignment.MiddleRight,
-                    Padding = new Padding(10, 5, 30, 5) 
+                    Padding = new Padding(10, 4, 30, 4)
                 }
             });
             dgvDetails.Columns.Add(new DataGridViewTextBoxColumn 
@@ -234,7 +233,7 @@ namespace WarehouseManagement.Views.Forms
                 { 
                     Format = "N0",
                     Alignment = DataGridViewContentAlignment.MiddleRight,
-                    Padding = new Padding(10, 5, 30, 5) 
+                    Padding = new Padding(10, 4, 30, 4)
                 } 
             });
             dgvDetails.Columns.Add(new DataGridViewTextBoxColumn 
@@ -246,7 +245,7 @@ namespace WarehouseManagement.Views.Forms
                 { 
                     Format = "N0",
                     Alignment = DataGridViewContentAlignment.MiddleRight,
-                    Padding = new Padding(10, 5, 30, 5) 
+                    Padding = new Padding(10, 4, 30, 4)
                 } 
             });
 
@@ -255,7 +254,7 @@ namespace WarehouseManagement.Views.Forms
             {
                 if (col.DefaultCellStyle.Alignment != DataGridViewContentAlignment.NotSet)
                     col.HeaderCell.Style.Alignment = col.DefaultCellStyle.Alignment;
-                col.HeaderCell.Style.Padding = new Padding(10, 5, 10, 5);
+                col.HeaderCell.Style.Padding = new Padding(10, 4, 10, 4);
             }
             
             // Apply Hover Effect

@@ -28,23 +28,6 @@ namespace WarehouseManagement.Views.Panels
         {
             Dock = DockStyle.Fill;
             BackColor = ThemeManager.Instance.BackgroundDefault;
-            Padding = new Padding(20);
-
-            // Top Panel (Action Bar)
-            Panel topPanel = new Panel { Dock = DockStyle.Top, Height = 50, BackColor = Color.Transparent };
-            
-            CustomButton btnAdd = new CustomButton
-            {
-                Text = $"{UIConstants.Icons.Add} Tạo Phiếu Kiểm Kê",
-                Width = 220,
-                Height = 35,
-                Top = 5,
-                Left = 0,
-                ButtonStyleType = ButtonStyle.Filled
-            };
-            btnAdd.Click += BtnAdd_Click;
-            topPanel.Controls.Add(btnAdd);
-            Controls.Add(topPanel);
 
             // DataGridView
             dgvChecks = new DataGridView
@@ -78,31 +61,50 @@ namespace WarehouseManagement.Views.Panels
                 HeaderText = "Mã Phiếu", 
                 DataPropertyName = "CheckID", 
                 Width = 100,
-                DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter, Padding = new Padding(10, 5, 10, 5) }
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
+                DefaultCellStyle = new DataGridViewCellStyle 
+                { 
+                    Alignment = DataGridViewContentAlignment.MiddleCenter, 
+                    Padding = new Padding(10, 5, 30, 5) 
+                }
             });
             
             dgvChecks.Columns.Add(new DataGridViewTextBoxColumn 
             { 
-                HeaderText = "Ngày Kiểm", 
-                DataPropertyName = "CheckDate", 
-                Width = 150,
-                DefaultCellStyle = new DataGridViewCellStyle { Format = "dd/MM/yyyy HH:mm", Alignment = DataGridViewContentAlignment.MiddleCenter, Padding = new Padding(10, 5, 10, 5) }
+                HeaderText = "Trạng Thái", 
+                DataPropertyName = "Status", 
+                Width = 120,
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells,
+                DefaultCellStyle = new DataGridViewCellStyle 
+                { 
+                    Alignment = DataGridViewContentAlignment.MiddleCenter, 
+                    Padding = new Padding(10, 5, 30, 5) 
+                }
             });
 
             dgvChecks.Columns.Add(new DataGridViewTextBoxColumn 
             { 
                 HeaderText = "Người Kiểm", 
                 DataPropertyName = "CreatedByUserID", 
-                Width = 120,
-                DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter, Padding = new Padding(10, 5, 10, 5) }
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                DefaultCellStyle = new DataGridViewCellStyle 
+                { 
+                    Alignment = DataGridViewContentAlignment.MiddleLeft,
+                    Padding = new Padding(10, 5, 30, 5) 
+                }
             });
 
             dgvChecks.Columns.Add(new DataGridViewTextBoxColumn 
             { 
-                HeaderText = "Trạng Thái", 
-                DataPropertyName = "Status", 
-                Width = 120,
-                DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter, Padding = new Padding(10, 5, 10, 5) }
+                HeaderText = "Ngày Kiểm", 
+                DataPropertyName = "CheckDate", 
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                DefaultCellStyle = new DataGridViewCellStyle 
+                { 
+                    Format = "dd/MM/yyyy HH:mm", 
+                    Alignment = DataGridViewContentAlignment.MiddleCenter, 
+                    Padding = new Padding(10, 5, 30, 5) 
+                }
             });
 
             dgvChecks.Columns.Add(new DataGridViewTextBoxColumn 
@@ -110,7 +112,10 @@ namespace WarehouseManagement.Views.Panels
                 HeaderText = "Ghi Chú", 
                 DataPropertyName = "Note", 
                 AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
-                DefaultCellStyle = new DataGridViewCellStyle { Padding = new Padding(10, 5, 10, 5) }
+                DefaultCellStyle = new DataGridViewCellStyle 
+                { 
+                    Padding = new Padding(10, 5, 30, 5) 
+                }
             });
 
             // Action Column (View Details)
@@ -118,12 +123,19 @@ namespace WarehouseManagement.Views.Panels
             { 
                 HeaderText = "", 
                 Width = 60,
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
                 UseColumnTextForLinkValue = true, 
-                Text = UIConstants.Icons.Detail, // Using Detail icon instead of Transaction
-                LinkColor = ThemeManager.Instance.PrimaryDefault,
+                Text = UIConstants.Icons.Transaction, // Using Transaction icon to match TransactionsPanel
+                LinkColor = ThemeManager.Instance.TextPrimary,
                 ActiveLinkColor = ThemeManager.Instance.PrimaryDefault,
-                VisitedLinkColor = ThemeManager.Instance.PrimaryDefault,
-                DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter }
+                VisitedLinkColor = ThemeManager.Instance.TextPrimary,
+                LinkBehavior = LinkBehavior.NeverUnderline,
+                TrackVisitedState = false,
+                DefaultCellStyle = new DataGridViewCellStyle 
+                { 
+                    Alignment = DataGridViewContentAlignment.MiddleCenter,
+                    Padding = new Padding(10, 5, 10, 5)
+                }
             });
 
             // Header Styling Sync
@@ -151,8 +163,6 @@ namespace WarehouseManagement.Views.Panels
             tablePanel.Controls.Add(dgvChecks);
             Controls.Add(tablePanel);
             
-            topPanel.SendToBack();
-
             LoadData();
         }
 
@@ -168,6 +178,8 @@ namespace WarehouseManagement.Views.Panels
             dgvChecks.DefaultCellStyle.SelectionForeColor = ThemeManager.Instance.TextPrimary;
             dgvChecks.ColumnHeadersDefaultCellStyle.BackColor = UIConstants.PrimaryColor.Default;
             dgvChecks.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+            dgvChecks.ColumnHeadersDefaultCellStyle.SelectionBackColor = UIConstants.PrimaryColor.Default;
+            dgvChecks.ColumnHeadersDefaultCellStyle.SelectionForeColor = Color.White;
         }
 
         public void LoadData()

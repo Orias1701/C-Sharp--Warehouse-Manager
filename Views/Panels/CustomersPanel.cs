@@ -28,23 +28,6 @@ namespace WarehouseManagement.Views.Panels
         {
             Dock = DockStyle.Fill;
             BackColor = ThemeManager.Instance.BackgroundDefault;
-            Padding = new Padding(20);
-
-            // Top Panel (Action Bar)
-            Panel topPanel = new Panel { Dock = DockStyle.Top, Height = 50, BackColor = Color.Transparent };
-            
-            CustomButton btnAdd = new CustomButton
-            {
-                Text = $"{UIConstants.Icons.Add} Thêm Khách Hàng",
-                Width = 200,
-                Height = 35,
-                Top = 5,
-                Left = 0,
-                ButtonStyleType = ButtonStyle.Filled
-            };
-            btnAdd.Click += BtnAdd_Click;
-            topPanel.Controls.Add(btnAdd);
-            Controls.Add(topPanel);
 
             // DataGridView
             dgvCustomers = new DataGridView
@@ -77,8 +60,13 @@ namespace WarehouseManagement.Views.Panels
             { 
                 HeaderText = "ID", 
                 DataPropertyName = "CustomerID", 
-                Width = 80,
-                DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter, Padding = new Padding(10, 5, 10, 5) }
+                Width = 100,
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
+                DefaultCellStyle = new DataGridViewCellStyle 
+                { 
+                    Alignment = DataGridViewContentAlignment.MiddleCenter, 
+                    Padding = new Padding(10, 5, 30, 5) 
+                }
             });
             
             dgvCustomers.Columns.Add(new DataGridViewTextBoxColumn 
@@ -86,7 +74,10 @@ namespace WarehouseManagement.Views.Panels
                 HeaderText = "Tên Khách Hàng", 
                 DataPropertyName = "CustomerName", 
                 AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
-                DefaultCellStyle = new DataGridViewCellStyle { Padding = new Padding(10, 5, 10, 5) }
+                DefaultCellStyle = new DataGridViewCellStyle 
+                { 
+                    Padding = new Padding(10, 5, 30, 5) 
+                }
             });
 
             dgvCustomers.Columns.Add(new DataGridViewTextBoxColumn 
@@ -94,7 +85,12 @@ namespace WarehouseManagement.Views.Panels
                 HeaderText = "Số Điện Thoại", 
                 DataPropertyName = "Phone", 
                 Width = 150,
-                DefaultCellStyle = new DataGridViewCellStyle { Padding = new Padding(10, 5, 10, 5) }
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
+                DefaultCellStyle = new DataGridViewCellStyle 
+                { 
+                    Alignment = DataGridViewContentAlignment.MiddleCenter, 
+                    Padding = new Padding(10, 5, 30, 5) 
+                }
             });
 
             dgvCustomers.Columns.Add(new DataGridViewTextBoxColumn 
@@ -102,7 +98,11 @@ namespace WarehouseManagement.Views.Panels
                 HeaderText = "Email", 
                 DataPropertyName = "Email", 
                 Width = 200,
-                DefaultCellStyle = new DataGridViewCellStyle { Padding = new Padding(10, 5, 10, 5) }
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
+                DefaultCellStyle = new DataGridViewCellStyle 
+                { 
+                    Padding = new Padding(10, 5, 30, 5) 
+                }
             });
 
             dgvCustomers.Columns.Add(new DataGridViewTextBoxColumn 
@@ -110,32 +110,50 @@ namespace WarehouseManagement.Views.Panels
                 HeaderText = "Địa Chỉ", 
                 DataPropertyName = "Address", 
                 AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
-                DefaultCellStyle = new DataGridViewCellStyle { Padding = new Padding(10, 5, 10, 5) }
+                DefaultCellStyle = new DataGridViewCellStyle 
+                { 
+                    Padding = new Padding(10, 5, 30, 5) 
+                }
             });
 
-            // Action Columns
+            // Action Column: Hide/Status (Using Transaction Icon to match Standard)
             dgvCustomers.Columns.Add(new DataGridViewLinkColumn 
             { 
                 HeaderText = "", 
                 Width = 60,
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
                 UseColumnTextForLinkValue = true, 
-                Text = UIConstants.Icons.Edit,
-                LinkColor = ThemeManager.Instance.PrimaryDefault,
+                Text = UIConstants.Icons.Transaction,
+                LinkColor = ThemeManager.Instance.TextPrimary,
                 ActiveLinkColor = ThemeManager.Instance.PrimaryDefault,
-                VisitedLinkColor = ThemeManager.Instance.PrimaryDefault,
-                DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter }
+                VisitedLinkColor = ThemeManager.Instance.TextPrimary,
+                LinkBehavior = LinkBehavior.NeverUnderline,
+                TrackVisitedState = false,
+                DefaultCellStyle = new DataGridViewCellStyle 
+                { 
+                    Alignment = DataGridViewContentAlignment.MiddleCenter,
+                    Padding = new Padding(10, 5, 10, 5)
+                }
             });
             
+            // Action Column: Delete (Using Cancel Icon to match Standard)
             dgvCustomers.Columns.Add(new DataGridViewLinkColumn 
             { 
                 HeaderText = "", 
                 Width = 60,
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
                 UseColumnTextForLinkValue = true, 
-                Text = UIConstants.Icons.Delete,
-                LinkColor = UIConstants.SemanticColors.Error,
+                Text = UIConstants.Icons.Cancel,
+                LinkColor = ThemeManager.Instance.TextPrimary,
                 ActiveLinkColor = UIConstants.SemanticColors.Error,
-                VisitedLinkColor = UIConstants.SemanticColors.Error,
-                DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter }
+                VisitedLinkColor = ThemeManager.Instance.TextPrimary,
+                LinkBehavior = LinkBehavior.NeverUnderline,
+                TrackVisitedState = false,
+                DefaultCellStyle = new DataGridViewCellStyle 
+                { 
+                    Alignment = DataGridViewContentAlignment.MiddleCenter,
+                    Padding = new Padding(10, 5, 10, 5)
+                }
             });
 
             // Header Styling Sync
@@ -161,8 +179,6 @@ namespace WarehouseManagement.Views.Panels
             tablePanel.Controls.Add(dgvCustomers);
             Controls.Add(tablePanel);
             
-            topPanel.SendToBack();
-
             LoadData();
         }
 
@@ -178,6 +194,8 @@ namespace WarehouseManagement.Views.Panels
             dgvCustomers.DefaultCellStyle.SelectionForeColor = ThemeManager.Instance.TextPrimary;
             dgvCustomers.ColumnHeadersDefaultCellStyle.BackColor = UIConstants.PrimaryColor.Default;
             dgvCustomers.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+            dgvCustomers.ColumnHeadersDefaultCellStyle.SelectionBackColor = UIConstants.PrimaryColor.Default;
+            dgvCustomers.ColumnHeadersDefaultCellStyle.SelectionForeColor = Color.White;
         }
 
         public void LoadData()
@@ -189,7 +207,7 @@ namespace WarehouseManagement.Views.Panels
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi tải dữ liệu: " + ex.Message);
+                MessageBox.Show("Lỗi tải dữ liệu khách hàng: " + ex.Message);
             }
         }
 
@@ -204,50 +222,75 @@ namespace WarehouseManagement.Views.Panels
             dgvCustomers.DataSource = filtered;
         }
 
-        private void BtnAdd_Click(object sender, EventArgs e)
-        {
-            CustomerForm form = new CustomerForm(null);
-            if (form.ShowDialog() == DialogResult.OK)
-            {
-                LoadData();
-            }
-        }
-
         private void DgvCustomers_CellClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex < 0) return;
 
-            // Edit
+            int customerId = (int)dgvCustomers.Rows[e.RowIndex].Cells[0].Value;
+            string customerName = dgvCustomers.Rows[e.RowIndex].Cells[1].Value?.ToString() ?? "";
+
+            // Hide/Status Column (Index 5)
             if (e.ColumnIndex == 5)
             {
-                var customer = dgvCustomers.Rows[e.RowIndex].DataBoundItem as Customer;
-                if (customer != null)
+                DialogResult result = MessageBox.Show(
+                    $"{UIConstants.Icons.Question} Bạn chắc chắn muốn đảo trạng thái khách hàng '{customerName}'?",
+                    "Xác nhận",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question);
+
+                if (result == DialogResult.Yes)
                 {
-                    CustomerForm form = new CustomerForm(customer);
-                    if (form.ShowDialog() == DialogResult.OK) LoadData();
-                }
-            }
-            // Delete
-            else if (e.ColumnIndex == 6)
-            {
-                var customer = dgvCustomers.Rows[e.RowIndex].DataBoundItem as Customer;
-                if (customer != null)
-                {
-                    if (MessageBox.Show($"Bạn có chắc chắn muốn xóa khách hàng '{customer.CustomerName}'?", "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+                    try
                     {
-                        try
-                        {
-                            if (_controller.DeleteCustomer(customer.CustomerID))
-                            {
-                                MessageBox.Show("Đã xóa thành công!");
-                                LoadData();
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            MessageBox.Show("Lỗi xóa: " + ex.Message);
-                        }
+                        _controller.SoftDeleteCustomer(customerId);
+                        MessageBox.Show($"{UIConstants.Icons.Success} Trạng thái khách hàng đã được thay đổi.", "Thành công", 
+                            MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        LoadData();
                     }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"{UIConstants.Icons.Error} Lỗi thay đổi trạng thái: {ex.Message}", "Lỗi", 
+                            MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+                return;
+            }
+
+            // Delete Column (Index 6)
+            if (e.ColumnIndex == 6)
+            {
+                DialogResult result = MessageBox.Show(
+                    $"{UIConstants.Icons.Warning} Bạn chắc chắn muốn xóa khách hàng '{customerName}'?",
+                    "Xác nhận xóa",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Warning);
+
+                if (result == DialogResult.Yes)
+                {
+                    try
+                    {
+                        _controller.SoftDeleteCustomer(customerId);
+                        MessageBox.Show($"{UIConstants.Icons.Success} Khách hàng đã được xóa thành công.", "Thành công", 
+                            MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        LoadData();
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"{UIConstants.Icons.Error} Lỗi xóa khách hàng: {ex.Message}", "Lỗi", 
+                            MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+                return;
+            }
+
+            // Other columns open Edit
+            var customerToEdit = dgvCustomers.Rows[e.RowIndex].DataBoundItem as Customer;
+            if (customerToEdit != null)
+            {
+                CustomerForm form = new CustomerForm(customerToEdit);
+                if (form.ShowDialog() == DialogResult.OK)
+                {
+                    LoadData();
                 }
             }
         }

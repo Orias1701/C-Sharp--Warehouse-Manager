@@ -306,7 +306,7 @@ namespace WarehouseManagement.Views
                     toolsBar.BtnAdd.Text = $"{UIConstants.Icons.Add} Thêm KH";
                     break;
                 case 5: // Inventory Checks
-                    toolsBar.BtnAdd.Enabled = false; // Disable for now as requested
+                    toolsBar.BtnAdd.Enabled = true; 
                     toolsBar.BtnAdd.Text = $"{UIConstants.Icons.Add} Thêm Phiếu";
                     break;
             }
@@ -399,7 +399,16 @@ namespace WarehouseManagement.Views
                     _actions?.UpdateChangeStatus();
                 }
             }
-            // Transactions & InventoryChecks add buttons might function differently or be disabled
+            else if (inventoryChecksPanel.Visible)
+            {
+                InventoryCheckForm form = new InventoryCheckForm(null);
+                if (form.ShowDialog() == DialogResult.OK)
+                {
+                    RefreshAllData();
+                    _actions?.UpdateChangeStatus();
+                }
+            }
+            // Transactions add buttons might function differently or be disabled
         }
 
         private void OnTransactionRequested(object sender, EventArgs e)

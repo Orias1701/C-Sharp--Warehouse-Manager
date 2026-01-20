@@ -37,5 +37,10 @@ namespace WarehouseManagement.Controllers
         {
             return _customerService.DeleteCustomer(id);
         }
+
+        public bool SoftDeleteCustomer(int id)
+        {
+            return _customerService.DeleteCustomer(id);
+        }
     }
 }

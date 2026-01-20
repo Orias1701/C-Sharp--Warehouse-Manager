@@ -37,5 +37,10 @@ namespace WarehouseManagement.Controllers
         {
             return _supplierService.DeleteSupplier(id);
         }
+
+        public bool SoftDeleteSupplier(int id)
+        {
+            return _supplierService.DeleteSupplier(id);
+        }
     }
 }

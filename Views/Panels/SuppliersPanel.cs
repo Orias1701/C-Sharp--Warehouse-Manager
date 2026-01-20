@@ -28,23 +28,6 @@ namespace WarehouseManagement.Views.Panels
         {
             Dock = DockStyle.Fill;
             BackColor = ThemeManager.Instance.BackgroundDefault;
-            Padding = new Padding(20);
-
-            // Top Panel (Action Bar)
-            Panel topPanel = new Panel { Dock = DockStyle.Top, Height = 50, BackColor = Color.Transparent };
-            
-            CustomButton btnAdd = new CustomButton
-            {
-                Text = $"{UIConstants.Icons.Add} Thêm Nhà Cung Cấp",
-                Width = 220,
-                Height = 35,
-                Top = 5,
-                Left = 0,
-                ButtonStyleType = ButtonStyle.Filled
-            };
-            btnAdd.Click += BtnAdd_Click;
-            topPanel.Controls.Add(btnAdd);
-            Controls.Add(topPanel);
 
             // DataGridView
             dgvSuppliers = new DataGridView
@@ -77,8 +60,13 @@ namespace WarehouseManagement.Views.Panels
             { 
                 HeaderText = "ID", 
                 DataPropertyName = "SupplierID", 
-                Width = 80,
-                DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter, Padding = new Padding(10, 5, 10, 5) }
+                Width = 100,
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
+                DefaultCellStyle = new DataGridViewCellStyle 
+                { 
+                    Alignment = DataGridViewContentAlignment.MiddleCenter, 
+                    Padding = new Padding(10, 5, 30, 5) 
+                }
             });
             
             dgvSuppliers.Columns.Add(new DataGridViewTextBoxColumn 
@@ -86,7 +74,10 @@ namespace WarehouseManagement.Views.Panels
                 HeaderText = "Tên Nhà Cung Cấp", 
                 DataPropertyName = "SupplierName", 
                 AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
-                DefaultCellStyle = new DataGridViewCellStyle { Padding = new Padding(10, 5, 10, 5) }
+                DefaultCellStyle = new DataGridViewCellStyle 
+                { 
+                    Padding = new Padding(10, 5, 30, 5) 
+                }
             });
 
             dgvSuppliers.Columns.Add(new DataGridViewTextBoxColumn 
@@ -94,7 +85,12 @@ namespace WarehouseManagement.Views.Panels
                 HeaderText = "Số Điện Thoại", 
                 DataPropertyName = "Phone", 
                 Width = 150,
-                DefaultCellStyle = new DataGridViewCellStyle { Padding = new Padding(10, 5, 10, 5) }
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
+                DefaultCellStyle = new DataGridViewCellStyle 
+                { 
+                    Alignment = DataGridViewContentAlignment.MiddleCenter, 
+                    Padding = new Padding(10, 5, 30, 5) 
+                }
             });
 
             dgvSuppliers.Columns.Add(new DataGridViewTextBoxColumn 
@@ -102,7 +98,11 @@ namespace WarehouseManagement.Views.Panels
                 HeaderText = "Email", 
                 DataPropertyName = "Email", 
                 Width = 200,
-                DefaultCellStyle = new DataGridViewCellStyle { Padding = new Padding(10, 5, 10, 5) }
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
+                DefaultCellStyle = new DataGridViewCellStyle 
+                { 
+                    Padding = new Padding(10, 5, 30, 5) 
+                }
             });
 
             dgvSuppliers.Columns.Add(new DataGridViewTextBoxColumn 
@@ -110,32 +110,50 @@ namespace WarehouseManagement.Views.Panels
                 HeaderText = "Địa Chỉ", 
                 DataPropertyName = "Address", 
                 AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
-                DefaultCellStyle = new DataGridViewCellStyle { Padding = new Padding(10, 5, 10, 5) }
+                DefaultCellStyle = new DataGridViewCellStyle 
+                { 
+                    Padding = new Padding(10, 5, 30, 5) 
+                }
             });
 
-            // Action Columns
+            // Action Column: Hide/Status (Using Transaction Icon to match Standard)
             dgvSuppliers.Columns.Add(new DataGridViewLinkColumn 
             { 
                 HeaderText = "", 
                 Width = 60,
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
                 UseColumnTextForLinkValue = true, 
-                Text = UIConstants.Icons.Edit,
-                LinkColor = ThemeManager.Instance.PrimaryDefault,
+                Text = UIConstants.Icons.Transaction,
+                LinkColor = ThemeManager.Instance.TextPrimary,
                 ActiveLinkColor = ThemeManager.Instance.PrimaryDefault,
-                VisitedLinkColor = ThemeManager.Instance.PrimaryDefault,
-                DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter }
+                VisitedLinkColor = ThemeManager.Instance.TextPrimary,
+                LinkBehavior = LinkBehavior.NeverUnderline,
+                TrackVisitedState = false,
+                DefaultCellStyle = new DataGridViewCellStyle 
+                { 
+                    Alignment = DataGridViewContentAlignment.MiddleCenter,
+                    Padding = new Padding(10, 5, 10, 5)
+                }
             });
-            
+
+            // Action Column: Delete (Using Cancel Icon to match Standard)
             dgvSuppliers.Columns.Add(new DataGridViewLinkColumn 
             { 
                 HeaderText = "", 
                 Width = 60,
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
                 UseColumnTextForLinkValue = true, 
-                Text = UIConstants.Icons.Delete,
-                LinkColor = UIConstants.SemanticColors.Error,
+                Text = UIConstants.Icons.Cancel,
+                LinkColor = ThemeManager.Instance.TextPrimary,
                 ActiveLinkColor = UIConstants.SemanticColors.Error,
-                VisitedLinkColor = UIConstants.SemanticColors.Error,
-                DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter }
+                VisitedLinkColor = ThemeManager.Instance.TextPrimary,
+                LinkBehavior = LinkBehavior.NeverUnderline,
+                TrackVisitedState = false,
+                DefaultCellStyle = new DataGridViewCellStyle 
+                { 
+                    Alignment = DataGridViewContentAlignment.MiddleCenter,
+                    Padding = new Padding(10, 5, 10, 5)
+                }
             });
 
             // Header Styling Sync
@@ -160,82 +178,8 @@ namespace WarehouseManagement.Views.Panels
             };
             tablePanel.Controls.Add(dgvSuppliers);
             Controls.Add(tablePanel);
-            
-            topPanel.SendToBack(); // Ensure top panel is docked top relative to fill
 
             LoadData();
-        }
-
-        public void LoadData()
-        {
-            try
-            {
-                _allSuppliers = _controller.GetAllSuppliers();
-                dgvSuppliers.DataSource = _allSuppliers;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Lỗi tải dữ liệu: " + ex.Message);
-            }
-        }
-
-        public void Search(string text)
-        {
-            if (_allSuppliers == null) return;
-            string keyword = text.ToLower();
-            var filtered = _allSuppliers.FindAll(s => 
-                s.SupplierName.ToLower().Contains(keyword) || 
-                (s.Phone != null && s.Phone.Contains(keyword)) ||
-                (s.Email != null && s.Email.ToLower().Contains(keyword)));
-            dgvSuppliers.DataSource = filtered;
-        }
-
-        private void BtnAdd_Click(object sender, EventArgs e)
-        {
-            SupplierForm form = new SupplierForm(null);
-            if (form.ShowDialog() == DialogResult.OK)
-            {
-                LoadData();
-            }
-        }
-
-        private void DgvSuppliers_CellClick(object sender, DataGridViewCellEventArgs e)
-        {
-            if (e.RowIndex < 0) return;
-
-            // Edit
-            if (e.ColumnIndex == 5) 
-            {
-                var supplier = dgvSuppliers.Rows[e.RowIndex].DataBoundItem as Supplier;
-                if (supplier != null)
-                {
-                    SupplierForm form = new SupplierForm(supplier);
-                    if (form.ShowDialog() == DialogResult.OK) LoadData();
-                }
-            }
-            // Delete
-            else if (e.ColumnIndex == 6)
-            {
-                var supplier = dgvSuppliers.Rows[e.RowIndex].DataBoundItem as Supplier;
-                if (supplier != null)
-                {
-                    if (MessageBox.Show($"Bạn có chắc chắn muốn xóa nhà cung cấp '{supplier.SupplierName}'?", "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
-                    {
-                        try
-                        {
-                            if (_controller.DeleteSupplier(supplier.SupplierID))
-                            {
-                                MessageBox.Show("Đã xóa thành công!");
-                                LoadData();
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            MessageBox.Show("Lỗi xóa: " + ex.Message);
-                        }
-                    }
-                }
-            }
         }
 
         private void OnThemeChanged(object sender, EventArgs e) => ApplyTheme();
@@ -250,6 +194,106 @@ namespace WarehouseManagement.Views.Panels
             dgvSuppliers.DefaultCellStyle.SelectionForeColor = ThemeManager.Instance.TextPrimary;
             dgvSuppliers.ColumnHeadersDefaultCellStyle.BackColor = UIConstants.PrimaryColor.Default;
             dgvSuppliers.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+            dgvSuppliers.ColumnHeadersDefaultCellStyle.SelectionBackColor = UIConstants.PrimaryColor.Default;
+            dgvSuppliers.ColumnHeadersDefaultCellStyle.SelectionForeColor = Color.White;
+        }
+
+        public void LoadData()
+        {
+            try
+            {
+                _allSuppliers = _controller.GetAllSuppliers();
+                dgvSuppliers.DataSource = _allSuppliers;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi tải danh sách nhà cung cấp: " + ex.Message);
+            }
+        }
+
+        public void Search(string text)
+        {
+            if (_allSuppliers == null) return;
+            string keyword = text.ToLower();
+            var filtered = _allSuppliers.FindAll(s => 
+                s.SupplierID.ToString().Contains(keyword) || 
+                s.SupplierName.ToLower().Contains(keyword) || 
+                (s.Phone != null && s.Phone.Contains(keyword)) ||
+                (s.Email != null && s.Email.ToLower().Contains(keyword)));
+            dgvSuppliers.DataSource = filtered;
+        }
+
+        private void DgvSuppliers_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0) return;
+
+            int supplierId = (int)dgvSuppliers.Rows[e.RowIndex].Cells[0].Value;
+            string supplierName = dgvSuppliers.Rows[e.RowIndex].Cells[1].Value?.ToString() ?? "";
+
+            // Hide/Status Column (Index 5)
+            if (e.ColumnIndex == 5)
+            {
+                DialogResult result = MessageBox.Show(
+                    $"{UIConstants.Icons.Question} Bạn chắc chắn muốn đảo trạng thái nhà cung cấp '{supplierName}'?",
+                    "Xác nhận",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question);
+
+                if (result == DialogResult.Yes)
+                {
+                    try
+                    {
+                        _controller.SoftDeleteSupplier(supplierId);
+                        MessageBox.Show($"{UIConstants.Icons.Success} Trạng thái nhà cung cấp đã được thay đổi.", "Thành công", 
+                            MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        LoadData();
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"{UIConstants.Icons.Error} Lỗi thay đổi trạng thái: {ex.Message}", "Lỗi", 
+                            MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+                return;
+            }
+
+            // Delete Column (Index 6)
+            if (e.ColumnIndex == 6)
+            {
+                DialogResult result = MessageBox.Show(
+                    $"{UIConstants.Icons.Warning} Bạn chắc chắn muốn xóa nhà cung cấp '{supplierName}'?",
+                    "Xác nhận xóa",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Warning);
+
+                if (result == DialogResult.Yes)
+                {
+                    try
+                    {
+                        _controller.SoftDeleteSupplier(supplierId);
+                        MessageBox.Show($"{UIConstants.Icons.Success} Nhà cung cấp đã được xóa thành công.", "Thành công", 
+                            MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        LoadData();
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"{UIConstants.Icons.Error} Lỗi xóa nhà cung cấp: {ex.Message}", "Lỗi", 
+                            MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+                return;
+            }
+
+            // Other columns open Edit
+            var supplierToEdit = dgvSuppliers.Rows[e.RowIndex].DataBoundItem as Supplier;
+            if (supplierToEdit != null)
+            {
+                SupplierForm form = new SupplierForm(supplierToEdit);
+                if (form.ShowDialog() == DialogResult.OK)
+                {
+                    LoadData();
+                }
+            }
         }
     }
 }

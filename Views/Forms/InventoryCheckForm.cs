@@ -56,7 +56,10 @@ namespace WarehouseManagement.Views.Forms
 
             // Layout constants
             const int LEFT_MARGIN = 40;
-            const int INPUT_WIDTH = 540; // Reduced from 720 to match Transaction forms (approx 620px total)
+            // const int FULL_WIDTH = 720; // 800 - 40 - 40
+            const int COL_WIDTH = 350; // (720 - 20) / 2
+            const int COL_GAP = 20;
+            const int INPUT_WIDTH = 720;
             int currentY = 30;
             int inputSpacing = 20;
 
@@ -143,17 +146,17 @@ namespace WarehouseManagement.Views.Forms
                 {
                     Left = LEFT_MARGIN,
                     Top = currentY,
-                    Width = INPUT_WIDTH - 140
+                    Width = COL_WIDTH
                 };
                 LoadProducts();
 
                 btnAddProduct = new CustomButton
                 {
                     Text = "Thêm",
-                    Left = LEFT_MARGIN + INPUT_WIDTH - 130,
+                    Left = LEFT_MARGIN + COL_WIDTH + COL_GAP,
                     Top = currentY,
-                    Width = 130,
-                    ButtonStyleType = ButtonStyle.Filled
+                    Width = 150,
+                    ButtonStyleType = ButtonStyle.FilledNoOutline
                 };
                 btnAddProduct.Click += BtnAddProduct_Click;
 
@@ -204,12 +207,12 @@ namespace WarehouseManagement.Views.Forms
             };
 
             // Setup Columns -> Fit to 540 Width
-            // Suggested: ID(40) + Name(140) + Sys(70) + Act(70) + Diff(70) + Reason(150) = 540
+            // Suggested: ID(60) + Name(300) + Sys(100) + Act(100) + Diff(100) + Reason(260) = 920
             dgvDetails.Columns.Add(new DataGridViewTextBoxColumn 
             { 
                 HeaderText = "ID", 
                 DataPropertyName = "ProductID", 
-                Width = 40, 
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill, 
                 ReadOnly = true,
                 DefaultCellStyle = new DataGridViewCellStyle 
                 { 
@@ -221,7 +224,7 @@ namespace WarehouseManagement.Views.Forms
             { 
                 HeaderText = "Tên sản phẩm", 
                 Name = "ProductName", 
-                Width = 140, 
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill, 
                 ReadOnly = true,
                 DefaultCellStyle = new DataGridViewCellStyle { Padding = new Padding(10, 4, 10, 4) }
             }); 
@@ -229,7 +232,7 @@ namespace WarehouseManagement.Views.Forms
             { 
                 HeaderText = "Tồn Máy", 
                 DataPropertyName = "SystemQuantity", 
-                Width = 70, 
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill, 
                 ReadOnly = true,
                 DefaultCellStyle = new DataGridViewCellStyle 
                 { 
@@ -242,7 +245,7 @@ namespace WarehouseManagement.Views.Forms
             { 
                 HeaderText = "Tồn Thực", 
                 DataPropertyName = "ActualQuantity", 
-                Width = 70,
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
                 DefaultCellStyle = new DataGridViewCellStyle 
                 { 
                     Alignment = DataGridViewContentAlignment.MiddleRight,
@@ -257,7 +260,7 @@ namespace WarehouseManagement.Views.Forms
             { 
                 HeaderText = "Chênh lệch", 
                 DataPropertyName = "Difference", 
-                Width = 70, 
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill, 
                 ReadOnly = true,
                 DefaultCellStyle = new DataGridViewCellStyle 
                 { 
@@ -270,7 +273,7 @@ namespace WarehouseManagement.Views.Forms
             { 
                 HeaderText = "Lý do", 
                 DataPropertyName = "Reason", 
-                Width = 150,
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
                 DefaultCellStyle = new DataGridViewCellStyle { Padding = new Padding(10, 4, 10, 4) }
             };
             colReason.ReadOnly = !_isNew;
@@ -320,7 +323,7 @@ namespace WarehouseManagement.Views.Forms
                 {
                     Text = "Hoàn Tất",
                     Width = 120,
-                    ButtonStyleType = ButtonStyle.Filled
+                    ButtonStyleType = ButtonStyle.FilledNoOutline
                 };
                 btnComplete.Click += BtnComplete_Click;
 
@@ -346,7 +349,7 @@ namespace WarehouseManagement.Views.Forms
                 {
                     Text = "Hoàn Tất",
                     Width = 120,
-                    ButtonStyleType = ButtonStyle.Filled
+                    ButtonStyleType = ButtonStyle.FilledNoOutline
                 };
                 btnComplete.Click += BtnComplete_Click;
 
@@ -377,7 +380,7 @@ namespace WarehouseManagement.Views.Forms
             int calculatedHeight = contentHeight + paddingBottom;
 
             // Use ClientSize to keep inner size correct
-            ClientSize = new Size(620, calculatedHeight);
+            ClientSize = new Size(800, calculatedHeight);
             
             StartPosition = FormStartPosition.CenterParent;
             FormBorderStyle = FormBorderStyle.FixedDialog;

@@ -81,7 +81,7 @@ namespace WarehouseManagement.Views.Forms
             Controls.Add(contentPanel);
             Controls.Add(tabControl);
 
-            ClientSize = new Size(620, 635); // Tăng height để chứa TabControl
+            ClientSize = new Size(800, 635); // Tăng height để chứa TabControl
             StartPosition = FormStartPosition.CenterParent;
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false;
@@ -95,17 +95,32 @@ namespace WarehouseManagement.Views.Forms
         private void InitializeFormContent()
         {
             const int LEFT_MARGIN = 40;
+            const int COL_GAP = 20;
+            const int COL_WIDTH = 350; // (800 - 40 - 40 - 20) / 2
+            const int FULL_WIDTH = 720; // 800 - 40 - 40
             int currentY = 20;
             int spacing = UIConstants.Spacing.Margin.Medium;
 
-            // Subject (Supplier/Customer) - Added Block
+            // Row 1: Subject (Left) | Product (Right)
+            // Subject (Supplier/Customer)
             Label lblSubject = new Label 
             { 
                 Name = "lblSubject",
                 Text = $"{UIConstants.Icons.User} Nhà cung cấp:", 
                 Left = LEFT_MARGIN, 
                 Top = currentY, 
-                Width = 150,
+                Width = COL_WIDTH,
+                Font = ThemeManager.Instance.FontRegular,
+                TextAlign = ContentAlignment.MiddleLeft
+            };
+
+            // Product Label
+            Label lblProduct = new Label 
+            { 
+                Text = $"{UIConstants.Icons.Product} Sản phẩm:", 
+                Left = LEFT_MARGIN + COL_WIDTH + COL_GAP, 
+                Top = currentY, 
+                Width = COL_WIDTH,
                 Font = ThemeManager.Instance.FontRegular,
                 TextAlign = ContentAlignment.MiddleLeft
             };
@@ -115,37 +130,24 @@ namespace WarehouseManagement.Views.Forms
             { 
                 Left = LEFT_MARGIN, 
                 Top = currentY, 
-                Width = 520
+                Width = COL_WIDTH
             };
-            currentY += UIConstants.Sizes.InputHeight + spacing;
-
-            // Product
-            Label lblProduct = new Label 
-            { 
-                Text = $"{UIConstants.Icons.Product} Sản phẩm:", 
-                Left = LEFT_MARGIN, 
-                Top = currentY, 
-                Width = 110,
-                Font = ThemeManager.Instance.FontRegular,
-                TextAlign = ContentAlignment.MiddleLeft
-            };
-            currentY += 25;
 
             cmbProduct = new CustomComboBox 
             { 
-                Left = LEFT_MARGIN, 
+                Left = LEFT_MARGIN + COL_WIDTH + COL_GAP, 
                 Top = currentY, 
-                Width = 520
+                Width = COL_WIDTH
             };
             currentY += UIConstants.Sizes.InputHeight + spacing;
 
-            // Quantity and Price (same row)
+            // Row 2: Quantity (Left) | Price (Right)
             Label lblQuantity = new Label 
             { 
                 Text = $"{UIConstants.Icons.Package} Số lượng:", 
                 Left = LEFT_MARGIN, 
                 Top = currentY, 
-                Width = 100,
+                Width = COL_WIDTH,
                 Font = ThemeManager.Instance.FontRegular,
                 TextAlign = ContentAlignment.MiddleLeft
             };
@@ -153,9 +155,9 @@ namespace WarehouseManagement.Views.Forms
             Label lblPrice = new Label 
             { 
                 Text = $"{UIConstants.Icons.Money} Đơn giá:", 
-                Left = LEFT_MARGIN + 250, 
+                Left = LEFT_MARGIN + COL_WIDTH + COL_GAP, 
                 Top = currentY, 
-                Width = 80,
+                Width = COL_WIDTH,
                 Font = ThemeManager.Instance.FontRegular,
                 TextAlign = ContentAlignment.MiddleLeft
             };
@@ -165,26 +167,26 @@ namespace WarehouseManagement.Views.Forms
             { 
                 Left = LEFT_MARGIN, 
                 Top = currentY, 
-                Width = 220,
+                Width = COL_WIDTH,
                 Placeholder = "Số lượng..."
             };
 
             txtUnitPrice = new CustomTextBox 
             { 
-                Left = LEFT_MARGIN + 250, 
+                Left = LEFT_MARGIN + COL_WIDTH + COL_GAP, 
                 Top = currentY, 
-                Width = 270,
+                Width = COL_WIDTH,
                 Placeholder = "Đơn giá..."
             };
             currentY += UIConstants.Sizes.InputHeight + spacing;
 
-            // Note
+            // Note (Full Width)
             Label lblNote = new Label 
             { 
                 Text = $"{UIConstants.Icons.FileText} Ghi chú:", 
                 Left = LEFT_MARGIN, 
                 Top = currentY, 
-                Width = 100,
+                Width = FULL_WIDTH,
                 Font = ThemeManager.Instance.FontRegular,
                 TextAlign = ContentAlignment.TopLeft
             };
@@ -194,13 +196,14 @@ namespace WarehouseManagement.Views.Forms
             { 
                 Left = LEFT_MARGIN, 
                 Top = currentY, 
-                Width = 520, 
+                Width = FULL_WIDTH, 
                 Height = 60,
                 Placeholder = "Ghi chú (không bắt buộc)..."
             };
             currentY += 60 + spacing;
 
-            // Add/Remove buttons
+            // Add/Remove buttons (Centered or Left?) -> Let's keep them Left for flow, or relative to Grid.
+            // Grid is full width. Buttons should probably align with grid or be clearly actionable.
             btnAddDetail = new CustomButton 
             { 
                 Text = $"{UIConstants.Icons.Add} Thêm", 
@@ -223,12 +226,12 @@ namespace WarehouseManagement.Views.Forms
             btnRemoveDetail.Click += BtnRemoveDetail_Click;
             currentY += UIConstants.Sizes.ButtonHeight + spacing;
 
-            // DataGridView
+            // DataGridView (Full Width)
             dgvDetails = new DataGridView
             {
                 Left = LEFT_MARGIN,
                 Top = currentY,
-                Width = 520,
+                Width = FULL_WIDTH,
                 Height = 180,
                 AutoGenerateColumns = false,
                 AllowUserToAddRows = false,
@@ -255,14 +258,14 @@ namespace WarehouseManagement.Views.Forms
             { 
                 HeaderText = "Sản phẩm", 
                 DataPropertyName = "ProductName", 
-                Width = 300,
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
                 DefaultCellStyle = new DataGridViewCellStyle { Padding = new Padding(10, 4, 10, 4) }
             });
             dgvDetails.Columns.Add(new DataGridViewTextBoxColumn 
             { 
                 HeaderText = "Số lượng", 
                 DataPropertyName = "Quantity", 
-                Width = 80,
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
                 DefaultCellStyle = new DataGridViewCellStyle 
                 { 
                     Alignment = DataGridViewContentAlignment.MiddleRight,
@@ -273,7 +276,7 @@ namespace WarehouseManagement.Views.Forms
             { 
                 HeaderText = "Đơn giá", 
                 DataPropertyName = "UnitPrice", 
-                Width = 140, 
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
                 DefaultCellStyle = new DataGridViewCellStyle 
                 { 
                     Format = "N0",

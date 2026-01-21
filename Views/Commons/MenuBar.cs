@@ -73,23 +73,9 @@ namespace WarehouseManagement.Views.Commons
                 Padding = new Padding(15, 0, 0, 0)
             };
 
-            BtnTransactions = new CustomButton
-            {
-                Text = $"{UIConstants.Icons.Transaction} Giao Dịch",
-                Dock = DockStyle.Top,
-                Height = btnHeight,
-                Margin = new Padding(btnMargin),
-                ButtonStyleType = ButtonStyle.Menu,
-                Font = ThemeManager.Instance.FontBold,
-                BorderRadius = UIConstants.Borders.RadiusMedium,
-                TextAlign = ContentAlignment.MiddleLeft,
-                Padding = new Padding(15, 0, 0, 0)
-            };
-
-            // New Buttons
             BtnSuppliers = new CustomButton
             {
-                Text = $"{UIConstants.Icons.Supplier} Nhà Cung Cấp", // Assuming Icon exists, or fallback
+                Text = $"{UIConstants.Icons.Supplier} Nhà Cung Cấp",
                 Dock = DockStyle.Top,
                 Height = btnHeight,
                 Margin = new Padding(btnMargin),
@@ -103,6 +89,19 @@ namespace WarehouseManagement.Views.Commons
             BtnCustomers = new CustomButton
             {
                 Text = $"{UIConstants.Icons.Customer} Khách Hàng",
+                Dock = DockStyle.Top,
+                Height = btnHeight,
+                Margin = new Padding(btnMargin),
+                ButtonStyleType = ButtonStyle.Menu,
+                Font = ThemeManager.Instance.FontBold,
+                BorderRadius = UIConstants.Borders.RadiusMedium,
+                TextAlign = ContentAlignment.MiddleLeft,
+                Padding = new Padding(15, 0, 0, 0)
+            };
+
+            BtnTransactions = new CustomButton
+            {
+                Text = $"{UIConstants.Icons.Transaction} Giao Dịch",
                 Dock = DockStyle.Top,
                 Height = btnHeight,
                 Margin = new Padding(btnMargin),
@@ -157,9 +156,9 @@ namespace WarehouseManagement.Views.Commons
             Controls.Add(BtnSettings);
             // Add in reverse order of Dock.Top
             Controls.Add(BtnInventoryChecks);
+            Controls.Add(BtnTransactions);
             Controls.Add(BtnCustomers);
             Controls.Add(BtnSuppliers);
-            Controls.Add(BtnTransactions);
             Controls.Add(BtnProducts);
             Controls.Add(BtnCategories);
         }

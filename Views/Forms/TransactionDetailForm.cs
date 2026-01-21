@@ -44,8 +44,8 @@ namespace WarehouseManagement.Views.Forms
 
             const int LEFT_MARGIN = 40;
             const int COLUMN_GAP = 20;
-            const int INPUT_WIDTH_HALF = 250; // Total width approx 40 + 250 + 20 + 250 + 40 = 600
-            const int INPUT_WIDTH_FULL = 520; // 250 + 20 + 250
+            const int INPUT_WIDTH_HALF = 350; // (800 - 40 - 40 - 20) / 2
+            const int INPUT_WIDTH_FULL = 720; // 800 - 40 - 40
             int currentY = 30;
             int inputSpacing = 20;
 
@@ -93,27 +93,12 @@ namespace WarehouseManagement.Views.Forms
             currentY += UIConstants.Sizes.InputHeight + inputSpacing;
 
 
-            // Row 2: Partner (Full width)
+            // Row 2: Partner (Left) | Date (Right)
             mainPanel.Controls.Add(CreateStyledLabel("Đối tác", LEFT_MARGIN, currentY));
+            mainPanel.Controls.Add(CreateStyledLabel("Ngày Tạo", LEFT_MARGIN + INPUT_WIDTH_HALF + COLUMN_GAP, currentY));
             currentY += 20;
 
             txtPartner = new CustomTextBox 
-            { 
-                Left = LEFT_MARGIN, 
-                Top = currentY, 
-                Width = INPUT_WIDTH_FULL,
-                ReadOnly = true,
-                TabStop = false
-            };
-            mainPanel.Controls.Add(txtPartner);
-            currentY += UIConstants.Sizes.InputHeight + inputSpacing;
-
-            // Row 3: Date | User
-            mainPanel.Controls.Add(CreateStyledLabel("Ngày Tạo", LEFT_MARGIN, currentY));
-            mainPanel.Controls.Add(CreateStyledLabel("Người Tạo", LEFT_MARGIN + INPUT_WIDTH_HALF + COLUMN_GAP, currentY));
-            currentY += 20;
-
-            txtDate = new CustomTextBox 
             { 
                 Left = LEFT_MARGIN, 
                 Top = currentY, 
@@ -121,9 +106,9 @@ namespace WarehouseManagement.Views.Forms
                 ReadOnly = true,
                 TabStop = false
             };
-            mainPanel.Controls.Add(txtDate);
+            mainPanel.Controls.Add(txtPartner);
 
-            txtCreatedBy = new CustomTextBox 
+            txtDate = new CustomTextBox 
             { 
                 Left = LEFT_MARGIN + INPUT_WIDTH_HALF + COLUMN_GAP, 
                 Top = currentY, 
@@ -131,18 +116,29 @@ namespace WarehouseManagement.Views.Forms
                 ReadOnly = true,
                 TabStop = false
             };
-            mainPanel.Controls.Add(txtCreatedBy);
+            mainPanel.Controls.Add(txtDate);
             currentY += UIConstants.Sizes.InputHeight + inputSpacing;
 
-            // Row 4: Total Value (Full width for emphasis)
-            mainPanel.Controls.Add(CreateStyledLabel("Tổng Giá Trị", LEFT_MARGIN, currentY));
+            // Row 3: Created By (Left) | Total Value (Right)
+            mainPanel.Controls.Add(CreateStyledLabel("Người Tạo", LEFT_MARGIN, currentY));
+            mainPanel.Controls.Add(CreateStyledLabel("Tổng Giá Trị", LEFT_MARGIN + INPUT_WIDTH_HALF + COLUMN_GAP, currentY));
             currentY += 20;
 
-            txtTotalValue = new CustomTextBox 
+            txtCreatedBy = new CustomTextBox 
             { 
                 Left = LEFT_MARGIN, 
                 Top = currentY, 
-                Width = INPUT_WIDTH_FULL,
+                Width = INPUT_WIDTH_HALF,
+                ReadOnly = true,
+                TabStop = false
+            };
+            mainPanel.Controls.Add(txtCreatedBy);
+
+            txtTotalValue = new CustomTextBox 
+            { 
+                Left = LEFT_MARGIN + INPUT_WIDTH_HALF + COLUMN_GAP, 
+                Top = currentY, 
+                Width = INPUT_WIDTH_HALF,
                 ReadOnly = true,
                 TabStop = false
             };
@@ -210,14 +206,14 @@ namespace WarehouseManagement.Views.Forms
             { 
                 HeaderText = "Sản phẩm", 
                 DataPropertyName = "ProductName", 
-                Width = 210,
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
                 DefaultCellStyle = new DataGridViewCellStyle { Padding = new Padding(10, 4, 10, 4) }
             });
             dgvDetails.Columns.Add(new DataGridViewTextBoxColumn 
             { 
                 HeaderText = "Số lượng", 
                 DataPropertyName = "Quantity", 
-                Width = 90,
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
                 DefaultCellStyle = new DataGridViewCellStyle 
                 { 
                     Alignment = DataGridViewContentAlignment.MiddleRight,
@@ -228,7 +224,7 @@ namespace WarehouseManagement.Views.Forms
             { 
                 HeaderText = "Đơn giá", 
                 DataPropertyName = "UnitPrice", 
-                Width = 110, 
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill, 
                 DefaultCellStyle = new DataGridViewCellStyle 
                 { 
                     Format = "N0",
@@ -240,7 +236,7 @@ namespace WarehouseManagement.Views.Forms
             { 
                 HeaderText = "Thành tiền", 
                 DataPropertyName = "SubTotal", 
-                Width = 110, 
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill, 
                 DefaultCellStyle = new DataGridViewCellStyle 
                 { 
                     Format = "N0",
@@ -285,7 +281,7 @@ namespace WarehouseManagement.Views.Forms
             Controls.Add(mainPanel);
 
             // Size
-            int calculatedWidth = LEFT_MARGIN + INPUT_WIDTH_FULL + LEFT_MARGIN; // 40 + 520 + 40 = 600
+            int calculatedWidth = 800;
             ClientSize = new Size(calculatedWidth, currentY);
             
             StartPosition = FormStartPosition.CenterParent;

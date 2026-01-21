@@ -14,7 +14,9 @@ namespace WarehouseManagement.Views.Commons
     {
         public CustomTextBox TxtSearch { get; private set; }
         public CustomButton BtnAdd { get; private set; }
+
         public CustomButton BtnTransaction { get; private set; }
+        public CustomButton BtnInventory { get; private set; }
         public CustomButton BtnUndo { get; private set; }
         public CustomButton BtnSave { get; private set; }
         public CustomButton BtnReport { get; private set; }
@@ -23,7 +25,9 @@ namespace WarehouseManagement.Views.Commons
         // Events
         public event EventHandler SearchRequested;
         public event EventHandler AddRequested;
+
         public event EventHandler TransactionRequested;
+        public event EventHandler InventoryRequested;
         public event EventHandler UndoRequested;
         public event EventHandler SaveRequested;
         public event EventHandler ReportRequested;
@@ -79,6 +83,16 @@ namespace WarehouseManagement.Views.Commons
             };
             currentX += 135 + spacing;
 
+            BtnInventory = new CustomButton
+            {
+                Text = $"{UIConstants.Icons.Check} Kiểm kê",
+                Left = currentX,
+                Top = topOffset,
+                Width = 120,
+                ButtonStyleType = ButtonStyle.FilledNoOutline
+            };
+            currentX += 120 + spacing;
+
             BtnUndo = new CustomButton
             {
                 Text = $"{UIConstants.Icons.Undo} Undo",
@@ -123,7 +137,7 @@ namespace WarehouseManagement.Views.Commons
 
             Controls.AddRange(new Control[]
             {
-                TxtSearch, BtnAdd, BtnTransaction,
+                TxtSearch, BtnAdd, BtnTransaction, BtnInventory,
                 BtnUndo, BtnSave, BtnReport, LblChangeStatus
             });
         }
@@ -133,6 +147,7 @@ namespace WarehouseManagement.Views.Commons
             TxtSearch.TextChanged += (s, e) => SearchRequested?.Invoke(this, EventArgs.Empty);
             BtnAdd.Click += (s, e) => AddRequested?.Invoke(this, EventArgs.Empty);
             BtnTransaction.Click += (s, e) => TransactionRequested?.Invoke(this, EventArgs.Empty);
+            BtnInventory.Click += (s, e) => InventoryRequested?.Invoke(this, EventArgs.Empty);
             BtnUndo.Click += (s, e) => UndoRequested?.Invoke(this, EventArgs.Empty);
             BtnSave.Click += (s, e) => SaveRequested?.Invoke(this, EventArgs.Empty);
             BtnReport.Click += (s, e) => ReportRequested?.Invoke(this, EventArgs.Empty);

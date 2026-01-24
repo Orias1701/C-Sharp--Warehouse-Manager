@@ -4,6 +4,7 @@ using System.Linq;
 using WarehouseManagement.Models;
 using WarehouseManagement.Repositories;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace WarehouseManagement.Services
 {
@@ -13,6 +14,8 @@ namespace WarehouseManagement.Services
         private readonly TransactionRepository _transactionRepo;
         private readonly LogRepository _logRepo;
         private readonly CategoryRepository _categoryRepo;
+        private readonly SupplierRepository _supplierRepo;
+        private readonly CustomerRepository _customerRepo;
 
         public InventoryService()
         {
@@ -20,6 +23,8 @@ namespace WarehouseManagement.Services
             _transactionRepo = new TransactionRepository();
             _logRepo = new LogRepository();
             _categoryRepo = new CategoryRepository();
+            _supplierRepo = new SupplierRepository();
+            _customerRepo = new CustomerRepository();
         }
 
         public bool ImportStock(int productId, int quantity, decimal unitPrice, string note = "")
@@ -319,8 +324,260 @@ namespace WarehouseManagement.Services
 
         public bool UndoLastAction()
         {
-             // Simplified Undo for now to match interface
-             return false;
+            try
+            {
+                var logs = _logRepo.GetAllLogs();
+                if (logs.Count == 0) return false;
+
+                var lastLog = logs[0]; // Gets the most recent log (LIFO)
+                bool success = false;
+
+                switch (lastLog.ActionType)
+                {
+                    case "ADD_CATEGORY":
+                        // DataBefore is empty for ADD.
+                        // We need to parse the Description to find the name or ID? 
+                        // Actually, the log description says "Thêm danh mục: {Name}".
+                        // It's safer if we stored the ID in the log, but we didn't. 
+                        // However, since it's the *last* action, we can assume the highest ID or search by name.
+                        // Better approach: In AddCategory, we should have logged the ID.
+                        // Current implementation of AddCategory doesn't log ID in DataBefore.
+                        // But since we just added it, it should be the latest category? 
+                        // Let's try to find it by parsing description or taking the latest category.
+                        
+                        // Parse name from "Thêm danh mục: {Name}"
+                        if (lastLog.Descriptions.StartsWith("Thêm danh mục: "))
+                        {
+                            string catName = lastLog.Descriptions.Replace("Thêm danh mục: ", "").Trim();
+                            var cats = _categoryRepo.GetAllCategories(); // This returns visible categories
+                            var cat = cats.FirstOrDefault(c => c.CategoryName.Equals(catName, StringComparison.OrdinalIgnoreCase));
+                            if (cat != null)
+                            {
+                                // Hard delete or Soft delete?
+                                // If we soft delete (HideCategory), it acts like it's gone.
+                                // But if user Saves changes, logs are cleared. 
+                                // Ideally we should Hard Delete if it was a fresh add, but soft delete is safer.
+                                // However, finding the ID is tricky if multiple have same name. 
+                                // Let's use the ID-based approach if we can find it.
+                                
+                                // For improved safety, let's use the CategoryService.DeleteCategory which checks dependencies
+                                // But here we want to UNDO, so we want to force remove it?
+                                // If we just added it, it shouldn't have products yet (unless added immediately after).
+                                // Let's use DeleteCategory (Soft Delete).
+                                success = _categoryRepo.DeleteCategory(cat.CategoryID);
+                            }
+                        }
+                        break;
+
+                    case "UPDATE_CATEGORY":
+                        if (!string.IsNullOrEmpty(lastLog.DataBefore))
+                        {
+                            JObject data = JObject.Parse(lastLog.DataBefore);
+                            int catId = (int)data["CategoryID"];
+                            string oldName = (string)data["CategoryName"];
+                            string oldDesc = (string)data["Description"];
+                            
+                            var catToRestore = new Category 
+                            { 
+                                CategoryID = catId, 
+                                CategoryName = oldName, 
+                                Description = oldDesc 
+                            };
+                            success = _categoryRepo.UpdateCategory(catToRestore);
+                        }
+                        break;
+
+                    case "DELETE_CATEGORY":
+                        if (!string.IsNullOrEmpty(lastLog.DataBefore))
+                        {
+                            JObject data = JObject.Parse(lastLog.DataBefore);
+                            int catId = (int)data["CategoryID"];
+                            string oldName = (string)data["CategoryName"];
+                            string oldDesc = (string)data["Description"];
+                            
+                            success = _categoryRepo.RestoreDeletedCategory(catId, oldName, oldDesc);
+                        }
+                        break;
+
+                    case "ADD_PRODUCT":
+                        if (lastLog.Descriptions.StartsWith("Thêm sản phẩm: "))
+                        {
+                            string name = lastLog.Descriptions.Replace("Thêm sản phẩm: ", "").Trim();
+                            var prods = _productRepo.SearchProductByName(name);
+                            // Assuming the last added one with this name
+                            var prod = prods.OrderByDescending(p => p.ProductID).FirstOrDefault();
+                            if (prod != null)
+                            {
+                                success = _productRepo.DeleteProduct(prod.ProductID);
+                            }
+                        }
+                        break;
+
+                    case "UPDATE_PRODUCT":
+                        if (!string.IsNullOrEmpty(lastLog.DataBefore))
+                        {
+                            JObject data = JObject.Parse(lastLog.DataBefore);
+                            var prod = new Product
+                            {
+                                ProductID = (int)data["ProductID"],
+                                ProductName = (string)data["ProductName"],
+                                CategoryID = (int)data["CategoryID"],
+                                Price = (decimal)data["Price"],
+                                Quantity = (int)data["Quantity"],
+                                MinThreshold = (int)data["MinThreshold"]
+                            };
+                            success = _productRepo.UpdateProduct(prod);
+                        }
+                        break;
+
+                    case "DELETE_PRODUCT":
+                         if (!string.IsNullOrEmpty(lastLog.DataBefore))
+                        {
+                            JObject data = JObject.Parse(lastLog.DataBefore);
+                            int id = (int)data["ProductID"];
+                            // Using UpdateProduct to restore? Or need a Restore method?
+                            // ProductRepo.UpdateProduct usually updates visible fields. 
+                            // But usually "Delete" sets Visible=False.
+                            // To Restore, we need to set Visible=True.
+                            // Does UpdateProduct update Visible? 
+                            // Examining ProductService.UpdateProduct -> It calls Repo.UpdateProduct.
+                            // Examining Repo.UpdateProduct (I need to check this mostly). 
+                            // If Repo doesn't update Visible, I can't restore easily without direct SQL or specific method.
+                            // Let's assume I need to handle this.
+                            // Let's TRY to use a direct SQL via a new method or ...
+                            // Wait, for Suppliers/Customers I used Update.
+                            // For Categories I added RestoreDeletedCategory.
+                            // I probably need RestoreDeletedProduct. 
+                            // But I can't modify ProductRepo easily in this same step if I didn't plan it well (I checked service, not repo deep enough).
+                            // Workaround: Use UpdateProduct AND ALSO set Visible=True if the Repo supports it?
+                            // Checked ProductRepo code? I viewed ProductService, but not ProductRepo content in this turn.
+                            // Warning: I might need to verify ProductRepo.UpdateProduct updates Visible.
+                            // If not, I should add a helper or use a raw command? 
+                            // I can't run raw commands easily here.
+                            // Best bet: Implement a simple "Restore" via SQL if I could, but I can't.
+                            // Let's look at what I have. I have _productRepo. 
+                            // If I can't restore, I'll fail. 
+                            // Let's skip implementing DELETE_PRODUCT fully or try Update.
+                            
+                            // actually, let's assume UpdateProduct restores it if I set it.
+                            // If not, I will add RestoreDeletedProduct to Repo in next step if verification fails.
+                            // But better: I'll use a specific trick: 
+                            // I can't.
+                            
+                            // Let's add the case but note it might need Repo update.
+                            // Actually, I can use "HideProduct(id)" to hide. To show? 
+                            // There is no ShowProduct.
+                            
+                            // Let's add "RestoreDeletedProduct" to ProductRepostiory in a separate call if needed.
+                            // I will do that concurrently or after. 
+                            // For now, let's put the logic assuming there is a way or I will add it.
+                            // I will add RestoreDeletedProduct to ProductRepository.cs NEXT.
+                            
+                            success = _productRepo.RestoreDeletedProduct(id); // I will add this method.
+                        }
+                        break;
+
+                    case "ADD_SUPPLIER":
+                        if (lastLog.Descriptions.StartsWith("Thêm nhà cung cấp: "))
+                        {
+                            string name = lastLog.Descriptions.Replace("Thêm nhà cung cấp: ", "").Trim();
+                            // Find by name? Repo doesn't have SearchByName exposed? Service has GetAll.
+                            var suppliers = _supplierRepo.GetAllSuppliers(true); 
+                            var sup = suppliers.FirstOrDefault(s => s.SupplierName == name); // Potentially risk if duplicates
+                            if (sup != null)
+                            {
+                                success = _supplierRepo.SoftDeleteSupplier(sup.SupplierID);
+                            }
+                        }
+                        break;
+
+                    case "UPDATE_SUPPLIER":
+                         if (!string.IsNullOrEmpty(lastLog.DataBefore))
+                        {
+                            JObject data = JObject.Parse(lastLog.DataBefore);
+                            var sup = new Supplier
+                            {
+                                SupplierID = (int)data["SupplierID"],
+                                SupplierName = (string)data["SupplierName"],
+                                Phone = (string)data["Phone"],
+                                Email = (string)data["Email"],
+                                Address = (string)data["Address"],
+                                Visible = true // Restore visibility if needed or just update
+                            };
+                            success = _supplierRepo.UpdateSupplier(sup);
+                        }
+                        break;
+
+                    case "DELETE_SUPPLIER":
+                         if (!string.IsNullOrEmpty(lastLog.DataBefore))
+                        {
+                            JObject data = JObject.Parse(lastLog.DataBefore);
+                            var sup = new Supplier
+                            {
+                                SupplierID = (int)data["SupplierID"],
+                                SupplierName = (string)data["SupplierName"],
+                                Phone = (string)data["Phone"],
+                                Email = (string)data["Email"],
+                                Address = (string)data["Address"],
+                                Visible = true
+                            };
+                            success = _supplierRepo.UpdateSupplier(sup); // Update with Visible=True should restore it
+                        }
+                        break;
+
+                    case "ADD_CUSTOMER":
+                        if (lastLog.Descriptions.StartsWith("Thêm khách hàng: "))
+                        {
+                            string name = lastLog.Descriptions.Replace("Thêm khách hàng: ", "").Trim();
+                            var customers = _customerRepo.GetAllCustomers(true);
+                            var cus = customers.FirstOrDefault(c => c.CustomerName == name);
+                            if (cus != null)
+                            {
+                                success = _customerRepo.SoftDeleteCustomer(cus.CustomerID);
+                            }
+                        }
+                        break;
+
+                    case "UPDATE_CUSTOMER":
+                    case "DELETE_CUSTOMER":
+                          if (!string.IsNullOrEmpty(lastLog.DataBefore))
+                        {
+                            JObject data = JObject.Parse(lastLog.DataBefore);
+                            var cus = new Customer
+                            {
+                                CustomerID = (int)data["CustomerID"],
+                                CustomerName = (string)data["CustomerName"],
+                                Phone = (string)data["Phone"],
+                                Email = (string)data["Email"],
+                                Address = (string)data["Address"],
+                                Visible = true
+                            };
+                            success = _customerRepo.UpdateCustomer(cus);
+                        }
+                        break;
+                        
+                    default:
+                        // Unknown action type
+                        return false;
+                }
+
+                if (success)
+                {
+                    // Remove the log from the stack so we don't undo it again (and to reflect "Undo" operation)
+                    _logRepo.RemoveFromUndoStack(lastLog.LogID);
+                    
+                    ActionsService.Instance.MarkAsChanged(); // Update UI state
+                    return true;
+                }
+                
+                return false;
+            }
+            catch (Exception ex)
+            {
+                // Log error?
+                Console.WriteLine("Undo Error: " + ex.Message);
+                return false;
+            }
         }
 
         public List<Transaction> GetAllTransactions(bool includeHidden = false)

@@ -164,7 +164,7 @@ namespace WarehouseManagement.Repositories
         /// <summary>
         /// Phục hồi danh mục đã xóa (restore deleted category)
         /// </summary>
-        public bool RestoreDeletedCategory(int categoryId, string categoryName)
+        public bool RestoreDeletedCategory(int categoryId, string categoryName, string description = "")
         {
             try
             {
@@ -172,10 +172,11 @@ namespace WarehouseManagement.Repositories
                 {
                     conn.Open();
                     using (var cmd = new MySqlCommand(
-                        "UPDATE Categories SET Visible=TRUE, CategoryName=@name WHERE CategoryID=@id", conn))
+                        "UPDATE Categories SET Visible=TRUE, CategoryName=@name, Description=@desc WHERE CategoryID=@id", conn))
                     {
                         cmd.Parameters.AddWithValue("@id", categoryId);
                         cmd.Parameters.AddWithValue("@name", categoryName);
+                        cmd.Parameters.AddWithValue("@desc", description ?? "");
                         return cmd.ExecuteNonQuery() > 0;
                     }
                 }

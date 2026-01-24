@@ -55,6 +55,46 @@ namespace WarehouseManagement.Repositories
         }
 
         /// <summary>
+        /// Tìm kiếm sản phẩm theo tên
+        /// </summary>
+        public List<Product> SearchProductByName(string keyword)
+        {
+            var list = new List<Product>();
+            try
+            {
+                using (var conn = GetConnection())
+                {
+                    conn.Open();
+                    using (var cmd = new MySqlCommand("SELECT * FROM Products WHERE ProductName LIKE @keyword AND Visible=TRUE", conn))
+                    {
+                        cmd.Parameters.AddWithValue("@keyword", "%" + keyword + "%");
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                list.Add(new Product
+                                {
+                                    ProductID = reader.GetInt32("ProductID"),
+                                    ProductName = reader.GetString("ProductName"),
+                                    CategoryID = reader.GetInt32("CategoryID"),
+                                    Price = reader.GetDecimal("Price"),
+                                    Quantity = reader.GetInt32("Quantity"),
+                                    MinThreshold = reader.GetInt32("MinThreshold"),
+                                    InventoryValue = reader.GetDecimal("InventoryValue")
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi tìm kiếm sản phẩm: " + ex.Message);
+            }
+            return list;
+        }
+
+        /// <summary>
         /// Lấy sản phẩm theo ID
         /// </summary>
         public Product GetProductById(int productId)
@@ -408,6 +448,29 @@ namespace WarehouseManagement.Repositories
             catch (Exception ex)
             {
                 throw new Exception("Lỗi khi đảo trạng thái sản phẩm: " + ex.Message);
+            }
+        }
+        /// <summary>
+        /// Phục hồi sản phẩm đã xóa (restore deleted product)
+        /// </summary>
+        public bool RestoreDeletedProduct(int productId)
+        {
+            try
+            {
+                using (var conn = GetConnection())
+                {
+                    conn.Open();
+                    using (var cmd = new MySqlCommand(
+                        "UPDATE Products SET Visible=TRUE WHERE ProductID=@id", conn))
+                    {
+                        cmd.Parameters.AddWithValue("@id", productId);
+                        return cmd.ExecuteNonQuery() > 0;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khi phục hồi sản phẩm: " + ex.Message);
             }
         }
     }

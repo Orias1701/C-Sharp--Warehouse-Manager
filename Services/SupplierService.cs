@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using WarehouseManagement.Models;
 using WarehouseManagement.Repositories;
 
+using Newtonsoft.Json;
+
 namespace WarehouseManagement.Services
 {
     public class SupplierService
@@ -53,9 +55,23 @@ namespace WarehouseManagement.Services
                 if (string.IsNullOrWhiteSpace(supplier.SupplierName))
                     throw new ArgumentException("Tên nhà cung cấp không được để trống");
 
+                var oldSupplier = _supplierRepo.GetSupplierById(supplier.SupplierID);
+                if (oldSupplier == null) throw new ArgumentException("Nhà cung cấp không tồn tại");
+
+                var beforeData = new
+                {
+                    SupplierID = oldSupplier.SupplierID,
+                    SupplierName = oldSupplier.SupplierName,
+                    Phone = oldSupplier.Phone,
+                    Email = oldSupplier.Email,
+                    Address = oldSupplier.Address
+                };
+
                 if (_supplierRepo.UpdateSupplier(supplier))
                 {
-                    _logRepo.LogAction("UPDATE_SUPPLIER", $"Cập nhật nhà cung cấp ID {supplier.SupplierID}");
+                    _logRepo.LogAction("UPDATE_SUPPLIER", 
+                        $"Cập nhật nhà cung cấp ID {supplier.SupplierID}",
+                        JsonConvert.SerializeObject(beforeData));
                     return true;
                 }
                 return false;
@@ -70,11 +86,26 @@ namespace WarehouseManagement.Services
         {
             try
             {
-                // Soft delete
-                if (_supplierRepo.SoftDeleteSupplier(id))
+                var oldSupplier = _supplierRepo.GetSupplierById(id);
+                if (oldSupplier != null)
                 {
-                    _logRepo.LogAction("DELETE_SUPPLIER", $"Xóa (ẩn) nhà cung cấp ID {id}");
-                    return true;
+                    var beforeData = new
+                    {
+                        SupplierID = oldSupplier.SupplierID,
+                        SupplierName = oldSupplier.SupplierName,
+                        Phone = oldSupplier.Phone,
+                        Email = oldSupplier.Email,
+                        Address = oldSupplier.Address
+                    };
+
+                    // Soft delete
+                    if (_supplierRepo.SoftDeleteSupplier(id))
+                    {
+                        _logRepo.LogAction("DELETE_SUPPLIER", 
+                            $"Xóa (ẩn) nhà cung cấp ID {id}",
+                            JsonConvert.SerializeObject(beforeData));
+                        return true;
+                    }
                 }
                 return false;
             }

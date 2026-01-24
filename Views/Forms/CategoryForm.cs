@@ -208,13 +208,13 @@ namespace WarehouseManagement.Views.Forms
             {
                 if (_categoryId.HasValue)
                 {
-                    _categoryController.UpdateCategory(_categoryId.Value, categoryName);
+                    _categoryController.UpdateCategory(_categoryId.Value, categoryName, txtCategoryDesc.Text);
                     MessageBox.Show($"{UIConstants.Icons.Success} Cập nhật danh mục thành công!", "Thành công", 
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 else
                 {
-                    _categoryController.CreateCategory(categoryName);
+                    _categoryController.CreateCategory(categoryName, txtCategoryDesc.Text);
                     MessageBox.Show($"{UIConstants.Icons.Success} Thêm danh mục thành công!", "Thành công", 
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }

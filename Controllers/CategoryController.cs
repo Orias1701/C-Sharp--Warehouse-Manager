@@ -44,17 +44,17 @@ namespace WarehouseManagement.Controllers
         /// <summary>
         /// Thêm danh mục mới
         /// </summary>
-        public int CreateCategory(string categoryName)
+        public int CreateCategory(string categoryName, string description = "")
         {
-            return _categoryService.AddCategory(categoryName);
+            return _categoryService.AddCategory(categoryName, description);
         }
 
         /// <summary>
         /// Cập nhật danh mục
         /// </summary>
-        public bool UpdateCategory(int categoryId, string categoryName)
+        public bool UpdateCategory(int categoryId, string categoryName, string description = "")
         {
-            return _categoryService.UpdateCategory(categoryId, categoryName);
+            return _categoryService.UpdateCategory(categoryId, categoryName, description);
         }
 
         /// <summary>

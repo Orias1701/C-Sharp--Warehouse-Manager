@@ -94,7 +94,7 @@ namespace WarehouseManagement.Services
         /// 4. MarkAsChanged(): Đánh dấu có thay đổi
         /// 5. Return: Trả về ID danh mục vừa thêm
         /// </summary>
-        public int AddCategory(string categoryName)
+        public int AddCategory(string categoryName, string description = "")
         {
             try
             {
@@ -106,7 +106,8 @@ namespace WarehouseManagement.Services
 
                 var category = new Category
                 {
-                    CategoryName = categoryName.Trim()
+                    CategoryName = categoryName.Trim(),
+                    Description = description?.Trim() ?? ""
                 };
 
                 // Thêm danh mục vào database
@@ -143,7 +144,7 @@ namespace WarehouseManagement.Services
         /// 5. MarkAsChanged(): Đánh dấu có thay đổi
         /// 6. Return: Trả về kết quả thành công/thất bại
         /// </summary>
-        public bool UpdateCategory(int categoryId, string categoryName)
+        public bool UpdateCategory(int categoryId, string categoryName, string description = "")
         {
             try
             {
@@ -163,14 +164,16 @@ namespace WarehouseManagement.Services
                 var beforeData = new
                 {
                     CategoryID = oldCategory.CategoryID,
-                    CategoryName = oldCategory.CategoryName
+                    CategoryName = oldCategory.CategoryName,
+                    Description = oldCategory.Description
                 };
 
                 // Cập nhật danh mục vào database
                 var category = new Category
                 {
                     CategoryID = categoryId,
-                    CategoryName = categoryName.Trim()
+                    CategoryName = categoryName.Trim(),
+                    Description = description?.Trim() ?? ""
                 };
 
                 bool result = _categoryRepo.UpdateCategory(category);
@@ -229,7 +232,8 @@ namespace WarehouseManagement.Services
                     var beforeData = new
                     {
                         CategoryID = category.CategoryID,
-                        CategoryName = category.CategoryName
+                        CategoryName = category.CategoryName,
+                        Description = category.Description
                     };
 
                     // Xóa mềm: set Visible=FALSE trong database

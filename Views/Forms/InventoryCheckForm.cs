@@ -7,6 +7,7 @@ using WarehouseManagement.Controllers;
 using WarehouseManagement.Models;
 using WarehouseManagement.UI;
 using WarehouseManagement.UI.Components;
+using WarehouseManagement.Services;
 
 namespace WarehouseManagement.Views.Forms
 {
@@ -363,6 +364,15 @@ namespace WarehouseManagement.Views.Forms
             };
             btnClose.Click += (s, e) => Close();
 
+            // Print Button
+            CustomButton btnPrint = new CustomButton
+            {
+                Text = $"{UIConstants.Icons.Print} In Phiếu",
+                Width = 120,
+                ButtonStyleType = ButtonStyle.Outlined
+            };
+            btnPrint.Click += BtnPrint_Click;
+            
             if (_isNew)
             {
                 btnSave = new CustomButton
@@ -381,19 +391,25 @@ namespace WarehouseManagement.Views.Forms
                 };
                 btnComplete.Click += BtnComplete_Click;
 
-                // Layout: Close | Save | Complete (Centered)
-                int totalW = 100 + 10 + 120 + 10 + 120;
+                // Layout: Print | Close | Save | Complete
+                // But user wants Print "when creating record" -> Print Draft?
+                // Let's layout: Close | Print | Save | Complete
+                int totalW = 100 + 10 + 120 + 10 + 120 + 10 + 120;
                 int startX = LEFT_MARGIN + (INPUT_WIDTH - totalW) / 2;
 
                 btnClose.Left = startX;
                 btnClose.Top = currentY;
 
-                btnSave.Left = startX + 110;
+                btnPrint.Left = startX + 110;
+                btnPrint.Top = currentY;
+
+                btnSave.Left = startX + 110 + 130;
                 btnSave.Top = currentY;
 
-                btnComplete.Left = startX + 110 + 130;
+                btnComplete.Left = startX + 110 + 130 + 130;
                 btnComplete.Top = currentY;
 
+                mainPanel.Controls.Add(btnPrint);
                 mainPanel.Controls.Add(btnSave);
                 mainPanel.Controls.Add(btnComplete);
             }
@@ -407,22 +423,34 @@ namespace WarehouseManagement.Views.Forms
                 };
                 btnComplete.Click += BtnComplete_Click;
 
-                int totalW = 100 + 10 + 120;
+                int totalW = 100 + 10 + 120 + 10 + 120;
                 int startX = LEFT_MARGIN + (INPUT_WIDTH - totalW) / 2;
                 
                 btnClose.Left = startX;
                 btnClose.Top = currentY;
 
-                btnComplete.Left = startX + 110;
+                btnPrint.Left = startX + 110;
+                btnPrint.Top = currentY;
+
+                btnComplete.Left = startX + 110 + 130;
                 btnComplete.Top = currentY;
 
+                mainPanel.Controls.Add(btnPrint);
                 mainPanel.Controls.Add(btnComplete);
             }
             else
             {
-                // Only Close
-                btnClose.Left = LEFT_MARGIN + (INPUT_WIDTH - 100) / 2;
+                // Completed/Cancelled: Close | Print
+                int totalW = 100 + 10 + 120;
+                int startX = LEFT_MARGIN + (INPUT_WIDTH - totalW) / 2;
+
+                btnClose.Left = startX;
                 btnClose.Top = currentY;
+
+                btnPrint.Left = startX + 110;
+                btnPrint.Top = currentY;
+
+                mainPanel.Controls.Add(btnPrint);
             }
 
             mainPanel.Controls.Add(btnClose);
@@ -602,6 +630,21 @@ namespace WarehouseManagement.Views.Forms
             catch (Exception ex)
             {
                 MessageBox.Show("Lỗi lưu phiếu: " + ex.Message);
+            }
+        }
+
+        private void BtnPrint_Click(object sender, EventArgs e)
+        {
+            PrintService ps = new PrintService();
+            if (_isNew)
+            {
+                // Print Draft
+                 ps.PrintPendingCheck(_detailsList, txtNote.Text, GlobalUser.CurrentUser?.UserID ?? 0);
+            }
+            else
+            {
+                // Print Saved Check
+                ps.PrintInventoryCheck(_check);
             }
         }
     }

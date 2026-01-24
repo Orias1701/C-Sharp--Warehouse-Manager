@@ -238,7 +238,7 @@ namespace WarehouseManagement.Views.Panels
             if (check == null) return;
 
             InventoryCheck fullCheck = _controller.GetCheckById(check.CheckID);
-            InventoryCheckForm form = new InventoryCheckForm(fullCheck);
+            InventoryCheckDetailForm form = new InventoryCheckDetailForm(fullCheck);
             if (form.ShowDialog() == DialogResult.OK)
             {
                 LoadData();

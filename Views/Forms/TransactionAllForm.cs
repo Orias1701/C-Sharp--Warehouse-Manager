@@ -26,7 +26,7 @@ namespace WarehouseManagement.Views.Forms
         private CustomTextBox txtQuantity, txtUnitPrice, txtDiscount;
         private CustomTextArea txtNote;
         private DataGridView dgvDetails;
-        private CustomButton btnAddDetail, btnRemoveDetail, btnSaveTransaction, btnCancel, btnExportVoucher;
+        private CustomButton btnAddDetail, btnRemoveDetail, btnSaveTransaction, btnCancel, btnPrint;
         private List<(int ProductID, int Quantity, decimal UnitPrice, double DiscountRate)> _details;
         private Panel contentPanel;
 
@@ -356,9 +356,9 @@ namespace WarehouseManagement.Views.Forms
                 ButtonStyleType = ButtonStyle.FilledNoOutline
             };
 
-            btnExportVoucher = new CustomButton 
+            btnPrint = new CustomButton 
             { 
-                Text = $"{UIConstants.Icons.Export} Xuất Phiếu", 
+                Text = $"{UIConstants.Icons.Print} In Phiếu", 
                 Left = LEFT_MARGIN + 120 + spacing, 
                 Top = currentY, 
                 Width = 120,
@@ -377,7 +377,7 @@ namespace WarehouseManagement.Views.Forms
 
             btnSaveTransaction.Click += BtnSaveTransaction_Click;
             btnCancel.Click += BtnCancel_Click;
-            btnExportVoucher.Click += BtnExportVoucher_Click;
+            btnPrint.Click += BtnPrint_Click;
 
             contentPanel.Controls.Add(lblSubject);
             contentPanel.Controls.Add(cmbSubject);
@@ -394,7 +394,7 @@ namespace WarehouseManagement.Views.Forms
             contentPanel.Controls.Add(btnAddDetail);
             contentPanel.Controls.Add(btnRemoveDetail);
             contentPanel.Controls.Add(btnSaveTransaction);
-            contentPanel.Controls.Add(btnExportVoucher);
+            contentPanel.Controls.Add(btnPrint);
             contentPanel.Controls.Add(btnCancel);
             contentPanel.Controls.Add(dgvDetails);
         }
@@ -452,83 +452,48 @@ namespace WarehouseManagement.Views.Forms
             }
         }
 
-        private void BtnExportVoucher_Click(object sender, EventArgs e)
+        private void BtnPrint_Click(object sender, EventArgs e)
         {
             if (_details.Count == 0)
             {
-                MessageBox.Show($"{UIConstants.Icons.Warning} Vui lòng thêm ít nhất 1 sản phẩm trước khi xuất phiếu", "Cảnh báo", 
+                MessageBox.Show($"{UIConstants.Icons.Warning} Vui lòng thêm ít nhất 1 sản phẩm trước khi in", "Cảnh báo", 
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
             try
             {
-                SaveFileDialog saveDialog = new SaveFileDialog
-                {
-                    Filter = "Text Files (*.txt)|*.txt|CSV Files (*.csv)|*.csv",
-                    DefaultExt = "txt",
-                    FileName = $"Phieu_{_transactionType}_{DateTime.Now:yyyyMMdd_HHmmss}"
-                };
+                 int subjectId = cmbSubject.SelectedValue != null ? (int)cmbSubject.SelectedValue : 0;
+                 int userId = GlobalUser.CurrentUser?.UserID ?? 0;
+                 
+                 // Convert _details to List<TransactionDetail>
+                 var detailList = new System.Collections.Generic.List<WarehouseManagement.Models.TransactionDetail>();
+                 ProductController pc = new ProductController();
+                 foreach (var d in _details)
+                 {
+                     var p = pc.GetProductById(d.ProductID);
+                     decimal sub = d.Quantity * d.UnitPrice * (decimal)(1 - d.DiscountRate/100.0);
+                     detailList.Add(new WarehouseManagement.Models.TransactionDetail 
+                     {
+                        ProductID = d.ProductID,
+                        ProductName = p?.ProductName ?? "Unknown",
+                        Quantity = d.Quantity,
+                        UnitPrice = d.UnitPrice,
+                        SubTotal = sub
+                     });
+                 }
 
-                if (saveDialog.ShowDialog() == DialogResult.OK)
-                {
-                    ExportVoucherToFile(saveDialog.FileName);
-                    MessageBox.Show($"{UIConstants.Icons.Success} Xuất phiếu thành công!", "Thành công", 
-                        MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
+                 Services.PrintService ps = new Services.PrintService();
+                 // Call PrintPendingTransaction
+                 ps.PrintPendingTransaction(_transactionType, detailList, txtNote.Text, 
+                     _transactionType == "Import" ? subjectId : 0, 
+                     _transactionType == "Export" ? subjectId : 0, 
+                     userId);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"{UIConstants.Icons.Error} Lỗi xuất phiếu: {ex.Message}", "Lỗi", 
+                MessageBox.Show($"{UIConstants.Icons.Error} Lỗi in phiếu: {ex.Message}", "Lỗi", 
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        private void ExportVoucherToFile(string filePath)
-        {
-            using (var writer = new System.IO.StreamWriter(filePath, false, System.Text.Encoding.UTF8))
-            {
-                // Header
-                writer.WriteLine("╔════════════════════════════════════════════════════╗");
-                writer.WriteLine($"║ PHIẾU {(_transactionType == "Import" ? "NHẬP KHO" : "XUẤT KHO"),-42} ║");
-                writer.WriteLine("╚════════════════════════════════════════════════════╝");
-                writer.WriteLine();
-
-                // Thông tin phiếu
-                writer.WriteLine($"Ngày tạo: {DateTime.Now:dd/MM/yyyy HH:mm:ss}");
-                writer.WriteLine($"Loại phiếu: {(_transactionType == "Import" ? "Nhập kho" : "Xuất kho")}");
-                if (!string.IsNullOrEmpty(txtNote.Text))
-                {
-                    writer.WriteLine($"Ghi chú: {txtNote.Text}");
-                }
-                writer.WriteLine();
-
-                // Chi tiết
-                writer.WriteLine("┌────────────────────────────────────────────────────┐");
-                writer.WriteLine("│ CHI TIẾT PHIẾU                                     │");
-                writer.WriteLine("├────────────────────────────────────────────────────┤");
-
-                decimal totalAmount = 0;
-                foreach (var detail in _details)
-                {
-                    var product = _productController.GetProductById(detail.ProductID);
-                    // Calculates net amount: Qty * Price * (1 - Discount/100)
-                    decimal amount = detail.Quantity * detail.UnitPrice * (decimal)(1 - detail.DiscountRate / 100.0);
-                    totalAmount += amount;
-
-                    writer.WriteLine($"│ Sản phẩm: {product?.ProductName ?? "N/A",-35} │");
-                    writer.WriteLine($"│   Số lượng: {detail.Quantity,-38} │");
-                    writer.WriteLine($"│   Đơn giá: {detail.UnitPrice:N0} ₫{"",-31} │");
-                    if(detail.DiscountRate > 0)
-                        writer.WriteLine($"│   Chiết khấu: {detail.DiscountRate:N1}%{"",-34} │");
-                    writer.WriteLine($"│   Thành tiền: {amount:N0} ₫{"",-25} │");
-                    writer.WriteLine("├────────────────────────────────────────────────────┤");
-                }
-
-                writer.WriteLine($"│ TỔNG CỘNG: {totalAmount:N0} ₫{"",-21} │");
-                writer.WriteLine("└────────────────────────────────────────────────────┘");
-                writer.WriteLine();
-                writer.WriteLine($"In lúc: {DateTime.Now:dd/MM/yyyy HH:mm:ss}");
             }
         }
 

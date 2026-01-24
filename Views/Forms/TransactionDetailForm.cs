@@ -5,6 +5,7 @@ using WarehouseManagement.Models;
 using WarehouseManagement.UI;
 using WarehouseManagement.UI.Components;
 using WarehouseManagement.Controllers;
+using WarehouseManagement.Services;
 
 namespace WarehouseManagement.Views.Forms
 {
@@ -225,12 +226,28 @@ namespace WarehouseManagement.Views.Forms
             mainPanel.Controls.Add(dgvDetails);
             currentY += dgvDetails.Height + 30;
 
+
+
+            // Button Print
+            CustomButton btnPrint = new CustomButton
+            {
+                Text = $"{UIConstants.Icons.Print} In Phiếu",
+                Left = LEFT_MARGIN + (INPUT_WIDTH_FULL - 250) / 2, // Spacing logic
+                Top = currentY,
+                Width = 120,
+                ButtonStyleType = ButtonStyle.Outlined
+            };
+            btnPrint.Click += (s, e) => {
+                 PrintService ps = new PrintService();
+                 ps.PrintTransaction(_transaction);
+            };
+            mainPanel.Controls.Add(btnPrint);
+
             // Button Close
             btnClose = new CustomButton 
             { 
-                Text = $"{UIConstants.Icons.Close} Đóng", 
-                // Center button
-                Left = LEFT_MARGIN + (INPUT_WIDTH_FULL - 120) / 2, 
+                Text = $"{UIConstants.Icons.Close} Đóng",
+                Left = btnPrint.Left + 130, // Spacing 
                 Top = currentY, 
                 Width = 120,
                 ButtonStyleType = ButtonStyle.FilledNoOutline
@@ -247,7 +264,8 @@ namespace WarehouseManagement.Views.Forms
             // Size
             // int calculatedWidth = 800;
             // ClientSize = new Size(calculatedWidth, currentY);
-            ClientSize = new Size(1024, 650);
+            ClientSize = new Size(1024, 700);
+            AutoScroll = true;
             
             StartPosition = FormStartPosition.CenterParent;
             FormBorderStyle = FormBorderStyle.FixedDialog;

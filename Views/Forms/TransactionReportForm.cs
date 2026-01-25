@@ -271,16 +271,16 @@ namespace WarehouseManagement.Views.Forms
             {
                 SaveFileDialog saveDialog = new SaveFileDialog
                 {
-                    Filter = "Excel Files (*.xlsx)|*.xlsx|CSV Files (*.csv)|*.csv",
+                    Filter = "Excel Workbook (*.xlsx)|*.xlsx|PDF Document (*.pdf)|*.pdf",
                     DefaultExt = "xlsx",
                     FileName = $"BaoCaoNhapXuat_{DateTime.Now:yyyyMMdd_HHmmss}"
                 };
 
                 if (saveDialog.ShowDialog() == DialogResult.OK)
                 {
-                    if (saveDialog.FileName.EndsWith(".csv"))
+                    if (saveDialog.FileName.EndsWith(".pdf"))
                     {
-                        ExportToCSV(saveDialog.FileName);
+                        ExportToPdf(saveDialog.FileName);
                     }
                     else
                     {
@@ -288,6 +288,13 @@ namespace WarehouseManagement.Views.Forms
                     }
                     MessageBox.Show($"{UIConstants.Icons.Success} Xuất báo cáo thành công!", "Thành công", 
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    
+                    // Auto open file
+                    try
+                    {
+                        System.Diagnostics.Process.Start(saveDialog.FileName);
+                    }
+                    catch { } // Ignore if cannot open
                 }
             }
             catch (Exception ex)
@@ -297,56 +304,230 @@ namespace WarehouseManagement.Views.Forms
             }
         }
 
-        private void ExportToCSV(string filePath)
+        private void ExportToExcel(string filePath)
         {
-            using (var writer = new System.IO.StreamWriter(filePath, false, System.Text.Encoding.UTF8))
+            using (var workbook = new ClosedXML.Excel.XLWorkbook())
             {
-                writer.WriteLine("Ngày,Tổng Nhập Kho,Tổng Xuất Kho");
+                var worksheet = workbook.Worksheets.Add("BaoCao");
+                
+                // --- REPORT HEADER ---
+                var titleRange = worksheet.Range(1, 1, 1, 7);
+                titleRange.Merge();
+                titleRange.Value = "BÁO CÁO NHẬP XUẤT THEO NGÀY";
+                titleRange.Style.Font.Bold = true;
+                titleRange.Style.Font.FontSize = 16;
+                titleRange.Style.Alignment.Horizontal = ClosedXML.Excel.XLAlignmentHorizontalValues.Center;
+                titleRange.Style.Fill.BackgroundColor = ClosedXML.Excel.XLColor.FromColor(UIConstants.PrimaryColor.Light);
+
+                var dateRange = worksheet.Range(2, 1, 2, 7);
+                dateRange.Merge();
+                dateRange.Value = $"Ngày báo cáo: {dtpAnchorDate.Value:dd/MM/yyyy} - Ngày xuất: {DateTime.Now:dd/MM/yyyy HH:mm}";
+                dateRange.Style.Font.Italic = true;
+                dateRange.Style.Alignment.Horizontal = ClosedXML.Excel.XLAlignmentHorizontalValues.Center;
+                
+                // --- DATA TABLE ---
+                int tableStartRow = 4;
+
+                // Header
+                worksheet.Cell(tableStartRow, 1).Value = "Ngày";
+                worksheet.Cell(tableStartRow, 2).Value = "Tổng Nhập Kho";
+                worksheet.Cell(tableStartRow, 3).Value = "Tổng Xuất Kho";
+
+                // Data
                 for (int i = 0; i < days.Count; i++)
                 {
-                    writer.WriteLine($"{days[i]},{imports[i]:N0},{exports[i]:N0}");
+                    worksheet.Cell(tableStartRow + 1 + i, 1).Value = days[i];
+                    worksheet.Cell(tableStartRow + 1 + i, 2).Value = imports[i];
+                    worksheet.Cell(tableStartRow + 1 + i, 3).Value = exports[i];
                 }
+
+                // Number format
+                worksheet.Column(2).Style.NumberFormat.Format = "#,##0";
+                worksheet.Column(3).Style.NumberFormat.Format = "#,##0";
+
+                worksheet.Columns().AdjustToContents();
+
+                // Refine Formatting
+                // 1. Vertical Center Alignment for all used cells
+                var usedRange = worksheet.Range(tableStartRow, 1, tableStartRow + days.Count, 3);
+                usedRange.Style.Alignment.Vertical = ClosedXML.Excel.XLAlignmentVerticalValues.Center;
+                usedRange.Style.Border.InsideBorder = ClosedXML.Excel.XLBorderStyleValues.Thin;
+                usedRange.Style.Border.OutsideBorder = ClosedXML.Excel.XLBorderStyleValues.Thin;
+                
+                // Horizontal Alignment & Widths
+                // Column 1 (Date): Center, Width 2.0x
+                worksheet.Column(1).Style.Alignment.Horizontal = ClosedXML.Excel.XLAlignmentHorizontalValues.Center;
+                worksheet.Column(1).Width *= 2.0;
+
+                // Columns 2, 3 (Money): Right, Width 1.6x (80% of 2.0), Indent to simulate margins
+                var moneyCols = worksheet.Columns("2,3");
+                moneyCols.Style.Alignment.Horizontal = ClosedXML.Excel.XLAlignmentHorizontalValues.Right;
+                moneyCols.Style.Alignment.Indent = 3; 
+                
+                for (int c = 2; c <= 3; c++)
+                {
+                    worksheet.Column(c).Width *= 1.6;
+                }
+                
+                // Style Header (Bold + Border)
+                var headerRange = worksheet.Range(tableStartRow, 1, tableStartRow, 3);
+                headerRange.Style.Font.Bold = true;
+                headerRange.Style.Border.BottomBorder = ClosedXML.Excel.XLBorderStyleValues.Thin;
+                // Header Background Color (UIConstants.PrimaryColor.Light)
+                headerRange.Style.Fill.BackgroundColor = ClosedXML.Excel.XLColor.FromColor(UIConstants.PrimaryColor.Light);
+                // Ensure headers are Centered regardless of data alignment
+                headerRange.Style.Alignment.Horizontal = ClosedXML.Excel.XLAlignmentHorizontalValues.Center;
+                headerRange.Style.Alignment.Indent = 0; 
+                headerRange.Style.Font.FontSize = 12;
+
+                // Increase Row Height
+                // Header row
+                worksheet.Row(tableStartRow).Height = 22.5; 
+                // Data rows
+                for (int r = 0; r < days.Count; r++)
+                {
+                    worksheet.Row(tableStartRow + 1 + r).Height = 22.5;
+                }
+
+                // --- CHARTS ---
+                int chartCol = 5; // Column E
+                int chartRow = tableStartRow;
+
+                if (pictureBoxImport.Image != null)
+                {
+                    // Chart Title
+                    var chartTitle = worksheet.Cell(chartRow, chartCol);
+                    chartTitle.Value = "BIỂU ĐỒ NHẬP KHO";
+                    chartTitle.Style.Font.Bold = true;
+                    chartTitle.Style.Font.FontColor = ClosedXML.Excel.XLColor.Green;
+                    
+                    using (var ms = new System.IO.MemoryStream())
+                    {
+                        pictureBoxImport.Image.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                        ms.Seek(0, System.IO.SeekOrigin.Begin);
+                        
+                        var picture = worksheet.AddPicture(ms).MoveTo(worksheet.Cell(chartRow + 1, chartCol));
+                        
+                        // Scale to fit approx 10 rows height
+                        double scale = 1.0;
+                        if (pictureBoxImport.Height > 0)
+                        {
+                            // Target height ~300px (15 rows * 20px)
+                            scale = 300.0 / pictureBoxImport.Height;
+                        }
+                        picture.Scale(scale);
+                        
+                        // Move next chart down
+                        chartRow += 17; // Title + Chart + Gap
+                    }
+                }
+
+                if (pictureBoxExport.Image != null)
+                {
+                    // Chart Title
+                    var chartTitle = worksheet.Cell(chartRow, chartCol);
+                    chartTitle.Value = "BIỂU ĐỒ XUẤT KHO";
+                    chartTitle.Style.Font.Bold = true;
+                    chartTitle.Style.Font.FontColor = ClosedXML.Excel.XLColor.Red;
+
+                    using (var ms = new System.IO.MemoryStream())
+                    {
+                        pictureBoxExport.Image.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                        ms.Seek(0, System.IO.SeekOrigin.Begin);
+                        
+                        var picture = worksheet.AddPicture(ms).MoveTo(worksheet.Cell(chartRow + 1, chartCol));
+                        
+                        double scale = 1.0;
+                        if (pictureBoxExport.Height > 0)
+                        {
+                            scale = 300.0 / pictureBoxExport.Height;
+                        }
+                        picture.Scale(scale);
+                    }
+                }
+
+                workbook.SaveAs(filePath);
             }
         }
 
-        private void ExportToExcel(string filePath)
+        private void ExportToPdf(string filePath)
         {
+            var doc = new iTextSharp.text.Document(iTextSharp.text.PageSize.A4.Rotate(), 20, 20, 20, 20);
             try
             {
-                using (var spreadsheet = new System.IO.FileStream(filePath, System.IO.FileMode.Create))
+                iTextSharp.text.pdf.PdfWriter.GetInstance(doc, new System.IO.FileStream(filePath, System.IO.FileMode.Create));
+                doc.Open();
+
+                // Fonts
+                var baseFont = iTextSharp.text.pdf.BaseFont.CreateFont("C:\\Windows\\Fonts\\arial.ttf", iTextSharp.text.pdf.BaseFont.IDENTITY_H, iTextSharp.text.pdf.BaseFont.EMBEDDED);
+                var fontTitle = new iTextSharp.text.Font(baseFont, 18, iTextSharp.text.Font.BOLD);
+                var fontHeader = new iTextSharp.text.Font(baseFont, 12, iTextSharp.text.Font.BOLD);
+                var fontNormal = new iTextSharp.text.Font(baseFont, 11, iTextSharp.text.Font.NORMAL);
+
+                // Title
+                var pTitle = new iTextSharp.text.Paragraph($"BÁO CÁO NHẬP XUẤT (Tính đến {dtpAnchorDate.Value:dd/MM/yyyy})", fontTitle);
+                pTitle.Alignment = iTextSharp.text.Element.ALIGN_CENTER;
+                pTitle.SpacingAfter = 10;
+                doc.Add(pTitle);
+
+                // Table
+                iTextSharp.text.pdf.PdfPTable table = new iTextSharp.text.pdf.PdfPTable(3);
+                table.WidthPercentage = 100;
+                table.SetWidths(new float[] { 2, 2, 2 });
+
+                // Table Header
+                AddPdfCell(table, "Ngày", fontHeader, true);
+                AddPdfCell(table, "Tổng Nhập Kho", fontHeader, true);
+                AddPdfCell(table, "Tổng Xuất Kho", fontHeader, true);
+
+                // Table Data
+                for (int i = 0; i < days.Count; i++)
                 {
-                    using (var writer = new System.IO.StreamWriter(spreadsheet))
-                    {
-                        writer.WriteLine("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
-                        writer.WriteLine("<Workbook xmlns=\"urn:schemas-microsoft-com:office:spreadsheet\">");
-                        writer.WriteLine("<Worksheet ss:Name=\"BaoCao\">");
-                        writer.WriteLine("<Table>");
+                    AddPdfCell(table, days[i], fontNormal);
+                    AddPdfCell(table, imports[i].ToString("N0"), fontNormal, false, iTextSharp.text.Element.ALIGN_RIGHT);
+                    AddPdfCell(table, exports[i].ToString("N0"), fontNormal, false, iTextSharp.text.Element.ALIGN_RIGHT);
+                }
 
-                        writer.WriteLine("<Row>");
-                        writer.WriteLine("<Cell><Data ss:Type=\"String\">Ngày</Data></Cell>");
-                        writer.WriteLine("<Cell><Data ss:Type=\"String\">Tổng Nhập Kho</Data></Cell>");
-                        writer.WriteLine("<Cell><Data ss:Type=\"String\">Tổng Xuất Kho</Data></Cell>");
-                        writer.WriteLine("</Row>");
+                table.SpacingAfter = 20;
+                doc.Add(table);
 
-                        for (int i = 0; i < days.Count; i++)
-                        {
-                            writer.WriteLine("<Row>");
-                            writer.WriteLine($"<Cell><Data ss:Type=\"String\">{days[i]}</Data></Cell>");
-                            writer.WriteLine($"<Cell><Data ss:Type=\"Number\">{imports[i]}</Data></Cell>");
-                            writer.WriteLine($"<Cell><Data ss:Type=\"Number\">{exports[i]}</Data></Cell>");
-                            writer.WriteLine("</Row>");
-                        }
-
-                        writer.WriteLine("</Table>");
-                        writer.WriteLine("</Worksheet>");
-                        writer.WriteLine("</Workbook>");
-                    }
+                // Charts
+                // Capture Image from PictureBoxes again to be sure (or reuse if possible, but recreating bitmap is safer)
+                // Note: The PictureBox.Image is already a Bitmap with the chart drawn
+                if (pictureBoxImport.Image != null)
+                {
+                    var imgImport = iTextSharp.text.Image.GetInstance(pictureBoxImport.Image, System.Drawing.Imaging.ImageFormat.Png);
+                    imgImport.ScaleToFit(doc.PageSize.Width - 40, (doc.PageSize.Height - 100) / 2);
+                    imgImport.Alignment = iTextSharp.text.Element.ALIGN_CENTER;
+                    imgImport.SpacingAfter = 10;
+                    doc.Add(imgImport);
+                }
+                
+                if (pictureBoxExport.Image != null)
+                {
+                    var imgExport = iTextSharp.text.Image.GetInstance(pictureBoxExport.Image, System.Drawing.Imaging.ImageFormat.Png);
+                    imgExport.ScaleToFit(doc.PageSize.Width - 40, (doc.PageSize.Height - 100) / 2);
+                    imgExport.Alignment = iTextSharp.text.Element.ALIGN_CENTER;
+                    doc.Add(imgExport);
                 }
             }
-            catch
+            finally
             {
-                ExportToCSV(filePath.Replace(".xlsx", ".csv"));
+                doc.Close();
             }
+        }
+
+        private void AddPdfCell(iTextSharp.text.pdf.PdfPTable table, string text, iTextSharp.text.Font font, bool isHeader = false, int alignment = iTextSharp.text.Element.ALIGN_CENTER)
+        {
+            var cell = new iTextSharp.text.pdf.PdfPCell(new iTextSharp.text.Phrase(text, font));
+            cell.HorizontalAlignment = alignment;
+            cell.VerticalAlignment = iTextSharp.text.Element.ALIGN_MIDDLE;
+            cell.Padding = 5;
+            if (isHeader)
+            {
+                cell.BackgroundColor = iTextSharp.text.BaseColor.LIGHT_GRAY;
+            }
+            table.AddCell(cell);
         }
 
         private void LoadReport()

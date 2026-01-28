@@ -23,6 +23,6 @@
 
 ## Giai đoạn 4: Kiểm thử & Đóng gói
 
-* [ ] **Test:** Kiểm tra luồng: Nhập hàng -> Tồn kho tăng -> Ghi Log -> Hoàn tác.
-* [ ] **Tiếng Việt:** Kiểm tra hiển thị tên sản phẩm có dấu trên toàn bộ UI.
-* [ ] **Release:** Build file `.exe` bản chính thức.
+* [X] **Test:** Kiểm tra luồng: Nhập hàng -> Tồn kho tăng -> Ghi Log -> Hoàn tác.
+* [X] **Tiếng Việt:** Kiểm tra hiển thị tên sản phẩm có dấu trên toàn bộ UI.
+* [X] **Release:** Build file `.exe` bản chính thức.

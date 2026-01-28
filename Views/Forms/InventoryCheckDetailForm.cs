@@ -51,7 +51,7 @@ namespace WarehouseManagement.Views.Forms
             const int INPUT_WIDTH_HALF = 462; // (944 - 20) / 2
             const int INPUT_WIDTH_FULL = 944; // 1024 - 40 - 40
             int currentY = 30;
-            int inputSpacing = 20;
+            // int inputSpacing = 20;
 
             // Fetch Data for Labels
             string typeIcon = UIConstants.Icons.Check;

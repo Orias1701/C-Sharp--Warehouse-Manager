@@ -12,6 +12,11 @@
     <StartupObject>WarehouseManagement.Program</StartupObject>
     <ApplicationIcon>Assets\ICO\appIcon.ico</ApplicationIcon>
   </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <OutputPath>Build\bin\Release\Warehouse Management</OutputPath>
+  </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="ClosedXML" Version="0.105.0" />

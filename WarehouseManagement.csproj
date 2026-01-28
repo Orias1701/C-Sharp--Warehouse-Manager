@@ -10,7 +10,12 @@
     <LangVersion>8.0</LangVersion>
     <Nullable>disable</Nullable>
     <StartupObject>WarehouseManagement.Program</StartupObject>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <ApplicationIcon>Assets\ICO\appIcon.ico</ApplicationIcon>
+    <OutputPath>Build\bin\Release\Warehouse Management</OutputPath>
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
